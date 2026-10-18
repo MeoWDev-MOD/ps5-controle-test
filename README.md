@@ -2,10 +2,10 @@
 
 App Android para **testar, validar e calibrar o controle DualSense (PS5)** pelo cabo USB.
 
-**Página:** https://vendashson-rgb.github.io/ps5-controle-test/
+**Página:** https://meowdev-mod.github.io/ps5-controle-test/
 
 ## Baixar
-[⬇️ PS5-Controle-Test.apk (última versão)](https://github.com/vendashson-rgb/ps5-controle-test/releases/latest/download/PS5-Controle-Test.apk)
+[⬇️ PS5-Controle-Test.apk (última versão)](https://github.com/MeoWDev-MOD/ps5-controle-test/releases/latest/download/PS5-Controle-Test.apk)
 
 - Android 8.0 ou superior.
 - 2 dias de teste grátis; depois, plano anual de R$ 24,80 (PIX).
