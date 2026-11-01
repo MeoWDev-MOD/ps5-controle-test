@@ -1,7 +1,7 @@
 {
   "name": "PS-5 Controle Test",
   "short_name": "PS5 Teste",
-  "description": "Teste e valide o controle DualSense (PS5) no iPhone e iPad.",
+  "description": "Teste e valide o controle DualSense (PS5) no navegador.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
