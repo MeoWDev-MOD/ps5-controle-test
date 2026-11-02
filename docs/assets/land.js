@@ -2,6 +2,9 @@
 import { initUI, themeSwitch } from "../web/js/ui.js";
 import { mountAds } from "../web/js/banners.js";
 import { initDemo } from "./phone.js";
+import { initFx } from "./fx.js";
+import { startShader } from "../web/js/shader.js";
+import { initPageFx } from "../web/js/pagefx.js";
 
 const $ = (id) => document.getElementById(id);
 const root = document.documentElement;
@@ -18,6 +21,6 @@ $("themeBtn").onclick = (e) => themeSwitch(e, () => {
 
 initDemo($("demo"));
 
-// seções entram suavemente ao rolar
-const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: 0.12 });
-document.querySelectorAll(".rv").forEach((el) => io.observe(el));
+startShader($("fxBg"), isDark).start();
+initPageFx("web/logo.png");
+initFx();

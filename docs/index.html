@@ -41,6 +41,10 @@
 <script>
   try { const t = localStorage.getItem("ps5web.theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
 </script>
+<script>
+  // chegada com cortina, quando veio de outra página do site
+  try { if (sessionStorage.getItem("ps5.pt")) { sessionStorage.removeItem("ps5.pt"); document.documentElement.classList.add("pt"); } } catch (e) {}
+</script>
 <style>
 :root{
   color-scheme:light;
@@ -69,6 +73,22 @@ a{color:var(--accent)}
 .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
 svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .grad{background:linear-gradient(90deg,var(--grad1),var(--grad2));-webkit-background-clip:text;background-clip:text;color:transparent}
+/* cortina entre páginas */
+html.pt::before{content:"";position:fixed;inset:0;z-index:9999;background:#0c0920 url(web/logo.png) center/96px no-repeat;pointer-events:none;animation:ptout .55s cubic-bezier(.7,0,.2,1) .06s both}
+@keyframes ptout{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(0 0 100% 0);visibility:hidden}}
+.ptc{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#0c0920}
+.ptc img{width:96px;height:96px}
+@media print{html.pt::before,.ptc,#fxBg{display:none!important}}
+@media (prefers-reduced-motion:reduce){html.pt::before{display:none}}
+/* fundo vivo e movimento */
+#fxBg{position:absolute;top:0;left:0;width:100%;height:min(115vh,1000px);z-index:-1;pointer-events:none;-webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent)}
+html.lenis,html.lenis body{height:auto}
+html.lenis{scroll-behavior:auto}
+.lenis.lenis-stopped{overflow:clip}
+.lenis [data-lenis-prevent]{overscroll-behavior:contain}
+.hero h1 .w{display:inline-block}
+#scrollBar{position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--btn1),#a855f7);transform:scaleX(0);transform-origin:left;pointer-events:none}
+.links a.on{color:var(--text);background:var(--surface2)}
 /* botões */
 .b{font:inherit;font-weight:600;color:var(--text);text-decoration:none;background:var(--surface2);border:1px solid var(--line);border-radius:99px;padding:11px 20px;min-height:48px;cursor:pointer;
   position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:9px;transition:transform .12s,box-shadow .25s,border-color .2s,background-position .5s}
@@ -245,12 +265,10 @@ footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);f
 .fgrid{display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px}
 .flinks{display:flex;flex-wrap:wrap;gap:6px 16px}
 .flinks a{color:var(--muted)}
-.rv{opacity:0;transform:translateY(16px);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1)}
-.rv.in{opacity:1;transform:none}
 @media (max-width:980px){.hero{grid-template-columns:1fr;gap:32px;padding-top:34px}.bento .card,.bento .wide{grid-column:span 3}.steps{grid-template-columns:1fr 1fr}.links{display:none}.top .iconbtn{margin-left:auto}.webcta{grid-template-columns:auto minmax(0,1fr);}.webcta .b{grid-column:1/-1}}
 @media (max-width:640px){.bento .card,.bento .wide{grid-column:span 6}.who,.prices{grid-template-columns:1fr}.top .dl{display:none}.brand span{display:none}.webcta{grid-template-columns:1fr;justify-items:center;text-align:center}.webcta .b{width:100%}.pcpad{width:120px}.cta .b{width:100%}.sec{padding:38px 0}.lead{font-size:17px}}
 @media (max-width:420px){.steps{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.rv{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
@@ -276,6 +294,7 @@ footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);f
   <symbol id="i-move" viewBox="0 0 24 24"><path d="M12 2v20M2 12h20M12 2l-3 3M12 2l3 3M12 22l-3-3M12 22l3-3M2 12l3-3M2 12l3 3M22 12l-3-3M22 12l-3 3"/></symbol>
 </svg>
 
+<canvas id="fxBg" aria-hidden="true"></canvas>
 <header class="top"><div class="wrap">
   <a class="brand" href="./"><img src="web/logo.png" alt=""><span>PS-5 Controle Test</span></a>
   <nav class="links" aria-label="Seções"><a href="#web">Web grátis</a><a href="#vantagens">Vantagens</a><a href="#comparar">App ou web</a><a href="#recursos">Recursos</a><a href="#preco">Preço</a><a href="#faq">Dúvidas</a></nav>
@@ -285,7 +304,7 @@ footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);f
   </button>
   <a class="b arrow" style="min-height:42px;padding:4px 6px 4px 14px;font-size:14px" href="web/"><span>Testador web</span><span class="ar" style="width:30px;height:30px"><svg class="i"><use href="#i-arrow"/></svg></span></a>
   <a class="b p dl" style="min-height:42px;padding:8px 16px;font-size:14px" href="https://github.com/MeoWDev-MOD/ps5-controle-test/releases/latest/download/PS5-Controle-Test.apk">Baixar o app</a>
-</div></header>
+</div><i id="scrollBar" aria-hidden="true"></i></header>
 
 <main class="wrap">
   <section class="webcta" aria-label="Testador web grátis">
@@ -308,7 +327,7 @@ footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);f
         <li><svg class="i"><use href="#i-check"/></svg>Testes funcionam sem internet</li>
       </ul>
     </div>
-    <div>
+    <div id="phoneHero">
       <div class="card_box"><span class="ribbon" aria-hidden="true"></span>
         <div class="phone"><div class="screen" id="demo"></div></div>
       </div>
@@ -438,6 +457,9 @@ footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);f
   </div>
 </div></footer>
 
+<script defer src="web/vendor/gsap.min.js"></script>
+<script defer src="web/vendor/ScrollTrigger.min.js"></script>
+<script defer src="web/vendor/lenis.min.js"></script>
 <script type="module" src="assets/land.js"></script>
 </body>
 </html>

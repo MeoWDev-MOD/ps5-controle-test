@@ -5,9 +5,16 @@ import { initUI, moveSeg, themeSwitch, countTo, setRing, pop } from "./ui.js";
 import { makeHistory, FINE_NAMES } from "./history.js";
 import { PIX_KEY, pixPayload } from "./pix.js";
 import { mountAds } from "./banners.js";
+import { startShader } from "./shader.js";
+import { initPageFx } from "./pagefx.js";
 
 // ================================================================ utilidades
 const $ = (id) => document.getElementById(id);
+const moved = () => window.gsap && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isDarkNow = () => (document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches);
+// O fundo em GLSL só roda na entrada: no painel, o processador fica todo para ler o controle.
+const fxBg = startShader($("fxBg"), isDarkNow);
+initPageFx("logo.png");
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const HAS_HID = "hid" in navigator;
@@ -89,6 +96,7 @@ function showGate() {
   screen = "gate";
   $("gate").classList.remove("hidden"); $("gateTop").classList.remove("hidden"); $("app").classList.add("hidden");
   $("gateTop").appendChild($("tools"));
+  $("fxBg")?.classList.remove("off"); fxBg.start();
   renderLast(); window.scrollTo(0, 0);
 }
 function showApp() {
@@ -96,7 +104,9 @@ function showApp() {
   screen = "app";
   $("gate").classList.add("hidden"); $("gateTop").classList.add("hidden"); $("app").classList.remove("hidden");
   $("toolsSlot").appendChild($("tools"));
+  fxBg.stop(); $("fxBg")?.classList.add("off");
   go(location.hash.slice(1) || "overview", true);
+  if (moved()) gsap.from(".side, .mhead", { y: 16, autoAlpha: 0, duration: 0.5, ease: "power3.out", stagger: 0.08, clearProps: "transform,opacity,visibility" });
 }
 function loading(on, key = "", step = 0, sub = "") {
   $("loading").classList.toggle("hidden", !on);
@@ -126,6 +136,12 @@ function go(p, silent = false) {
   svgCache.clear();
   if (location.hash.slice(1) !== p) history.replaceState(null, "", "#" + p);
   renderPage();
+  if (moved()) {
+    const cards = document.querySelectorAll(`#pg-${p} .card`);
+    gsap.killTweensOf(".page .card");
+    gsap.set(".page .card", { clearProps: "transform,opacity,visibility" });
+    gsap.from(cards, { y: 16, autoAlpha: 0, duration: 0.38, ease: "power3.out", stagger: 0.045, clearProps: "transform,opacity,visibility" });
+  }
   if (!silent) window.scrollTo({ top: 0, behavior: "smooth" });
   requestAnimationFrame(() => { moveSeg($("stickMode")); document.querySelector("#snav button.on")?.scrollIntoView({ block: "nearest", inline: "center" }); });
 }

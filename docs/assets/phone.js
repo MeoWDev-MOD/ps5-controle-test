@@ -44,7 +44,7 @@ export function initDemo(root) {
   root.innerHTML = `
     <i class="island" aria-hidden="true"></i>
     <div class="atop"><img class="ahead" src="${imgSrc("head")}" alt="" width="1080" height="${DATA.headH}"></div>
-    <div class="ascroll" tabindex="0" aria-label="Tela do app, role para ver mais"><div class="astage"><img id="aPage" src="${imgSrc("c0")}" alt="Tela Controle do app" width="1080" height="${DATA.screens.c0.h}"><div id="aLayer"></div></div></div>
+    <div class="ascroll" data-lenis-prevent tabindex="0" aria-label="Tela do app, role para ver mais"><div class="astage"><img id="aPage" src="${imgSrc("c0")}" alt="Tela Controle do app" width="1080" height="${DATA.screens.c0.h}"><div id="aLayer"></div></div></div>
     <div class="anav"><img id="aNav" src="${imgSrc("nav0")}" alt="" width="1080" height="277"><div class="atabs">${TABS.map((t, i) => `<button data-tab="${i}" aria-label="Abrir aba ${t}" aria-pressed="${!i}"></button>`).join("")}</div></div>
     <div class="adlg hidden" id="aDlg"></div>
     <div class="atoast" id="aToast" role="status"></div>`;
