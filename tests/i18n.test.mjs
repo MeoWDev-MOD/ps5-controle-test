@@ -10,7 +10,7 @@ const html = read("index.html"), app = read("js/app.js"), proto = read("js/proto
 
 function usedKeys() {
   const keys = new Set();
-  for (const m of html.matchAll(/data-i18n(?:-html|-aria|-title)?="([^"]+)"/g)) keys.add(m[1]);
+  for (const m of html.matchAll(/data-i18n(?:-html|-aria|-title|-alt)?="([^"]+)"/g)) keys.add(m[1]);
   for (const m of app.matchAll(/\bt\("([\w.]+)"/g)) keys.add(m[1]);
   for (const m of app.matchAll(/(?:manualItem\("\w+", |loading\(true, |usbGone\()"([\w.]+)"/g)) keys.add(m[1]);
   for (const m of app.matchAll(/\["[↖↗↙↘]", "([\w.]+)"\]/g)) keys.add(m[1]);
@@ -23,7 +23,7 @@ function usedKeys() {
   for (const s of ["locked", "unlocked", "pending_reboot", "unknown", "error"]) { keys.add("nv." + s); keys.add("nv." + s + "D"); }
   for (const c of ["blue", "cyan", "white", "red", "green", "purple", "orange", "pink", "off"]) keys.add("light." + c);
   keys.add("side.L"); keys.add("side.R");
-  for (const p of ["overview", "live", "sticks", "calib", "out", "diag", "info", "debug"]) { keys.add("pg." + p); keys.add("pgd." + p); }
+  for (const p of ["overview", "live", "sticks", "calib", "out", "diag", "info", "debug", "extra"]) { keys.add("pg." + p); keys.add("pgd." + p); }
   for (const s of ["btn", "sticks", "trig", "touch", "gyro", "vib", "light", "adaptive", "spk", "usb"]) { keys.add(`qt.${s}.t`); keys.add(`qt.${s}.d`); }
   for (const s of ["ok", "fail", "skip"]) keys.add("qr." + s);
   for (const s of ["normal", "zoom", "circ"]) keys.add("smh." + s);

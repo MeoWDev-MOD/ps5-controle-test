@@ -3,6 +3,7 @@ import { MODELS, HID_FILTERS, GAMEPAD_ORDER, buttonsOf, modelFromGamepadId, pars
 import { t, LANGS, getLang, setLang, applyI18n } from "./i18n.js";
 import { initUI, moveSeg, themeSwitch, countTo, setRing, pop } from "./ui.js";
 import { makeHistory, FINE_NAMES } from "./history.js";
+import { PIX_KEY, pixPayload } from "./pix.js";
 
 // ================================================================ utilidades
 const $ = (id) => document.getElementById(id);
@@ -59,7 +60,7 @@ const drift = { L: null, R: null };
 const stickDone = { L: false, R: false };
 const manual = {};
 const touchSeen = { minX: Infinity, maxX: -Infinity, n: 0 };
-const trail = [], pathL = [], pathR = [];
+const dust = [], lastTouch = new Map(), pathL = [], pathR = [];
 const trgHist = [];
 let gyroMax = 0, log = [];
 
@@ -111,7 +112,7 @@ async function switchController() {
 }
 
 // ================================================================ navegação entre seções
-const PAGES = ["overview", "live", "sticks", "calib", "out", "diag", "info", "debug"];
+const PAGES = ["overview", "live", "sticks", "calib", "out", "diag", "info", "debug", "extra"];
 function go(p, silent = false) {
   if (!PAGES.includes(p)) p = "overview";
   page = p;
@@ -326,16 +327,37 @@ function stickRead(k) {
 function drawTouch() {
   const cv = $("touch"), c = cv.getContext("2d"), w = cv.width, h = cv.height;
   c.clearRect(0, 0, w, h);
-  c.strokeStyle = CV.grid; c.beginPath(); c.moveTo(w / 2, 0); c.lineTo(w / 2, h); c.stroke();
-  const now = performance.now();
-  while (trail.length && now - trail[0].t > 1200) trail.shift();
-  for (const p of trail) {
-    c.globalAlpha = (1 - (now - p.t) / 1200) * 0.6;
-    c.fillStyle = p.id % 2 ? CV.ok : CV.accent;
-    c.beginPath(); c.arc(p.x / TOUCH_W * w, p.y / TOUCH_H * h, 7, 0, 7); c.fill();
+  c.strokeStyle = "rgba(167,139,250,.14)"; c.beginPath(); c.moveTo(w / 2, 0); c.lineTo(w / 2, h); c.stroke();
+  // pó de energia: nasce no dedo, sobe solto, encolhe e some (1º dedo dourado, 2º azul)
+  const seen = new Set();
+  S.touches.forEach((p, n) => {
+    const x = p.x / TOUCH_W * w, y = p.y / TOUCH_H * h, last = lastTouch.get(p.id), hue = n ? 195 : 45;
+    seen.add(p.id);
+    const dist = last ? Math.hypot(x - last.x, y - last.y) : 0, count = Math.min(14, 3 + Math.floor(dist / 5));
+    for (let i = 0; i < count; i++) {
+      const k = last ? Math.random() : 1, life = 34 + Math.random() * 36;
+      dust.push({ x: (last ? last.x + (x - last.x) * k : x) + (Math.random() - .5) * 8, y: (last ? last.y + (y - last.y) * k : y) + (Math.random() - .5) * 8,
+        vx: (Math.random() - .5) * 1.5, vy: -0.4 - Math.random() * 1.5, life, max: life, size: 3 + Math.random() * 7, hue: hue + Math.random() * 16 - 8 });
+    }
+    lastTouch.set(p.id, { x, y });
+  });
+  for (const id of lastTouch.keys()) if (!seen.has(id)) lastTouch.delete(id);
+  if (dust.length > 900) dust.splice(0, dust.length - 900);
+  c.globalCompositeOperation = "lighter";
+  for (let i = dust.length - 1; i >= 0; i--) {
+    const d = dust[i];
+    d.x += d.vx; d.y += d.vy; d.vy *= 0.985; d.vx *= 0.98; d.life--;
+    if (d.life <= 0) { dust.splice(i, 1); continue; }
+    const f = d.life / d.max, r = d.size * (0.35 + f);
+    c.fillStyle = `hsla(${d.hue},100%,${45 + f * 30}%,${f * 0.6})`;
+    c.beginPath(); c.arc(d.x, d.y, r, 0, 7); c.fill();
   }
-  c.globalAlpha = 1;
-  for (const p of S.touches) { c.fillStyle = CV.touch; c.beginPath(); c.arc(p.x / TOUCH_W * w, p.y / TOUCH_H * h, 16, 0, 7); c.fill(); }
+  S.touches.forEach((p, n) => {
+    const x = p.x / TOUCH_W * w, y = p.y / TOUCH_H * h, g = c.createRadialGradient(x, y, 2, x, y, 34);
+    g.addColorStop(0, "#fff"); g.addColorStop(.3, n ? "#7dd3fc" : "#fde047"); g.addColorStop(1, "transparent");
+    c.fillStyle = g; c.beginPath(); c.arc(x, y, 34, 0, 7); c.fill();
+  });
+  c.globalCompositeOperation = "source-over";
   $("touchTxt").textContent = S.touches.length ? S.touches.map((p, i) => t("touch.finger", { n: i + 1, x: p.x, y: p.y })).join("  ") : t("touch.hint");
 }
 function drawImu() {
@@ -346,10 +368,42 @@ function drawImu() {
   $("imu").innerHTML = `<b>${t("imu.gyro")}</b> (°/s) X ${f(i.gx)} · Y ${f(i.gy)} · Z ${f(i.gz)}<br><b>${t("imu.accel")}</b> (g) X ${f(i.ax)} · Y ${f(i.ay)} · Z ${f(i.az)}<br>${t("imu.total")} ${g.toFixed(2)} g ${g > 0.85 && g < 1.15 ? t("imu.rest") : ""} · ${t("imu.max")} ${gyroMax.toFixed(0)}°/s`;
   // inclinação relativa à posição de repouso (a primeira leitura, ou a de quando tocou em Zerar)
   if (!tiltBase) tiltBase = { ax: i.ax, ay: i.ay, az: i.az };
-  const ang = (a, b) => Math.atan2(a, b) * 57.3;
-  const rx = ang(i.ay, i.az) - ang(tiltBase.ay, tiltBase.az), rz = ang(i.ax, Math.hypot(i.ay, i.az)) - ang(tiltBase.ax, Math.hypot(tiltBase.ay, tiltBase.az));
-  const cl = (v) => Math.max(-70, Math.min(70, ((v + 540) % 360) - 180));
-  $("tilt").style.transform = `rotateX(${cl(rx).toFixed(1)}deg) rotateZ(${cl(-rz).toFixed(1)}deg)`;
+  const ang = (a, b) => Math.atan2(a, b) * 57.3, wrap = (v) => ((v + 540) % 360) - 180;
+  const roll = -wrap(ang(i.ax, i.ay) - ang(tiltBase.ax, tiltBase.ay)), pitch = wrap(ang(i.az, i.ay) - ang(tiltBase.az, tiltBase.ay));
+  flight.roll += (roll - flight.roll) * 0.2; flight.pitch += (pitch - flight.pitch) * 0.2;
+  drawPlane();
+}
+// avião: ele fica no centro e o mundo gira em volta, como no painel de um avião de verdade
+const flight = { roll: 0, pitch: 0, t: 0 };
+const CLOUDS = Array.from({ length: 9 }, (_, i) => ({ x: i * 170 - 680, y: -60 - (i * 47) % 130, s: 0.6 + (i % 3) * 0.3 }));
+function drawPlane() {
+  const cv = $("plane"), c = cv.getContext("2d"), w = cv.width, h = cv.height;
+  flight.t += 2.2;
+  c.save(); c.translate(w / 2, h / 2); c.rotate(-flight.roll / 57.3); c.translate(0, Math.max(-140, Math.min(140, flight.pitch * 3)));
+  const sky = c.createLinearGradient(0, -420, 0, 0); sky.addColorStop(0, "#2a1670"); sky.addColorStop(1, "#8b6cff");
+  c.fillStyle = sky; c.fillRect(-900, -900, 1800, 900);
+  const ground = c.createLinearGradient(0, 0, 0, 420); ground.addColorStop(0, "#3b1d8a"); ground.addColorStop(1, "#120b33");
+  c.fillStyle = ground; c.fillRect(-900, 0, 1800, 900);
+  c.strokeStyle = "rgba(255,255,255,.8)"; c.lineWidth = 2; c.beginPath(); c.moveTo(-900, 0); c.lineTo(900, 0); c.stroke();
+  c.fillStyle = "rgba(255,255,255,.75)";
+  for (const k of CLOUDS) {
+    const x = ((k.x + flight.t * k.s + 900) % 1800 + 1800) % 1800 - 900;
+    for (const [ox, oy, r] of [[0, 0, 18], [20, 5, 14], [-20, 6, 13]]) { c.beginPath(); c.arc(x + ox * k.s, k.y + oy * k.s, r * k.s, 0, 7); c.fill(); }
+  }
+  c.strokeStyle = "rgba(255,255,255,.14)"; c.lineWidth = 2;
+  for (let i = 1; i < 12; i++) { const x = ((i * 150 - flight.t * 2) % 1800 + 1800) % 1800 - 900; c.beginPath(); c.moveTo(x * 0.2, 8); c.lineTo(x * 1.4, 300); c.stroke(); }
+  c.restore();
+  // avião visto de trás
+  c.save(); c.translate(w / 2, h / 2 + 10);
+  c.fillStyle = "#fff"; c.strokeStyle = "#1b1240"; c.lineWidth = 3; c.lineJoin = "round";
+  c.beginPath(); c.moveTo(-120, 12); c.lineTo(-20, -6); c.lineTo(20, -6); c.lineTo(120, 12); c.lineTo(120, 20); c.lineTo(20, 12); c.lineTo(-20, 12); c.lineTo(-120, 20); c.closePath(); c.fill(); c.stroke();
+  c.fillStyle = "#c026d3"; c.beginPath(); c.moveTo(-4, -8); c.lineTo(0, -46); c.lineTo(4, -8); c.closePath(); c.fill(); c.stroke();
+  c.fillStyle = "#fff"; c.beginPath(); c.moveTo(-42, -12); c.lineTo(42, -12); c.lineTo(42, -6); c.lineTo(-42, -6); c.closePath(); c.fill(); c.stroke();
+  c.fillStyle = "#7c5cff"; c.beginPath(); c.arc(0, 2, 20, 0, 7); c.fill(); c.stroke();
+  c.fillStyle = "#fde047"; c.beginPath(); c.arc(0, 2, 8, 0, 7); c.fill();
+  c.restore();
+  c.fillStyle = "#fff"; c.font = "600 18px system-ui"; c.textAlign = "left";
+  c.fillText(`${t("flight.bank")} ${Math.round(flight.roll)}°  ·  ${t("flight.pitch")} ${Math.round(flight.pitch)}°`, 14, h - 14);
 }
 let tiltBase = null;
 $("btnTiltZero").onclick = () => { tiltBase = null; };
@@ -539,12 +593,7 @@ function onReport(e) {
   let r; try { r = parseInput(hid.key, e.data); } catch { return; }
   S.lx = r.lx; S.ly = r.ly; S.rx = r.rx; S.ry = r.ry; S.l2 = r.l2; S.r2 = r.r2; S.pressed = r.pressed;
   S.imu = r.imu; S.touches = r.touches; S.battery = r.battery; S.stopL2 = r.stopL2 ?? null; S.stopR2 = r.stopR2 ?? null;
-  const now = performance.now();
-  for (const p of r.touches) {
-    trail.push({ x: p.x, y: p.y, id: p.id, t: now });
-    touchSeen.minX = Math.min(touchSeen.minX, p.x); touchSeen.maxX = Math.max(touchSeen.maxX, p.x); touchSeen.n++;
-  }
-  if (trail.length > 500) trail.splice(0, trail.length - 500);
+  for (const p of r.touches) { touchSeen.minX = Math.min(touchSeen.minX, p.x); touchSeen.maxX = Math.max(touchSeen.maxX, p.x); touchSeen.n++; }
   if (r.imu) gyroMax = Math.max(gyroMax, Math.abs(r.imu.gx), Math.abs(r.imu.gy), Math.abs(r.imu.gz));
 }
 function usbGone(msgKey = "toast.usbOut") {
@@ -652,7 +701,7 @@ function renderVal() {
 function resetTests() {
   tested.clear(); sectors.L.fill(0); sectors.R.fill(0); maxTrig.l2 = maxTrig.r2 = 0; drift.L = drift.R = null;
   stickDone.L = stickDone.R = false; for (const k of Object.keys(manual)) delete manual[k];
-  touchSeen.minX = Infinity; touchSeen.maxX = -Infinity; touchSeen.n = 0; gyroMax = 0; trail.length = 0;
+  touchSeen.minX = Infinity; touchSeen.maxX = -Infinity; touchSeen.n = 0; gyroMax = 0; dust.length = 0;
   log = []; $("log").textContent = ""; svgCache.clear(); renderVal();
 }
 $("btnReset").onclick = resetTests;
@@ -1010,6 +1059,11 @@ async function quickTest() {
   addLog(t("log.quick", { a: okN, b: steps.length }));
 }
 $("btnQuick").onclick = quickTest;
+
+// ================================================================ extra: apoio por PIX
+$("pixKey").textContent = PIX_KEY;
+$("btnPixKey").onclick = () => copyText(PIX_KEY);
+$("btnPixCode").onclick = () => copyText(pixPayload());
 
 // ================================================================ laudo (imprimir / salvar em PDF)
 function stickImage(k) {

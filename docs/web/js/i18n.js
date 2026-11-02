@@ -430,6 +430,20 @@ const T = {
   "qa.vib": ["Vibração", "Vibration", "Vibración"],
   "qa.vibD": ["Os dois motores por 0,6 s", "Both motors for 0.6 s", "Los dos motores por 0,6 s"],
   "tilt.zero": ["Zerar posição", "Reset position", "Poner a cero"],
+  "flight.t": ["Teste de voo", "Flight test", "Prueba de vuelo"],
+  "flight.d": ["Incline o controle para pilotar. O avião e o horizonte devem acompanhar sem travar.", "Tilt the controller to fly. The plane and horizon should follow smoothly.", "Inclina el control para pilotar. El avión y el horizonte deben seguirlo sin trabarse."],
+  "flight.aria": ["Avião que acompanha a inclinação do controle", "Airplane that follows the controller's tilt", "Avión que sigue la inclinación del control"],
+  "flight.bank": ["Asa", "Bank", "Ala"],
+  "flight.pitch": ["Nariz", "Nose", "Morro"],
+  "pg.extra": ["Extra", "Extra", "Extra"],
+  "pgd.extra": ["Quem fez e como apoiar o projeto", "Who made it and how to support it", "Quién lo hizo y cómo apoyar el proyecto"],
+  "ex.by": ["Criado e mantido por Jefferson Honorio.", "Created and maintained by Jefferson Honorio.", "Creado y mantenido por Jefferson Honorio."],
+  "ex.donate": ["Apoie o projeto", "Support the project", "Apoya el proyecto"],
+  "ex.donateD": ["O testador é grátis. Se ele te ajudou, doe qualquer valor pelo PIX.", "The tester is free. If it helped you, donate any amount via PIX.", "El probador es gratis. Si te ayudó, dona cualquier valor por PIX."],
+  "ex.qrAlt": ["QR Code do PIX para doação", "PIX donation QR code", "Código QR de PIX para donar"],
+  "ex.key": ["Chave PIX:", "PIX key:", "Clave PIX:"],
+  "ex.copyCode": ["Copiar PIX copia e cola", "Copy PIX code", "Copiar código PIX"],
+  "ex.copyKey": ["Copiar chave", "Copy key", "Copiar clave"],
   trgAria: ["Gráfico do curso dos gatilhos", "Trigger travel graph", "Gráfico del recorrido de los gatillos"],
   touchT: ["Touchpad", "Touchpad", "Touchpad"],
 
@@ -619,5 +633,6 @@ export function applyI18n(root = document) {
   root.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
   root.querySelectorAll("[data-i18n-html]").forEach((el) => { el.innerHTML = t(el.dataset.i18nHtml); });
   root.querySelectorAll("[data-i18n-aria]").forEach((el) => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
+  root.querySelectorAll("[data-i18n-alt]").forEach((el) => { el.alt = t(el.dataset.i18nAlt); });
   root.querySelectorAll("[data-i18n-title]").forEach((el) => { el.setAttribute("title", t(el.dataset.i18nTitle)); });
 }
