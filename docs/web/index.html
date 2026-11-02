@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PS-5 Controle Test Web</title>
-<meta name="description" content="Teste grátis do DualSense (PS5) no navegador: botões, analógicos, gatilhos e validação do controle.">
+<meta name="description" content="Teste grátis de controles PS5 e PS4 no navegador: DualSense, DualSense Edge, DualShock 4 e PS VR2. Botões, analógicos, gatilhos, informações de fábrica e calibração por USB.">
 <meta name="theme-color" content="#050b1e">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -22,20 +22,41 @@
 html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif}
 body{min-height:100vh;background:linear-gradient(180deg,#0b1f52 0%,var(--bg) 340px);
   padding:max(14px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) calc(84px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
-.wrap{max-width:760px;margin:0 auto}
+a{color:var(--cyan)}
+.wrap{max-width:820px;margin:0 auto}
 header{text-align:center;padding:6px 0 12px}
 header img{width:54px;height:54px;border-radius:14px}
 h1{font-size:22px;margin:6px 0 2px;font-weight:600}
 .sub{color:var(--muted);font-size:12px}
 .card{background:var(--glass);border:1px solid var(--line);border-radius:20px;padding:14px 16px;margin:12px 0;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
-.card h2{font-size:13px;margin:0 0 10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.card h2{font-size:13px;margin:0 0 10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:8px}
+.card h2 .badge{text-transform:none;letter-spacing:0;font-weight:500}
 #status{display:flex;gap:10px;align-items:center}
+#status>div{flex:1;min-width:0}
+#stSub{overflow-wrap:anywhere}
 .dot{width:12px;height:12px;border-radius:50%;background:var(--bad);flex:none}
 .dot.on{background:var(--ok)}
-#notice{font-size:13px;color:var(--muted)}
+.dot.hid{background:var(--cyan);box-shadow:0 0 0 4px rgba(89,200,255,.18)}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.connect{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+#notice{font-size:13px;color:var(--muted);margin-top:10px}
+#notice:empty{display:none}
 #notice b{color:var(--text)}
-#ds{display:block;width:100%;height:auto}
+#last{font-size:12px;color:var(--muted);margin-top:10px}
+#last:empty{display:none}
+.warnline{color:var(--warn)}
+/* desenho do controle */
+#ds,#ds4 svg{display:block;width:100%;height:auto}
+#ds4 svg{max-width:640px;margin:0 auto}
+.panel{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:6px 0}
+.chip{padding:10px 12px;text-align:center;border-radius:14px;border:1px solid var(--line);background:var(--glass);font-size:13px;color:var(--muted);min-width:76px;transition:background .06s,transform .06s}
+.chip.tested{color:var(--text);border-color:rgba(78,222,163,.5)}
+.chip.tested::after{content:" ✓";color:var(--ok)}
+.chip.down{background:linear-gradient(180deg,#2563d6,#1a4aa8);color:#fff;border-color:#9bd0ff;transform:scale(.95)}
+#extras:empty{display:none}
+#extras{margin-top:8px}
 .sticks{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sticks.one{grid-template-columns:1fr;justify-items:center}
 .stick{text-align:center}
 .stick canvas{width:100%;max-width:300px;aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid var(--line)}
 .stick .nums{font:12px ui-monospace,Menlo,monospace;color:var(--muted);margin-top:4px}
@@ -43,27 +64,83 @@ h1{font-size:22px;margin:6px 0 2px;font-weight:600}
 .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2f80ff,#59c8ff)}
 .trg{display:grid;grid-template-columns:34px 1fr 46px;gap:10px;align-items:center;margin:6px 0;font-size:13px}
 .trg span:last-child{text-align:right;font-family:ui-monospace,Menlo,monospace;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#touch{width:100%;aspect-ratio:1920/943;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);display:block}
+.imu{font:12px/1.7 ui-monospace,Menlo,monospace;color:var(--muted)}
+.imu b{color:var(--text);font-weight:600}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line)}
 .row:first-of-type{border-top:0}
-.row .t{font-weight:600}.row .d{font-size:12px;color:var(--muted)}
-.badge{flex:none;font-size:12px;padding:4px 10px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.row>div{min-width:0}
+.row .t{font-weight:600}.row .d{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.badge{flex:none;font-size:12px;padding:4px 10px;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
 .badge.ok{color:var(--ok);border-color:rgba(78,222,163,.5)}
 .badge.warn{color:var(--warn);border-color:rgba(255,216,107,.5)}
 .badge.bad{color:var(--bad);border-color:rgba(255,107,107,.5)}
-button.b{font:inherit;color:var(--text);background:var(--glass2);border:1px solid var(--line);border-radius:14px;padding:10px 16px;min-height:44px}
-button.b.p{background:linear-gradient(180deg,#4da0ff,#1f62d8);border-color:#9bd0ff}
+.badge.info{color:var(--cyan);border-color:rgba(89,200,255,.5)}
+button.b{font:inherit;color:var(--text);background:var(--glass2);border:1px solid var(--line);border-radius:14px;padding:10px 16px;min-height:44px;cursor:pointer}
+button.b.p{background:linear-gradient(180deg,#2563d6,#1a4aa8);border-color:#9bd0ff}
+button.b.ok{background:linear-gradient(180deg,#137a52,#0e5c3e);border-color:#8ff0c8}
+button.b.danger{border-color:rgba(255,107,107,.6);color:#ffd0d0}
 button.b:active{transform:scale(.97)}
+button.b:disabled{opacity:.45;cursor:not-allowed;transform:none}
+button.b.sm{min-height:36px;padding:6px 12px;font-size:13px}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .summary{font-size:28px;font-weight:600}
 .hidden{display:none!important}
 nav{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:8px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));
-  background:rgba(8,16,40,.7);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-top:1px solid var(--line)}
-nav button{flex:1;max-width:240px;font:inherit;font-weight:600;color:var(--muted);background:none;border:1px solid transparent;border-radius:14px;padding:11px}
+  background:rgba(8,16,40,.7);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-top:1px solid var(--line);z-index:5}
+nav button{flex:1;max-width:220px;font:inherit;font-weight:600;color:var(--muted);background:none;border:1px solid transparent;border-radius:14px;padding:11px 6px;cursor:pointer}
 nav button.on{color:#fff;background:var(--glass2);border-color:var(--line)}
-.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.acts button.b{min-height:36px;padding:6px 12px;font-size:13px}
 .install{font-size:13px}
 .foot{text-align:center;color:var(--muted);font-size:12px;padding:14px 0}
+.foot a{color:var(--muted)}
 #log{font:11px ui-monospace,Menlo,monospace;color:var(--muted);max-height:120px;overflow:auto;white-space:pre-wrap}
+/* ferramentas */
+.alert{border-radius:14px;padding:10px 12px;font-size:13px;margin:8px 0;border:1px solid rgba(89,200,255,.45);background:rgba(47,128,255,.12)}
+.alert.warn{border-color:rgba(255,216,107,.5);background:rgba(255,216,107,.08)}
+.alert.bad{border-color:rgba(255,107,107,.55);background:rgba(255,107,107,.1)}
+.alert b{color:var(--text)}
+dl.info{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:13px}
+dl.info dt{color:var(--muted)}
+dl.info dd{margin:0;font-family:ui-monospace,Menlo,monospace;overflow-wrap:anywhere}
+dl.info dd.ok{color:var(--ok)} dl.info dd.bad{color:var(--bad)} dl.info dd.warn{color:var(--warn)}
+details{margin-top:10px;font-size:13px}
+summary{cursor:pointer;color:var(--cyan)}
+details dl.info{margin-top:8px}
+.field{display:grid;grid-template-columns:90px 1fr 44px;gap:10px;align-items:center;font-size:13px;margin:8px 0}
+.field span:last-child{text-align:right;font-family:ui-monospace,Menlo,monospace;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--blue)}
+.swatches{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sw{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.25);cursor:pointer;padding:0}
+.sw:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+input[type=color]{width:44px;height:36px;border:1px solid var(--line);border-radius:10px;background:none;padding:2px;cursor:pointer}
+.leds{display:flex;gap:6px}
+.led{width:30px;height:12px;border-radius:6px;border:1px solid var(--line);background:rgba(255,255,255,.06);cursor:pointer;padding:0}
+.led.on{background:#fff;box-shadow:0 0 8px rgba(255,255,255,.7)}
+select{font:inherit;color:var(--text);background:#0e1a3a;border:1px solid var(--line);border-radius:12px;padding:8px 10px;min-height:40px}
+.trigsel{display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px}
+.trigsel label{display:grid;gap:6px}
+/* janela de calibração */
+dialog{max-width:min(520px,calc(100vw - 32px));width:100%;border:1px solid var(--line);border-radius:22px;padding:18px;color:var(--text);
+  background:linear-gradient(180deg,#10224f,#081131)}
+dialog::backdrop{background:rgba(2,6,20,.72);backdrop-filter:blur(4px)}
+dialog h3{margin:0 0 6px;font-size:18px}
+.steps{display:flex;gap:6px;margin:10px 0 14px}
+.steps i{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.12)}
+.steps i.on{background:var(--cyan)}
+.steps i.done{background:var(--ok)}
+.prog{height:10px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden;margin:12px 0 4px}
+.prog>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2f80ff,#4edea3);transition:width .2s}
+.dlgsticks{display:flex;gap:12px;justify-content:center;margin:10px 0}
+.dlgsticks canvas{width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.arrow{font-size:40px;text-align:center;margin:8px 0;color:var(--cyan)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:2.4s}.chip,.prog>i{transition:none}}
+#toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translateX(-50%);max-width:calc(100vw - 32px);
+  background:#0f1d45;border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:13px;z-index:20;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+#toast.bad{border-color:rgba(255,107,107,.6)} #toast.ok{border-color:rgba(78,222,163,.6)}
+@media (max-width:560px){.grid2,.trigsel{grid-template-columns:1fr}.field{grid-template-columns:72px 1fr 40px}}
 </style>
 </head>
 <body>
@@ -71,28 +148,47 @@ nav button.on{color:#fff;background:var(--glass2);border-color:var(--line)}
   <header>
     <img src="icon-192.png" alt="">
     <h1>PS-5 Controle Test <span class="badge ok">Web · grátis</span></h1>
-    <div class="sub">Funciona no navegador, sem instalar · Developed by MeoWDeV MOD</div>
+    <div class="sub">DualSense · DualSense Edge · DualShock 4 · PS VR2 · Developed by MeoWDeV MOD</div>
   </header>
 
   <section class="card" id="statusCard">
-    <div id="status"><span class="dot" id="dot"></span><div><b id="stTitle">Nenhum controle detectado</b><div class="sub" id="stSub">Conecte o DualSense e aperte qualquer botão.</div></div></div>
-    <div id="notice" style="margin-top:10px"></div>
+    <div id="status"><span class="dot" id="dot"></span><div><b id="stTitle">Nenhum controle detectado</b><div class="sub" id="stSub">Conecte o controle e aperte qualquer botão.</div></div></div>
+    <div class="pills" id="pills"></div>
+    <div class="connect">
+      <button class="b p" id="btnUsb">Conectar por USB · modo completo</button>
+      <button class="b hidden" id="btnUsbOff">Desconectar USB</button>
+      <span class="sub" id="usbHint"></span>
+    </div>
+    <div id="notice"></div>
+    <div id="last"></div>
   </section>
 
   <!-- o mesmo desenho aparece no Controle e na Validação -->
-  <section class="card"><canvas id="ds" width="880" height="713" role="img" aria-label="Desenho do DualSense com os botões acendendo ao vivo"></canvas></section>
+  <section class="card" id="drawCard">
+    <canvas id="ds" width="880" height="713" role="img" aria-label="Desenho do controle com os botões acendendo ao vivo"></canvas>
+    <div id="ds4" class="hidden" role="img" aria-label="Desenho do DualShock 4 com os botões acendendo ao vivo"></div>
+    <div id="panel" class="panel hidden"></div>
+    <div id="extras" class="panel"></div>
+  </section>
 
   <!-- ===== CONTROLE ===== -->
   <div id="pageTest">
     <section class="card"><h2>Analógicos</h2>
-      <div class="sticks">
-        <div class="stick"><canvas id="cvL" width="300" height="300"></canvas><div class="nums" id="numL"></div></div>
-        <div class="stick"><canvas id="cvR" width="300" height="300"></canvas><div class="nums" id="numR"></div></div>
+      <div class="sticks" id="sticks">
+        <div class="stick" id="stickL"><canvas id="cvL" width="300" height="300"></canvas><div class="nums" id="numL"></div></div>
+        <div class="stick" id="stickR"><canvas id="cvR" width="300" height="300"></canvas><div class="nums" id="numR"></div></div>
       </div>
     </section>
     <section class="card"><h2>Gatilhos</h2>
-      <div class="trg"><span>L2</span><div class="bar"><i id="bL2"></i></div><span id="vL2">0%</span></div>
-      <div class="trg"><span>R2</span><div class="bar"><i id="bR2"></i></div><span id="vR2">0%</span></div>
+      <div class="trg" id="rowL2"><span>L2</span><div class="bar"><i id="bL2"></i></div><span id="vL2">0%</span></div>
+      <div class="trg" id="rowR2"><span>R2</span><div class="bar"><i id="bR2"></i></div><span id="vR2">0%</span></div>
+      <div class="sub hidden" id="stops"></div>
+    </section>
+    <section class="card hidden" id="cardSensors"><h2>Touchpad e movimento <span class="badge info">USB</span></h2>
+      <div class="grid2">
+        <div><canvas id="touch" width="480" height="236" role="img" aria-label="Toques no touchpad"></canvas><div class="sub" id="touchTxt" style="margin-top:6px">Passe o dedo no touchpad.</div></div>
+        <div class="imu" id="imu">Mexa o controle para ver o giroscópio.</div>
+      </div>
     </section>
     <section class="card"><h2>Vibração</h2>
       <button class="b p" id="btnRumble">Testar vibração</button>
@@ -103,245 +199,89 @@ nav button.on{color:#fff;background:var(--glass2);border-color:var(--line)}
   <!-- ===== VALIDAÇÃO ===== -->
   <div id="pageVal" class="hidden">
     <section class="card"><div class="sub">Resultado</div><div class="summary" id="sum">0 / 7</div>
-      <div class="sub">Aperte todos os botões, gire os dois analógicos em círculo completo, aperte os gatilhos até o fim e confira a vibração e o conector.</div>
+      <div class="sub" id="valHelp">Aperte todos os botões, gire os analógicos em círculo completo, aperte os gatilhos até o fim e confira a vibração e o conector.</div>
       <div style="margin-top:10px"><button class="b" id="btnReset">Zerar testes</button></div></section>
     <section class="card" id="valList"></section>
     <section class="card"><h2>Eventos</h2><div id="log"></div></section>
+  </div>
+
+  <!-- ===== FERRAMENTAS ===== -->
+  <div id="pageTools" class="hidden">
+    <section class="card" id="toolsOff">
+      <h2>Modo completo</h2>
+      <p style="margin:0 0 8px">Ligue o controle no <b>computador pelo cabo USB</b> e conecte no botão abaixo para liberar:</p>
+      <ul class="sub" style="margin:0 0 10px;padding-left:18px;font-size:13px">
+        <li>Informações de fábrica: número de série, placa, cor, firmware e se é original</li>
+        <li>Calibração do centro e do alcance dos analógicos</li>
+        <li>Luzes, gatilhos adaptáveis, alto-falante e os dois motores de vibração</li>
+        <li>Touchpad, giroscópio e bateria</li>
+      </ul>
+      <div class="alert" id="hidSupport"></div>
+      <button class="b p" id="btnUsb2">Conectar por USB</button>
+    </section>
+
+    <div id="toolsOn" class="hidden">
+      <section class="card"><h2>Informações do controle</h2>
+        <dl class="info" id="infoList"></dl>
+        <details id="infoMore"><summary>Mais detalhes técnicos</summary><dl class="info" id="infoExtra"></dl></details>
+      </section>
+
+      <section class="card" id="cardCalib"><h2>Calibração dos analógicos</h2>
+        <div class="alert"><b>A calibração não conserta drift.</b> O drift vem do desgaste das peças do analógico, que precisam ser trocadas. Depois da troca, calibre para o controle funcionar certinho com os analógicos novos.</div>
+        <div class="alert warn">Calibrar sem trocar os analógicos pode ajudar por um tempo, mas também pode piorar. Por segurança, a calibração fica <b>temporária</b> até você tocar em <b>Salvar no controle</b>.</div>
+        <div id="calibBlock" class="alert bad hidden"></div>
+        <div class="row"><div><div class="t">Centro</div><div class="d" id="centerDesc">Corrige o ponto de descanso dos analógicos.</div></div><button class="b p sm" id="btnCenter">Calibrar centro</button></div>
+        <div class="row"><div><div class="t">Alcance</div><div class="d">Ensina ao controle até onde cada analógico vai, girando em círculos.</div></div><button class="b p sm" id="btnRange">Calibrar alcance</button></div>
+        <div id="unsaved" class="alert warn hidden">
+          <b>Calibração ainda não salva.</b> Ela some quando o controle reinicia. Teste os analógicos na aba Controle e escolha:
+          <div class="acts"><button class="b ok sm" id="btnSave">Salvar no controle</button><button class="b sm" id="btnUndo">Desfazer (reiniciar o controle)</button></div>
+        </div>
+        <div class="row"><div><div class="t">Memória permanente</div><div class="d" id="nvDesc">—</div></div><span class="badge" id="nvBadge">—</span></div>
+      </section>
+
+      <section class="card" id="cardMotors"><h2>Motores de vibração</h2>
+        <div class="field"><span>Esquerdo (forte)</span><input type="range" id="mL" min="0" max="255" value="200"><span id="mLv">78%</span></div>
+        <div class="field"><span>Direito (fraco)</span><input type="range" id="mR" min="0" max="255" value="200"><span id="mRv">78%</span></div>
+        <div class="acts"><button class="b sm" id="btnMotorL">Só esquerdo</button><button class="b sm" id="btnMotorR">Só direito</button><button class="b p sm" id="btnMotorB">Os dois</button></div>
+      </section>
+
+      <section class="card" id="cardLight"><h2>Luzes</h2>
+        <div class="swatches" id="swatches"></div>
+        <div id="ledsRow" class="row" style="margin-top:6px"><div><div class="t">Indicador de jogador</div><div class="d">Os 5 LEDs abaixo do touchpad.</div></div><div class="leds" id="leds"></div></div>
+        <div id="muteRow" class="row"><div><div class="t">Luz do Mute</div></div><select id="muteSel" aria-label="Luz do botão Mute"><option value="0">Apagada</option><option value="1">Acesa</option><option value="2">Piscando</option></select></div>
+      </section>
+
+      <section class="card" id="cardTrig"><h2>Gatilhos adaptáveis</h2>
+        <div class="trigsel">
+          <label>L2<select id="trigL"><option value="off">Desligado</option><option value="light">Leve</option><option value="medium">Médio</option><option value="heavy">Forte</option></select></label>
+          <label>R2<select id="trigR"><option value="off">Desligado</option><option value="light">Leve</option><option value="medium">Médio</option><option value="heavy">Forte</option></select></label>
+        </div>
+        <div class="sub" style="margin-top:8px">Aperte o gatilho depois de escolher: ele deve endurecer no meio do curso.</div>
+      </section>
+
+      <section class="card" id="cardAudio"><h2>Som</h2>
+        <div class="acts"><button class="b p sm" id="btnSpk">Tocar no alto-falante</button><button class="b sm" id="btnHp">Tocar no fone</button></div>
+        <div class="sub" style="margin-top:8px">Toca um bipe por 1 segundo. Para o fone, ligue um fone no P2 do controle.</div>
+      </section>
+    </div>
   </div>
 
   <section class="card install">
     <h2>Instalar como app</h2>
     No menu do navegador, escolha <b>Instalar app</b> ou <b>Adicionar à Tela de Início</b>. Ele abre em tela cheia e funciona offline.
   </section>
-  <div class="foot">A versão web é grátis e testa botões, analógicos, gatilhos e vibração. Calibração, som, luzes, gatilho adaptável, rastro do touchpad e giroscópio ficam no <a href="../" style="color:var(--ok)">app Android, pelo cabo USB</a>.<br>Desenho do controle: <a href="https://github.com/dualshock-tools/dualshock-tools.github.io" style="color:var(--muted)">dualshock-tools</a> (licença MIT).</div>
+  <div class="foot">Os testes básicos funcionam em qualquer navegador, por cabo ou Bluetooth. O modo completo (calibração, luzes, informações) usa o cabo USB no computador, pelo Chrome ou Edge. No celular, use o <a href="../" style="color:var(--ok)">app Android</a>.<br>Desenhos e comandos dos controles: <a href="https://github.com/dualshock-tools/dualshock-tools.github.io">dualshock-tools</a> (<a href="licencas/dualshock-tools-MIT.txt">licença MIT</a>). PlayStation, DualSense e DualShock são marcas da Sony; este projeto não é afiliado à Sony.</div>
 </div>
 
 <nav>
   <button id="tabTest" class="on">Controle</button>
   <button id="tabVal">Validação</button>
+  <button id="tabTools">Ferramentas</button>
 </nav>
 
-<script>
-"use strict";
-// ---- mapeamento padrão (Gamepad API, "standard") do DualSense
-const NAMES = ["✕ Cruz","◯ Bola","□ Quadrado","△ Triângulo","L1","R1","L2","R2","Create","Options","L3","R3","↑","↓","←","→","PS","Touchpad","Mute"];
-// Recortes do desenho (mesmas posições do app, no espaço 880 x 713); i = botão da Gamepad API
-const SPRITES = [
-  [3,"triangle",697,201],[0,"cross",697,315],[1,"circle",757,258],[2,"square",638,258],[4,"l1",99,133],[5,"r1",657,132],
-  [6,"l2",104,6],[7,"r2",674,6],[10,"l3",243,365],[11,"r3",553,365],[9,"options",648,184],[8,"create",210,185],[16,"ps",418,382],
-  [12,"dpad_up",132,223],[13,"dpad_down",132,301],[14,"dpad_left",90,265],[15,"dpad_right",168,265],[17,"touchpad",249,141],[18,"mute",415,452],
-];
-const TESTED_ALPHA = 70 / 255, STRONG_TESTED_ALPHA = 170 / 255, STICK_TRAVEL = 17;
-const img = (n) => { const i = new Image(); i.src = "ds/ds_" + n + ".png"; return i; };
-const idle = img("idle"), capL = img("cap_l3"), capR = img("cap_r3");
-SPRITES.forEach((p) => { p[1] = img(p[1]); });
-const pressed = new Set();
-const live = { lx: 0, ly: 0, rx: 0, ry: 0, l2: 0, r2: 0 };
-const stickDone = { L: false, R: false };
-const manual = { usb: "", vib: "" };
-let onVal = false;
-const tested = new Set();
-const sectors = {L: new Array(36).fill(0), R: new Array(36).fill(0)};
-const maxTrig = {6: 0, 7: 0};
-const drift = {L: null, R: null};
-let log = [];
-let pad = null;
-const $ = (id) => document.getElementById(id);
+<dialog id="dlg"><div id="dlgBody"></div></dialog>
+<div id="toast" class="hidden" role="status" aria-live="polite"></div>
 
-// ---- desenho do controle (porte do DualSenseView do app)
-const ctx = $("ds").getContext("2d");
-const ready = (i) => i.complete && i.naturalWidth > 0;
-function put(i, x, y, a) { if (a > 0 && ready(i)) { ctx.globalAlpha = a; ctx.drawImage(i, x, y); } }
-function stickOffset(x, y) { const m = Math.hypot(x, y), k = m > 1 ? 1 / m : 1; return [x * k * STICK_TRAVEL, y * k * STICK_TRAVEL]; }
-function triggerAlpha(i, v) {
-  if (v > 0.02) return Math.min(1, 0.15 + 0.85 * Math.pow(v, 0.8)); // o brilho segue a pressão
-  return tested.has(i) ? (onVal ? STRONG_TESTED_ALPHA : TESTED_ALPHA) : 0;
-}
-function drawDs() {
-  ctx.clearRect(0, 0, 880, 713);
-  put(idle, 0, 0, 1);
-  const [lox, loy] = stickOffset(live.lx, live.ly), [rox, roy] = stickOffset(live.rx, live.ry);
-  put(capL, 238 + lox, 359 + loy, 1); put(capR, 547 + rox, 359 + roy, 1);
-  for (const [i, sp, x, y] of SPRITES) {
-    const a = i === 6 ? triggerAlpha(6, live.l2) : i === 7 ? triggerAlpha(7, live.r2)
-      : pressed.has(i) ? 1 : tested.has(i) ? (onVal ? STRONG_TESTED_ALPHA : TESTED_ALPHA) : 0;
-    const ox = i === 10 ? lox : i === 11 ? rox : 0, oy = i === 10 ? loy : i === 11 ? roy : 0;
-    put(sp, x + ox, y + oy, a);
-  }
-  ctx.globalAlpha = 1;
-  ctx.strokeStyle = "#4edea3"; ctx.lineWidth = 6;
-  if (stickDone.L) { ctx.beginPath(); ctx.arc(284, 405, 69, 0, 7); ctx.stroke(); }
-  if (stickDone.R) { ctx.beginPath(); ctx.arc(593, 405, 69, 0, 7); ctx.stroke(); }
-  ctx.fillStyle = "#e6e8ec"; ctx.font = "bold 24px system-ui,sans-serif"; ctx.textAlign = "center";
-  ctx.fillText("L2 " + Math.round(live.l2 * 100) + "%", 153, 66); ctx.fillText("R2 " + Math.round(live.r2 * 100) + "%", 723, 66);
-}
-
-// ---- avisos
-function notice(g) {
-  let h = "Ligue o DualSense por <b>cabo USB ou Bluetooth</b> e <b>aperte um botão</b>: o navegador só mostra o controle depois do primeiro toque nele. No computador, use Chrome ou Edge.";
-  if (g) {
-    const ds = /054c|dualsense|wireless controller/i.test(g.id);
-    h = g.mapping !== "standard" ? "Este navegador não organiza os botões do controle no padrão, e alguns podem acender errado. Use o <b>Chrome</b> ou o <b>Edge</b>."
-      : ds ? "" : "Este controle não parece ser um DualSense. Os testes funcionam, mas o desenho é do DualSense.";
-  }
-  if ($("notice").innerHTML !== h) $("notice").innerHTML = h;
-}
-notice(null);
-
-// ---- abas
-function tab(v) {
-  onVal = v;
-  $("pageTest").classList.toggle("hidden", v); $("pageVal").classList.toggle("hidden", !v);
-  $("tabTest").classList.toggle("on", !v); $("tabVal").classList.toggle("on", v);
-}
-$("tabTest").onclick = () => tab(false); $("tabVal").onclick = () => tab(true);
-
-function addLog(s) {
-  log.unshift(new Date().toLocaleTimeString("pt-BR") + "  " + s); log = log.slice(0, 40);
-  $("log").textContent = log.join("\n");
-}
-
-// ---- pegar o controle ativo
-function getPad() {
-  const list = (navigator.getGamepads && navigator.getGamepads()) || [];
-  for (const g of list) if (g && g.connected) return g;
-  return null;
-}
-window.addEventListener("gamepadconnected", (e) => addLog("Conectado: " + e.gamepad.id));
-window.addEventListener("gamepaddisconnected", () => addLog("Controle desconectado"));
-
-// ---- analógicos
-function drawStick(cv, x, y, key) {
-  const c = cv.getContext("2d"), s = cv.width, r = s / 2;
-  c.clearRect(0, 0, s, s);
-  c.strokeStyle = "rgba(160,200,255,.25)"; c.lineWidth = 1;
-  [0.33, 0.66, 1].forEach((k) => { c.beginPath(); c.arc(r, r, (r - 6) * k, 0, 7); c.stroke(); });
-  c.beginPath(); c.moveTo(6, r); c.lineTo(s - 6, r); c.moveTo(r, 6); c.lineTo(r, s - 6); c.stroke();
-  // trilha do máximo alcançado em cada setor (gráfico de circularidade)
-  c.beginPath();
-  const sec = sectors[key];
-  for (let i = 0; i <= 36; i++) {
-    const a = ((i % 36) + 0.5) / 36 * Math.PI * 2, m = Math.min(sec[i % 36], 1) * (r - 6);
-    const px = r + Math.cos(a) * m, py = r + Math.sin(a) * m;
-    i ? c.lineTo(px, py) : c.moveTo(px, py);
-  }
-  c.closePath(); c.fillStyle = "rgba(78,222,163,.15)"; c.fill(); c.strokeStyle = "rgba(78,222,163,.8)"; c.lineWidth = 2; c.stroke();
-  // ponto atual
-  const px = r + x * (r - 6), py = r + y * (r - 6);
-  c.beginPath(); c.arc(px, py, 11, 0, 7); c.fillStyle = "#59c8ff"; c.fill();
-}
-function circ(key) {
-  const v = sectors[key].filter((m) => m > 0.15);
-  if (v.length < 30) return null;
-  const mean = v.reduce((a, b) => a + b, 0) / v.length;
-  const err = v.reduce((a, b) => a + Math.abs(b - mean), 0) / v.length / Math.max(mean, 0.01);
-  return { err: err * 100, cover: v.length, mean };
-}
-function stickStep(g, key, ax, ay, keyBtn) {
-  const x = g.axes[ax] || 0, y = g.axes[ay] || 0, m = Math.hypot(x, y);
-  if (m > 0.25) {
-    const s = Math.floor(((Math.atan2(y, x) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI * 2) * 36) % 36;
-    sectors[key][s] = Math.max(sectors[key][s], m);
-  }
-  if (m < 0.2 && drift[key] === null) drift[key] = m;      // leitura em repouso
-  if (m < 0.2) drift[key] = Math.min(drift[key], m);
-  if (m > 0.9) stickDone[key] = true;
-  drawStick($(key === "L" ? "cvL" : "cvR"), x, y, key);
-  $(key === "L" ? "numL" : "numR").textContent = `X ${x.toFixed(2)}  Y ${y.toFixed(2)}  |${m.toFixed(2)}|`;
-}
-
-// ---- vibração (o Safari costuma não expor; tentamos mesmo assim)
-$("btnRumble").onclick = async () => {
-  const g = getPad(); const msg = $("rumbleMsg");
-  if (!g) { msg.textContent = "Conecte o controle primeiro."; return; }
-  const act = g.vibrationActuator || (g.hapticActuators && g.hapticActuators[0]);
-  if (!act) { msg.textContent = "Este navegador não libera a vibração do controle. Tente no Chrome ou no Edge, ou use o app Android."; return; }
-  try {
-    if (act.playEffect) await act.playEffect("dual-rumble", { duration: 600, strongMagnitude: 1, weakMagnitude: 1 });
-    else if (act.pulse) await act.pulse(1, 600);
-    msg.textContent = "Vibração enviada. O controle vibrou?";
-  } catch (e) { msg.textContent = "Falhou: " + e.message; }
-};
-
-// ---- validação
-const ITEMS = [
-  { id: "usb", t: "Conector USB", d: () => "Balance o cabo com cuidado e veja se o controle desconecta.", st: () => manual.usb || "idle", manual: "usb" },
-  { id: "btn", t: "Botões", d: () => { const f = NAMES.slice(0, 17).filter((_, i) => !tested.has(i)); return f.length ? `${17 - f.length} de 17 testados. Faltam: ${f.join(", ")}` : "Todos os botões responderam (Touchpad e Mute dependem do navegador)"; }, st: () => NAMES.slice(0, 17).every((_, i) => tested.has(i)) ? "ok" : tested.size ? "warn" : "idle" },
-  { id: "L", t: "Analógico esquerdo", d: () => stickDesc("L"), st: () => stickSt("L") },
-  { id: "R", t: "Analógico direito", d: () => stickDesc("R"), st: () => stickSt("R") },
-  { id: "L2", t: "Gatilho L2", d: () => `Máximo ${Math.round(maxTrig[6] * 100)}%`, st: () => maxTrig[6] > 0.95 ? "ok" : maxTrig[6] > 0 ? "warn" : "idle" },
-  { id: "R2", t: "Gatilho R2", d: () => `Máximo ${Math.round(maxTrig[7] * 100)}%`, st: () => maxTrig[7] > 0.95 ? "ok" : maxTrig[7] > 0 ? "warn" : "idle" },
-  { id: "vib", t: "Vibração", d: () => "Na aba Controle, toque em Testar vibração e diga se o controle vibrou.", st: () => manual.vib || "idle", manual: "vib" },
-];
-function stickDesc(k) {
-  const c = circ(k), cover = sectors[k].filter((m) => m > 0.15).length;
-  const rest = drift[k] === null ? "" : ` · repouso ${drift[k].toFixed(2)}`;
-  return c ? `Círculo completo · erro médio ${c.err.toFixed(1)}%${rest}` : `Gire em círculo completo (${cover}/36 setores)${rest}`;
-}
-function stickSt(k) {
-  const c = circ(k); if (!c) return sectors[k].some((m) => m > 0.15) ? "warn" : "idle";
-  if (drift[k] !== null && drift[k] > 0.1) return "bad";
-  return c.err < 12 ? "ok" : "warn";
-}
-const LABEL = { idle: "Pendente", ok: "OK", warn: "Em andamento", bad: "Atenção", fail: "Falhou" };
-const rows = ITEMS.map((it) => {
-  const r = document.createElement("div"); r.className = "row";
-  r.innerHTML = `<div><div class="t">${it.t}</div><div class="d"></div>${it.manual ? '<div class="acts"><button class="b" data-v="ok">Passou</button><button class="b" data-v="fail">Falhou</button></div>' : ""}</div><span class="badge"></span>`;
-  r.querySelectorAll("[data-v]").forEach((b) => { b.onclick = () => { manual[it.manual] = b.dataset.v; addLog(it.t + ": " + LABEL[b.dataset.v]); }; });
-  $("valList").appendChild(r); return r;
-});
-function renderVal() {
-  let ok = 0;
-  ITEMS.forEach((it, i) => {
-    const s = it.st(); if (s === "ok") ok++;
-    rows[i].querySelector(".d").textContent = it.d();
-    const b = rows[i].querySelector(".badge"); b.textContent = LABEL[s]; b.className = "badge " + (s === "idle" ? "" : s === "fail" ? "bad" : s);
-  });
-  $("sum").textContent = `${ok} / ${ITEMS.length}`;
-}
-$("btnReset").onclick = () => {
-  tested.clear(); sectors.L.fill(0); sectors.R.fill(0); maxTrig[6] = maxTrig[7] = 0; drift.L = drift.R = null; log = []; $("log").textContent = "";
-  stickDone.L = stickDone.R = false; manual.usb = manual.vib = ""; renderVal();
-};
-
-// ---- laço principal
-function loop() {
-  const g = getPad();
-  if (g !== null) {
-    if (!pad || pad.index !== g.index) addLog("Lendo: " + g.id);
-    pad = g;
-    $("dot").classList.add("on"); $("stTitle").textContent = "Controle conectado";
-    $("stSub").textContent = `${g.id} · ${g.buttons.length} botões · ${g.axes.length} eixos` + (g.mapping === "standard" ? "" : " · mapeamento não padrão");
-    notice(g);
-    pressed.clear();
-    g.buttons.forEach((b, i) => {
-      const down = b.pressed || b.value > 0.5;
-      if (down) {
-        pressed.add(i);
-        if (!tested.has(i)) { tested.add(i); addLog((NAMES[i] || "Extra " + i) + " testado"); }
-      }
-    });
-    // analógicos: eixos 0/1 e 2/3
-    stickStep(g, "L", 0, 1); stickStep(g, "R", 2, 3);
-    live.lx = g.axes[0] || 0; live.ly = g.axes[1] || 0; live.rx = g.axes[2] || 0; live.ry = g.axes[3] || 0;
-    const l2 = g.buttons[6] ? g.buttons[6].value : 0, r2 = g.buttons[7] ? g.buttons[7].value : 0;
-    maxTrig[6] = Math.max(maxTrig[6], l2); maxTrig[7] = Math.max(maxTrig[7], r2);
-    $("bL2").style.width = l2 * 100 + "%"; $("vL2").textContent = Math.round(l2 * 100) + "%";
-    $("bR2").style.width = r2 * 100 + "%"; $("vR2").textContent = Math.round(r2 * 100) + "%";
-    live.l2 = l2; live.r2 = r2;
-    renderVal();
-  } else if (pad) {
-    pad = null; $("dot").classList.remove("on"); $("stTitle").textContent = "Nenhum controle detectado";
-    $("stSub").textContent = "Conecte o DualSense e aperte qualquer botão.";
-    pressed.clear(); Object.keys(live).forEach((k) => { live[k] = 0; }); notice(null);
-  }
-  drawDs();
-  requestAnimationFrame(loop);
-}
-drawStick($("cvL"), 0, 0, "L"); drawStick($("cvR"), 0, 0, "R"); renderVal();
-requestAnimationFrame(loop);
-
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
-</script>
+<script type="module" src="js/app.js"></script>
 </body>
 </html>

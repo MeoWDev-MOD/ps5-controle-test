@@ -1,7 +1,7 @@
 {
   "name": "PS-5 Controle Test",
   "short_name": "PS5 Teste",
-  "description": "Teste e valide o controle DualSense (PS5) no navegador.",
+  "description": "Teste, valide e calibre controles PS5 e PS4 (DualSense, DualSense Edge, DualShock 4 e PS VR2) no navegador.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

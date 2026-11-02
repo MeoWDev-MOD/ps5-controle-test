@@ -1,6 +1,7 @@
 // Cache simples para o app abrir offline. Aumente a versão ao publicar mudanças.
-const CACHE = "ps5-teste-web-v2";
-const FILES = ["./", "index.html", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png", "ds/ds_cap_l3.png", "ds/ds_cap_r3.png", "ds/ds_circle.png", "ds/ds_create.png", "ds/ds_cross.png", "ds/ds_dpad_down.png", "ds/ds_dpad_left.png", "ds/ds_dpad_right.png", "ds/ds_dpad_up.png", "ds/ds_idle.png", "ds/ds_l1.png", "ds/ds_l2.png", "ds/ds_l3.png", "ds/ds_mute.png", "ds/ds_options.png", "ds/ds_ps.png", "ds/ds_r1.png", "ds/ds_r2.png", "ds/ds_r3.png", "ds/ds_square.png", "ds/ds_touchpad.png", "ds/ds_triangle.png"];
+const CACHE = "ps5-teste-web-v3";
+const SPRITES = ["cap_l3", "cap_r3", "circle", "create", "cross", "dpad_down", "dpad_left", "dpad_right", "dpad_up", "idle", "l1", "l2", "l3", "mute", "options", "ps", "r1", "r2", "r3", "square", "touchpad", "triangle"];
+const FILES = ["./", "index.html", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png", "js/app.js", "js/protocol.js", "ds4/ds4.svg", "licencas/dualshock-tools-MIT.txt", ...SPRITES.map((n) => "ds/ds_" + n + ".png")];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
