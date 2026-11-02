@@ -102,8 +102,10 @@ test("placas e cores", () => {
   assert.equal(ds4Board(0xb400), "JDM-055");
   assert.equal(ds5Board(0x0700), "BDM-050");
   assert.equal(ds5Board(0x1300), "BDM-060X");
-  assert.equal(ds5Color("A12305xxx0000000"), "Azul Starlight");
-  assert.equal(ds5Color("V55800D7K12061109"), "Branco");
+  assert.equal(ds5Color("A12305xxx0000000"), "05");
+  assert.equal(ds5Color("V55800D7K12061109"), "00");
+  assert.equal(ds5Color("A123??xxx"), null);
+  assert.equal(ds4Board(0x0100), null);
 });
 
 test("circularidade: círculo perfeito dá erro 0, quadrado dá erro alto", () => {

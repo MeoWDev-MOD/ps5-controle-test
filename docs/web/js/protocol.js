@@ -10,9 +10,14 @@ export const MODELS = {
   DS4: { key: "DS4", name: "DualShock 4 (PS4)", sticks: 2 },
   DS5: { key: "DS5", name: "DualSense (PS5)", sticks: 2 },
   EDGE: { key: "EDGE", name: "DualSense Edge (PS5)", sticks: 2 },
-  VR2L: { key: "VR2L", name: "PS VR2 Sense · esquerdo", sticks: 1 },
-  VR2R: { key: "VR2R", name: "PS VR2 Sense · direito", sticks: 1 },
+  VR2L: { key: "VR2L", name: "PS VR2 Sense", side: "L", sticks: 1 },
+  VR2R: { key: "VR2R", name: "PS VR2 Sense", side: "R", sticks: 1 },
 };
+
+// Erro com chave de tradução (o texto fica no i18n.js)
+export class ProtoError extends Error {
+  constructor(key, detail = "") { super(key + (detail ? " " + detail : "")); this.key = key; this.detail = detail; }
+}
 
 const PRODUCTS = {
   0x05c4: "DS4", 0x09cc: "DS4", 0x0ba0: "DS4", // 0x0ba0 = adaptador sem fio do PS4
@@ -41,13 +46,6 @@ export function modelFromGamepadId(id) {
   return null;
 }
 
-// ---- nomes dos botões
-export const LABELS = {
-  cross: "✕ Cruz", circle: "◯ Bola", square: "□ Quadrado", triangle: "△ Triângulo",
-  l1: "L1", r1: "R1", l2: "L2", r2: "R2", create: "Create", options: "Options", l3: "L3", r3: "R3",
-  up: "↑", down: "↓", left: "←", right: "→", ps: "PS", touchpad: "Touchpad", mute: "Mute",
-  fn_left: "Fn esquerdo", fn_right: "Fn direito", paddle_left: "Pá traseira esq.", paddle_right: "Pá traseira dir.",
-};
 // Índices da Gamepad API no mapeamento "standard" (iguais no PS4 e no PS5)
 export const GAMEPAD_ORDER = ["cross", "circle", "square", "triangle", "l1", "r1", "l2", "r2", "create", "options", "l3", "r3", "up", "down", "left", "right", "ps", "touchpad", "mute"];
 
@@ -141,20 +139,15 @@ export function ds4Board(hwMinor) {
   if (a === 0xa4 || a === 0x90 || a === 0xa0) return "JDM-050";
   if (a === 0xb0) return "JDM-055 (Scuf?)";
   if (a === 0xb4) return "JDM-055";
-  return "Desconhecida";
+  return null;
 }
 export function ds5Board(hwinfo) {
   const a = (hwinfo >> 8) & 0xff;
-  return { 3: "BDM-010", 4: "BDM-020", 5: "BDM-030", 6: "BDM-040", 7: "BDM-050", 8: "BDM-050", 9: "BDM-060R", 0x11: "BDM-060M", 0x13: "BDM-060X" }[a] || "Desconhecida";
+  return { 3: "BDM-010", 4: "BDM-020", 5: "BDM-030", 6: "BDM-040", 7: "BDM-050", 8: "BDM-050", 9: "BDM-060R", 0x11: "BDM-060M", 0x13: "BDM-060X" }[a] || null;
 }
-const COLORS = {
-  "00": "Branco", "01": "Preto Midnight", "02": "Vermelho Cosmic", "03": "Rosa Nova", "04": "Roxo Galactic", "05": "Azul Starlight",
-  "06": "Camuflado cinza", "07": "Vermelho Volcanic", "08": "Prata Sterling", "09": "Azul Cobalt", "10": "Chroma Teal", "11": "Chroma Indigo",
-  "12": "Chroma Pearl", "13": "HyperPop Techno Red", "14": "HyperPop Remix Green", "15": "HyperPop Rhythm Blue", "30": "30º Aniversário",
-  Z1: "God of War Ragnarök", Z2: "Spider-Man 2", Z3: "Astro Bot", Z4: "Fortnite", Z6: "The Last of Us", ZA: "God of War 20 anos",
-  ZB: "Icon Blue (edição limitada)", ZC: "Ghost of Yōtei (edição limitada)", ZD: "Marathon (edição limitada)", ZE: "Genshin Impact (edição limitada)", ZF: "007 First Light (edição limitada)",
-};
-export const ds5Color = (serial) => COLORS[String(serial || "").slice(4, 6)] || "Desconhecida";
+// Código da cor (5º e 6º caracteres do número de série); o nome vem do i18n.js ("color.05")
+const COLOR_CODES = new Set(["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "30", "Z1", "Z2", "Z3", "Z4", "Z6", "ZA", "ZB", "ZC", "ZD", "ZE", "ZF"]);
+export const ds5Color = (serial) => { const c = String(serial || "").slice(4, 6); return COLOR_CODES.has(c) ? c : null; };
 
 // ---- utilidades
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -163,7 +156,7 @@ const hexBuf = (b) => Array.from(new Uint8Array(b), (x) => x.toString(16).padSta
 const ascii = (b) => new TextDecoder().decode(b).replace(/\0/g, "").trim();
 const mac = (v, from) => [5, 4, 3, 2, 1, 0].map((i) => hex(v.getUint8(from + i), 2)).join(":");
 function withTimeout(p, ms) {
-  let t; return Promise.race([p, new Promise((_, rej) => { t = setTimeout(() => rej(new Error("sem resposta")), ms); })]).finally(() => clearTimeout(t));
+  let t; return Promise.race([p, new Promise((_, rej) => { t = setTimeout(() => rej(new ProtoError("err.noReply")), ms); })]).finally(() => clearTimeout(t));
 }
 
 // ---- controle conectado por USB
@@ -209,17 +202,18 @@ export class HidPad {
     const build = (ascii(v.buffer.slice(1, 0x10)) + " " + ascii(v.buffer.slice(0x10, 0x20))).trim();
     const hwMaj = v.getUint16(0x21, true), hwMin = v.getUint16(0x23, true), swMaj = v.getUint32(0x25, true), swMin = v.getUint16(0x29, true);
     if (!clone) { try { await this.recv(0x81, 1000); } catch { clone = true; } }
+    // itens: [chave do rótulo, valor (texto ou {t: chave}), classe]
     const items = [
-      ["Tipo", clone ? "Possível paralelo (não original)" : "Original Sony", clone ? "bad" : "ok"],
-      ["Data do firmware", build],
-      ["Versão do hardware", hex(hwMaj, 4) + ":" + hex(hwMin, 4)],
-      ["Versão do software", hex(swMaj & 0xffff, 4) + ":" + hex(swMin, 4)],
+      ["info.type", { t: clone ? "info.clone" : "info.original" }, clone ? "bad" : "ok"],
+      ["info.fwDate", build],
+      ["info.hwVer", hex(hwMaj, 4) + ":" + hex(hwMin, 4)],
+      ["info.swVer", hex(swMaj & 0xffff, 4) + ":" + hex(swMin, 4)],
     ];
     let serial = null, nv = null;
     if (!clone) {
-      items.push(["Placa", ds4Board(hwMin)]);
+      items.push(["info.board", ds4Board(hwMin) || { t: "unknown" }]);
       serial = mac(await this.recv(0x12), 1);
-      items.push(["Endereço Bluetooth", serial]);
+      items.push(["info.bt", serial]);
       nv = await this.nvStatus();
     }
     return { items, extra: [], serial, clone, oldFw: false, nv, board: clone ? null : ds4Board(hwMin), color: null };
@@ -227,7 +221,7 @@ export class HidPad {
 
   async infoDs5() {
     const v = await this.recv(0x20);
-    if (v.getUint8(0) !== 0x20 || v.buffer.byteLength !== 64) throw new Error("Resposta inválida do controle (0x20)");
+    if (v.getUint8(0) !== 0x20 || v.buffer.byteLength !== 64) throw new ProtoError("err.badReply", "0x20");
     const date = ascii(v.buffer.slice(1, 12)), time = ascii(v.buffer.slice(12, 20));
     const fwtype = v.getUint16(20, true), series = v.getUint16(22, true), hw = v.getUint32(24, true), fw = v.getUint32(28, true);
     const upd = v.getUint16(44, true), unk = v.getUint8(46), sbl = v.getUint32(48, true), venom = v.getUint32(52, true), spider = v.getUint32(56, true);
@@ -239,36 +233,36 @@ export class HidPad {
     const board = this.isVr2 || this.isEdge ? null : ds5Board(hw);
     const color = this.isVr2 ? null : ds5Color(serial);
     const items = [
-      ["Tipo", clone ? "Possível paralelo (não original)" : "Original Sony", clone ? "bad" : "ok"],
-      ["Número de série", serial || "—"],
+      ["info.type", { t: clone ? "info.clone" : "info.original" }, clone ? "bad" : "ok"],
+      ["info.serial", serial || "—"],
     ];
-    if (color) items.push(["Cor", color]);
-    if (board) items.push(["Placa", board]);
-    items.push(["Firmware", `${date} ${time}`.trim(), oldFw ? "warn" : ""]);
-    items.push(["Versão do firmware", "0x" + hex(fw, 8)]);
+    if (!this.isVr2) items.push(["info.color", { t: color ? "color." + color : "unknown" }]);
+    if (!this.isVr2 && !this.isEdge) items.push(["info.board", board || { t: "unknown" }]);
+    items.push(["info.fw", `${date} ${time}`.trim(), oldFw ? "warn" : ""]);
+    items.push(["info.fwVer", "0x" + hex(fw, 8)]);
     const extra = [
-      ["Endereço Bluetooth", await this.bdAddr()],
-      ["ID único do chip (MCU)", await this.sysInfo(1, 9, 9, false)],
-      ["ID da placa (PCBA)", (await this.sysInfo(1, 17, 14) || "").split("").reverse().join("")],
-      ["Código da bateria", await this.sysInfo(1, 24, 23)],
-      ["Motor de vibração esq.", await this.sysInfo(1, 26, 16)],
-      ["Motor de vibração dir.", await this.sysInfo(1, 28, 16)],
-      ["Modelo de hardware", "0x" + hex(hw, 8)],
-      ["Tipo / série do firmware", "0x" + hex(fwtype, 4) + " / 0x" + hex(series, 4)],
-      ["Atualização do firmware", "0x" + hex(upd, 4) + " (0x" + hex(unk, 2) + ")"],
-      ["Firmware SBL", "0x" + hex(sbl, 8)],
-      ["Firmware Venom", "0x" + hex(venom, 8)],
-      ["Firmware Spider", "0x" + hex(spider, 8)],
+      ["info.bt", await this.bdAddr()],
+      ["info.mcu", await this.sysInfo(1, 9, 9, false)],
+      ["info.pcba", (await this.sysInfo(1, 17, 14) || "").split("").reverse().join("")],
+      ["info.batCode", await this.sysInfo(1, 24, 23)],
+      ["info.vcmL", await this.sysInfo(1, 26, 16)],
+      ["info.vcmR", await this.sysInfo(1, 28, 16)],
+      ["info.hwModel", "0x" + hex(hw, 8)],
+      ["info.fwType", "0x" + hex(fwtype, 4) + " / 0x" + hex(series, 4)],
+      ["info.fwUpd", "0x" + hex(upd, 4) + " (0x" + hex(unk, 2) + ")"],
+      ["info.sbl", "0x" + hex(sbl, 8)],
+      ["info.venom", "0x" + hex(venom, 8)],
+      ["info.spider", "0x" + hex(spider, 8)],
     ];
     if (!this.isVr2) {
       const tid = await this.sysInfo(5, 2, 8, false), tfw = await this.sysInfo(5, 4, 8, false);
-      if (tid) extra.push(["ID do touchpad", tid]);
-      if (tfw) extra.push(["Firmware do touchpad", tfw]);
+      if (tid) extra.push(["info.tpId", tid]);
+      if (tfw) extra.push(["info.tpFw", tfw]);
     }
     if (this.isEdge) {
       try {
         const [l, r] = await this.edgeBarcodes();
-        extra.push(["Módulo analógico esq.", l || "—"], ["Módulo analógico dir.", r || "—"]);
+        extra.push(["info.modL", l || "—"], ["info.modR", r || "—"]);
       } catch { /* alguns Edge não respondem */ }
     }
     const nv = await this.nvStatus();
@@ -326,7 +320,7 @@ export class HidPad {
     await this.edgeModule(1, [21, 6, 1, 11], [21, 6, 2]); progress(30);
     await this.nvUnlock(); await sleep(50); progress(45);
     const data = await this.finetune();
-    if (!data) throw new Error("Não foi possível ler o ajuste dos analógicos");
+    if (!data) throw new ProtoError("err.finetune");
     await sleep(50); progress(60);
     await this.send(0x80, data.reduce((a, x) => a.concat([x & 0xff, x >> 8]), [12, 1]));
     await sleep(100);
@@ -341,7 +335,7 @@ export class HidPad {
       if (expect.every((b, k) => v.getUint8(1 + k) === b)) return;
       await sleep(50);
     }
-    throw new Error(`O módulo ${i === 0 ? "esquerdo" : "direito"} não respondeu`);
+    throw new ProtoError(i === 0 ? "err.moduleL" : "err.moduleR");
   }
 
   // Reinicia o controle: desfaz o que não foi gravado (ele desconecta e volta sozinho)
@@ -431,11 +425,8 @@ export class HidPad {
 // início, fim, força
 export const TRIGGER_PRESETS = { light: [10, 80, 150], medium: [15, 100, 200], heavy: [20, 120, 255] };
 
-export class CalibError extends Error {
-  constructor(op, code) {
-    super(op === 1 ? "O controle não aceitou entrar em calibração (" + code + ")" : "A calibração falhou (" + code + ")");
-    this.code = code;
-  }
+export class CalibError extends ProtoError {
+  constructor(op, code) { super(op === 1 ? "err.calibBegin" : "err.calibFail", "(" + code + ")"); this.code = code; }
 }
 
 // ---- circularidade (média do quanto cada setor fica fora do círculo)
