@@ -42,6 +42,11 @@
   try { const t = localStorage.getItem("ps5web.theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
 </script>
 <script>
+  // celular ou tablet: "m"; iPhone e iPad: também "ios" (o app é só para Android)
+  (function () { var n = navigator, ios = /iPhone|iPad|iPod/i.test(n.userAgent) || (n.platform === "MacIntel" && n.maxTouchPoints > 1), c = document.documentElement.classList;
+    if (ios || /Android/i.test(n.userAgent)) c.add("m"); if (ios) c.add("ios"); })();
+</script>
+<script>
   // chegada com cortina, quando veio de outra página do site
   try { if (sessionStorage.getItem("ps5.pt")) { sessionStorage.removeItem("ps5.pt"); document.documentElement.classList.add("pt"); } } catch (e) {}
 </script>
@@ -73,6 +78,30 @@ a{color:var(--accent)}
 .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
 svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .grad{background:linear-gradient(90deg,var(--grad1),var(--grad2));-webkit-background-clip:text;background-clip:text;color:transparent}
+/* celular e tablet: o foco é baixar o app */
+html:not(.m) .only-m{display:none!important}
+html.ios .not-ios{display:none!important}
+html:not(.ios) .if-ios{display:none!important}
+html.m .webcta{display:none}
+html.m:not(.ios) #web{display:none}
+html.ios a[href$=".apk"],html.ios .hero .cta,html.ios .hero .chips,html.ios #instalar{display:none!important}
+html.m:not(.ios) .top .b.arrow{display:none}
+html.m:not(.ios) .top .dl{display:inline-flex}
+html.m .hero{padding-top:22px}
+.mnote{margin-top:14px;padding:12px 14px;border-radius:16px;font-size:14px;line-height:1.45;border:1px solid color-mix(in srgb,var(--warn) 50%,transparent);background:color-mix(in srgb,var(--warn) 11%,var(--bg))}
+.mnote b{color:var(--warn)}
+.mnote a{display:inline-flex;align-items:center;min-height:44px;font-weight:700}
+.mdl{position:fixed;left:0;right:0;bottom:0;z-index:7;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:var(--nav);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid var(--line);transform:translateY(110%);transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+.mdl.on{transform:none}
+.mdl .b{width:100%;min-height:52px}
+html.m:not(.ios) footer{padding-bottom:96px}
+.mdlg{width:min(420px,calc(100vw - 32px));padding:22px;border-radius:22px;color:var(--text);background:var(--bg);border:1px solid var(--line)}
+.mdlg::backdrop{background:rgba(5,3,20,.7)}
+.mdlg h2{font-size:22px;margin:0 0 8px}
+.mdlg p{margin:0 0 12px;color:var(--muted);font-size:15px}
+.mdlg ul{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:7px;font-size:15px}
+.mdlg .no::before{content:"✕  ";color:var(--warn);font-weight:700}
+.mdlg .b{width:100%;margin-top:8px}
 /* cortina entre páginas */
 html.pt::before{content:"";position:fixed;inset:0;z-index:9999;background:#0c0920 url(web/logo.png) center/96px no-repeat;pointer-events:none;animation:ptout .55s cubic-bezier(.7,0,.2,1) .06s both}
 @keyframes ptout{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(0 0 100% 0);visibility:hidden}}
@@ -307,6 +336,11 @@ footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);f
 </div><i id="scrollBar" aria-hidden="true"></i></header>
 
 <main class="wrap">
+  <aside class="mnote only-m">
+    <span class="not-ios"><b>Está no celular ou tablet?</b> Pelo navegador, este aparelho não faz a conexão completa com o controle. Para <strong>sincronizar, calibrar e fazer todos os testes</strong>, baixe o app. Sem ele, isso só funciona no computador.</span>
+    <span class="if-ios"><b>O app é só para Android.</b> No iPhone e no iPad, o navegador faz só o teste básico por Bluetooth. Para <strong>sincronizar pelo cabo, calibrar e fazer todos os testes</strong>, use um computador.</span>
+    <br><a href="web/" data-ok>Acessar pelo navegador mesmo assim →</a>
+  </aside>
   <section class="webcta" aria-label="Testador web grátis">
     <div class="pcpad" aria-hidden="true"><img src="assets/logo-cat.png" width="360" height="360" alt=""><i style="left:80.4%;top:56.8%"></i><i style="left:83.1%;top:59.6%"></i><i style="left:81.3%;top:61.8%"></i><i style="left:78.4%;top:58.9%"></i></div>
     <div><span class="kick">Grátis, sem instalar nada</span><h2>Teste seu controle agora no navegador</h2><p>Abra, ligue o controle e veja na hora se está tudo certo.</p></div>
@@ -374,6 +408,7 @@ footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);f
     <div class="card tablewrap"><table>
       <thead><tr><th>Recurso</th><th class="me">App Android</th><th>Site no computador</th><th>Site no celular</th></tr></thead>
       <tbody>
+        <tr><td>Modo completo pelo cabo USB</td><td class="me y">Sim</td><td class="y">Sim</td><td class="n">Não</td></tr>
         <tr><td>Botões, analógicos e gatilhos</td><td class="me y">Sim</td><td class="y">Sim</td><td class="y">Sim</td></tr>
         <tr><td>Drift e circularidade</td><td class="me y">Sim</td><td class="y">Sim</td><td class="y">Sim</td></tr>
         <tr><td>Calibração dos analógicos</td><td class="me">Sim, menos Edge e Xbox</td><td class="y">Sim, por USB</td><td class="n">Não</td></tr>
@@ -457,6 +492,14 @@ footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);f
   </div>
 </div></footer>
 
+<dialog class="mdlg" id="mDlg" aria-labelledby="mDlgT">
+  <h2 id="mDlgT">Neste aparelho, baixe o app</h2>
+  <p>Pelo navegador do celular ou tablet você fica só com o teste básico por Bluetooth. Sem o app, não dá para:</p>
+  <ul><li class="no">Conectar no modo completo pelo cabo USB</li><li class="no">Calibrar os analógicos</li><li class="no">Testar touchpad, giroscópio, luzes, gatilho adaptável e som</li></ul>
+  <a class="b p" href="https://github.com/MeoWDev-MOD/ps5-controle-test/releases/latest/download/PS5-Controle-Test.apk"><svg class="i"><use href="#i-down"/></svg>Baixar para Android · 2 dias grátis</a>
+  <a class="b" href="web/" data-ok>Continuar no navegador</a>
+</dialog>
+<div class="mdl only-m not-ios" id="mDl"><a class="b p" href="https://github.com/MeoWDev-MOD/ps5-controle-test/releases/latest/download/PS5-Controle-Test.apk"><svg class="i"><use href="#i-down"/></svg>Baixar para Android · 2 dias grátis</a></div>
 <script defer src="web/vendor/gsap.min.js"></script>
 <script defer src="web/vendor/ScrollTrigger.min.js"></script>
 <script defer src="web/vendor/lenis.min.js"></script>

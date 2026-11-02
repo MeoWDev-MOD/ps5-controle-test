@@ -476,7 +476,7 @@ function renderStatus() {
 }
 function notice() {
   let h = "";
-  if (!src) h = t("n.none");
+  if (!src) h = t(MOBILE ? "n.mobile" : "n.none");
   else if (src === "pad") {
     if (!padStandard) h = t("n.nonStd");
     else if (unknownPad) h = t("n.unknown");

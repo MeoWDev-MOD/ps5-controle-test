@@ -18,6 +18,11 @@
   try { const t = localStorage.getItem("ps5web.theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
 </script>
 <script>
+  // celular ou tablet: "m"; iPhone e iPad: também "ios" (o app é só para Android)
+  (function () { var n = navigator, ios = /iPhone|iPad|iPod/i.test(n.userAgent) || (n.platform === "MacIntel" && n.maxTouchPoints > 1), c = document.documentElement.classList;
+    if (ios || /Android/i.test(n.userAgent)) c.add("m"); if (ios) c.add("ios"); })();
+</script>
+<script>
   // chegada com cortina, quando veio de outra página do site
   try { if (sessionStorage.getItem("ps5.pt")) { sessionStorage.removeItem("ps5.pt"); document.documentElement.classList.add("pt"); } } catch (e) {}
 </script>
@@ -138,6 +143,16 @@ button.b.arrow .ar svg{width:16px;height:16px}
 @keyframes flip{from{transform:rotate(-120deg) scale(.4);opacity:0}to{transform:none;opacity:1}}
 
 /* ======================= TELA DE ENTRADA ======================= */
+/* celular e tablet: o foco é baixar o app */
+html:not(.m) .only-m{display:none!important}
+html.ios .not-ios{display:none!important}
+html:not(.ios) .if-ios{display:none!important}
+html.m #gate .opt.rec,html.m #gate .hero .lead{display:none}
+html.m #gate .opts{grid-template-columns:1fr}
+.mapp{margin:14px 0;border-color:color-mix(in srgb,var(--warn) 50%,transparent)!important}
+.mapp h2{font-size:19px;margin:0 0 6px;text-transform:none;letter-spacing:-.01em;color:var(--text)}
+.mapp p{margin:0 0 12px;color:var(--muted);font-size:14px}
+.mbar a{font-weight:700}
 /* cortina entre páginas */
 html.pt::before{content:"";position:fixed;inset:0;z-index:9999;background:#0c0920 url(logo.png) center/96px no-repeat;pointer-events:none;animation:ptout .55s cubic-bezier(.7,0,.2,1) .06s both}
 @keyframes ptout{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(0 0 100% 0);visibility:hidden}}
@@ -485,6 +500,11 @@ details[open] summary::before{transform:rotate(45deg)}
     <p class="lead" data-i18n="gate.lead"></p>
     <div class="models"><span>DualSense</span><span>DualSense Edge</span><span>DualShock 4</span><span>PS VR2 Sense</span></div>
   </section>
+  <section class="card mapp only-m">
+    <div class="not-ios"><h2 data-i18n="m.t"></h2><p data-i18n="m.d"></p>
+      <a class="b p block" style="min-height:52px;font-size:16px" href="https://github.com/MeoWDev-MOD/ps5-controle-test/releases/latest/download/PS5-Controle-Test.apk"><svg class="i"><use href="#i-usb"/></svg><span data-i18n="m.btn"></span></a></div>
+    <div class="if-ios"><h2 data-i18n="m.iosT"></h2><p data-i18n="m.ios"></p></div>
+  </section>
   <section class="opts">
     <article class="card opt rec spot">
       <div class="opt-head"><span class="ico"><svg class="i"><use href="#i-usb"/></svg></span>
@@ -548,6 +568,7 @@ details[open] summary::before{transform:rotate(45deg)}
       <div><div class="crumb sub" id="crumb"></div><h1 id="pageTitle"></h1></div>
       <div id="toolsSlot"></div>
     </header>
+    <div class="alert warn mbar only-m"><span class="not-ios"><span data-i18n="m.bar"></span> <a href="https://github.com/MeoWDev-MOD/ps5-controle-test/releases/latest/download/PS5-Controle-Test.apk" data-i18n="m.btn"></a></span><span class="if-ios" data-i18n="m.ios"></span></div>
     <aside class="ad hidden" id="adSlot" data-i18n-aria="ad.label"><span class="adtag" data-i18n="ad.label"></span><div id="adMedia"></div></aside>
     <div class="alert" id="notice"></div>
     <div class="alert warn hidden" id="unsavedTop"></div>
