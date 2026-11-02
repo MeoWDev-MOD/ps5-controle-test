@@ -49,5 +49,5 @@ initDemo($("demo"));
 
 mobileFocus();
 startShader($("fxBg"), isDark).start();
-initPageFx("web/logo.png");
+initPageFx("web/logo-xl.webp");
 initFx();

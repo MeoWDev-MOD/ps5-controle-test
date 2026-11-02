@@ -14,7 +14,7 @@ const moved = () => window.gsap && !matchMedia("(prefers-reduced-motion: reduce)
 const isDarkNow = () => (document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches);
 // O fundo em GLSL só roda na entrada: no painel, o processador fica todo para ler o controle.
 const fxBg = startShader($("fxBg"), isDarkNow);
-initPageFx("logo.png");
+initPageFx("logo-xl.webp");
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const HAS_HID = "hid" in navigator;

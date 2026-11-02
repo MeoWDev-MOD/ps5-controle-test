@@ -103,10 +103,10 @@ html.m:not(.ios) footer{padding-bottom:96px}
 .mdlg .no::before{content:"✕  ";color:var(--warn);font-weight:700}
 .mdlg .b{width:100%;margin-top:8px}
 /* cortina entre páginas */
-html.pt::before{content:"";position:fixed;inset:0;z-index:9999;background:#0c0920 url(web/logo.png) center/96px no-repeat;pointer-events:none;animation:ptout .55s cubic-bezier(.7,0,.2,1) .06s both}
+html.pt::before{content:"";position:fixed;inset:0;z-index:9999;background:#0c0920 url(web/logo-xl.webp) center/clamp(210px,44vmin,360px) no-repeat;pointer-events:none;animation:ptout .55s cubic-bezier(.7,0,.2,1) .06s both}
 @keyframes ptout{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(0 0 100% 0);visibility:hidden}}
 .ptc{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#0c0920}
-.ptc img{width:96px;height:96px}
+.ptc img{width:clamp(210px,44vmin,360px);height:auto;filter:drop-shadow(0 12px 44px rgba(124,92,255,.55))}
 @media print{html.pt::before,.ptc,#fxBg{display:none!important}}
 @media (prefers-reduced-motion:reduce){html.pt::before{display:none}}
 /* fundo vivo e movimento */

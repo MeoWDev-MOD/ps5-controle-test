@@ -14,6 +14,7 @@ export function isPageLink(href, here, { target = "", download = false, modified
 export function initPageFx(logoSrc) {
   const calm = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
   let curtain = null;
+  new Image().src = logoSrc;   // já carregada quando a cortina fechar
   document.addEventListener("click", (e) => {
     const a = e.target.closest?.("a[href]");
     if (!a || e.defaultPrevented || calm() || !window.gsap) return;
