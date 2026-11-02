@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bannersUrl, cleanBanners, firstIndex } from "../docs/web/js/banners.js";
+import { bannersUrl, cleanBanners, clickLink, firstIndex, mostlyOnScreen, sourceOf } from "../docs/web/js/banners.js";
 
 const ok = { id: "1", title: "Oficina", media_url: "https://abc.supabase.co/storage/v1/object/public/banners/u/a.gif", kind: "image", link_url: "https://loja.com" };
 
@@ -46,4 +46,28 @@ test("primeira visita ou anúncio que saiu do ar: sorteia dentro da lista", () =
 
 test("sem anúncios não quebra", () => {
   assert.equal(firstIndex([], "a"), 0);
+});
+
+const box = (left, top, width, height) => ({ left, top, width, height, right: left + width, bottom: top + height });
+
+test("anúncio conta como visto só com pelo menos metade dentro da tela", () => {
+  assert.equal(mostlyOnScreen(box(0, 0, 400, 100), 1000, 800), true);
+  assert.equal(mostlyOnScreen(box(0, 750, 400, 100), 1000, 800), true);
+  assert.equal(mostlyOnScreen(box(0, 760, 400, 100), 1000, 800), false);
+  assert.equal(mostlyOnScreen(box(0, 900, 400, 100), 1000, 800), false);
+  assert.equal(mostlyOnScreen(box(0, -80, 400, 100), 1000, 800), false);
+  assert.equal(mostlyOnScreen(box(0, 0, 0, 0), 1000, 800), false);
+});
+
+test("guarda só o nome do site de origem", () => {
+  assert.equal(sourceOf("https://www.google.com/search?q=controle"), "www.google.com");
+  assert.equal(sourceOf(""), "");
+  assert.equal(sourceOf("isso não é endereço"), "");
+});
+
+test("a origem vai junto só no clique que passa pelo CRM", () => {
+  const crm = "https://crm-pessoal-chi.vercel.app/api/banners/clique?id=1&local=ps5-web";
+  assert.equal(clickLink(crm, "google.com"), crm + "&de=google.com");
+  assert.equal(clickLink(crm, ""), crm);
+  assert.equal(clickLink("https://loja.com/", "google.com"), "https://loja.com/");
 });
