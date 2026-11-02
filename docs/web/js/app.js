@@ -1,6 +1,7 @@
 "use strict";
 import { MODELS, HID_FILTERS, GAMEPAD_ORDER, buttonsOf, modelFromGamepadId, parseInput, HidPad, circularity, TOUCH_W, TOUCH_H } from "./protocol.js";
 import { t, LANGS, getLang, setLang, applyI18n } from "./i18n.js";
+import { initUI, moveIndicator, themeSwitch, countTo, setRing, pop } from "./ui.js";
 
 const $ = (id) => document.getElementById(id);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -22,12 +23,12 @@ for (const [code, name] of LANGS) { const o = document.createElement("option"); 
 langSel.value = getLang();
 langSel.onchange = () => { setLang(langSel.value); refreshTexts(); };
 const isDark = () => { const th = document.documentElement.dataset.theme; return th ? th === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; };
-$("themeBtn").onclick = () => {
+$("themeBtn").onclick = (e) => themeSwitch(e, () => {
   const next = isDark() ? "light" : "dark";
   document.documentElement.dataset.theme = next; store.set("theme", next);
   document.querySelector('meta[name="theme-color"]').content = next === "dark" ? "#0c0920" : "#f4f1ff";
   readColors();
-};
+});
 let CV = {};
 function readColors() {
   const cs = getComputedStyle(document.documentElement);
@@ -65,8 +66,18 @@ function addLog(s) {
   $("log").textContent = log.join("\n");
 }
 let toastT;
+const TICO = {
+  ok: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  bad: '<path d="M12 7v6M12 17h.01"/>',
+  "": '<path d="M12 11v6M12 7h.01"/>',
+};
 function toast(msg, kind = "", ms = 4200) {
-  const el = $("toast"); el.textContent = msg; el.className = kind; clearTimeout(toastT);
+  const el = $("toast"); clearTimeout(toastT);
+  el.className = "hidden"; void el.offsetWidth; // reinicia a animação
+  el.innerHTML = `<span class="tico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">${TICO[kind] || TICO[""]}</svg></span><span></span><i class="tbar" aria-hidden="true"></i>`;
+  el.children[1].textContent = msg;
+  el.style.setProperty("--dur", ms + "ms");
+  el.className = kind;
   toastT = setTimeout(() => el.classList.add("hidden"), ms);
 }
 
@@ -83,6 +94,7 @@ function showApp() {
   $("gate").classList.add("hidden"); $("app").classList.remove("hidden"); $("nav").classList.remove("hidden");
   $("app").classList.remove("fade"); void $("app").offsetWidth; $("app").classList.add("fade");
   window.scrollTo(0, 0);
+  requestAnimationFrame(() => moveIndicator(document.querySelector("nav button.on")));
 }
 let loadStep = 0;
 function loading(on, key = "", step = 0, sub = "") {
@@ -109,6 +121,9 @@ function tab(name) {
   $("pageTools").classList.toggle("hidden", name !== "tools");
   $("drawCard").classList.toggle("hidden", name === "tools");
   for (const [id, n] of [["tabTest", "test"], ["tabVal", "val"], ["tabTools", "tools"]]) $(id).classList.toggle("on", n === name);
+  const page = $({ test: "pageTest", val: "pageVal", tools: "pageTools" }[name]);
+  page.classList.remove("page-in"); void page.offsetWidth; page.classList.add("page-in");
+  moveIndicator(document.querySelector("nav button.on"));
   svgCache.clear();
 }
 $("tabTest").onclick = () => tab("test"); $("tabVal").onclick = () => tab("val"); $("tabTools").onclick = () => tab("tools");
@@ -523,11 +538,11 @@ function items() {
   if (usb && (k === "DS5" || k === "EDGE")) list.push(manualItem("spk", "v.spk", "v.spkD"));
   return list;
 }
-let ITEMS = [], rows = [];
+let ITEMS = [], rows = [], prevSt = [];
 function buildVal() {
   const sig = (model?.key || "-") + src + getLang();
   if (sig === valSig) return;
-  valSig = sig; ITEMS = items();
+  valSig = sig; ITEMS = items(); prevSt = [];
   $("valList").innerHTML = "";
   rows = ITEMS.map((it) => {
     const r = document.createElement("div"); r.className = "row";
@@ -542,9 +557,15 @@ function renderVal() {
   ITEMS.forEach((it, i) => {
     const s = it.st(); if (s === "ok") ok++;
     rows[i].querySelector(".d").textContent = it.d();
-    const b = rows[i].querySelector(".badge"); b.textContent = ST(s); b.className = "badge " + (s === "idle" ? "" : s === "fail" ? "bad" : s);
+    const b = rows[i].querySelector(".badge");
+    if (prevSt[i] !== s) {
+      b.textContent = ST(s); b.className = "badge " + (s === "idle" ? "" : s === "fail" ? "bad" : s);
+      if (prevSt[i] !== undefined && s === "ok") pop(b);
+      prevSt[i] = s;
+    }
   });
-  $("sum").textContent = `${ok} / ${ITEMS.length}`;
+  countTo($("sumOk"), ok); $("sumAll").textContent = ITEMS.length;
+  setRing($("vring"), ITEMS.length ? ok / ITEMS.length : 0);
 }
 $("btnReset").onclick = () => {
   tested.clear(); sectors.L.fill(0); sectors.R.fill(0); maxTrig.l2 = maxTrig.r2 = 0; drift.L = drift.R = null;
@@ -774,6 +795,7 @@ function refreshTexts() {
   for (const [n, el] of chipEls) el.textContent = L(n);
   valSig = ""; lastPills = ""; lastBat = "";
   usbHint(); renderStatus(); renderTools(); renderLast(); renderVal();
+  requestAnimationFrame(() => moveIndicator(document.querySelector("nav button.on")));
   if (!$("touchTxt").textContent || !S.touches.length) $("touchTxt").textContent = t("touch.hint");
   if (!S.imu) $("imu").textContent = t("imu.hint");
 }
@@ -808,6 +830,7 @@ function loop(now) {
   requestAnimationFrame(loop);
 }
 
+initUI();
 setModel(MODELS.DS5);
 refreshTexts();
 drawStick($("cvL"), 0, 0, sectors.L); drawStick($("cvR"), 0, 0, sectors.R);
