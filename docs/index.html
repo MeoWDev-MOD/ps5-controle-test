@@ -107,30 +107,86 @@ svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-widt
 @keyframes flip{from{transform:rotate(-120deg) scale(.4);opacity:0}to{transform:none;opacity:1}}
 ::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
 /* primeira dobra */
-.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:40px;align-items:center;padding:52px 0 36px}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--accent)}
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:40px;align-items:center;padding:34px 0 36px}
 h1{font-size:clamp(34px,5.4vw,58px);line-height:1.06;letter-spacing:-.03em;font-weight:800;margin:14px 0 14px}
 .lead{font-size:18px;color:var(--muted);max-width:560px;margin:0 0 22px}
 .cta{display:flex;flex-wrap:wrap;gap:10px}
 .chips{display:flex;flex-wrap:wrap;gap:8px 18px;margin:18px 0 0;padding:0;list-style:none;font-size:14px;color:var(--muted)}
 .chips li{display:flex;align-items:center;gap:7px}
 .chips svg{width:17px;height:17px;color:var(--ok)}
-/* celular ilustrado */
-.phone{width:min(290px,76vw);margin:0 auto;padding:11px;border-radius:42px;background:linear-gradient(160deg,#2a2150,#0a0620);box-shadow:0 30px 70px rgba(30,15,90,.45),inset 0 0 0 1.5px rgba(255,255,255,.14);transform:rotate(2.5deg)}
-.screen{border-radius:32px;overflow:hidden;background:radial-gradient(420px 240px at 50% 0,#2a1670,#0c0920 75%);color:#f3f0ff;padding:16px 14px 18px;min-height:500px;display:flex;flex-direction:column;gap:12px}
-.phead{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700}
-.phead img{width:28px;height:28px;border-radius:8px}
-.pdot{width:9px;height:9px;border-radius:50%;background:#4ade80;margin-left:auto}
-#phoneDs{position:relative}
-#phoneDs>img{display:block;width:100%;height:auto;filter:hue-rotate(42deg) saturate(1.15)}
-.hit{position:absolute;opacity:0;transition:opacity .2s}
-.hit.on{opacity:1}
-.pcard{border-radius:16px;padding:10px 12px;background:rgba(255,255,255,.07);border:1px solid rgba(167,139,250,.25);font-size:13px}
-.prow{display:flex;justify-content:space-between;gap:8px}
-.pbar{height:7px;border-radius:5px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:7px}
-.pbar i{display:block;height:100%;background:linear-gradient(90deg,#6d4cff,#4ade80);transform:scaleX(0);transform-origin:left;transition:transform .4s}
-.pok{color:#4ade80;font-weight:700}
-.caption{text-align:center;font-size:12px;color:var(--muted);margin-top:18px}
+/* faixa do topo: testador web grátis */
+.webcta{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:22px;margin-top:22px;padding:14px 22px;border-radius:24px;border:1px solid color-mix(in srgb,var(--accent2) 45%,transparent);background:linear-gradient(110deg,color-mix(in srgb,var(--accent2) 22%,transparent),var(--surface));box-shadow:0 14px 44px var(--glow)}
+.webcta h2{font-size:clamp(20px,2.4vw,27px);margin:2px 0}
+.webcta p{margin:0;color:var(--muted);font-size:15px}
+.pcpad{position:relative;display:block;width:132px;animation:floaty 4s ease-in-out infinite}
+.pcpad img{display:block;width:100%;height:auto}
+.pcpad i{position:absolute;width:4.4%;aspect-ratio:1;margin:-2.2% 0 0 -2.2%;border-radius:50%;background:#c4b5fd;box-shadow:0 0 6px 1px #7c5cff;animation:blink 2.4s ease-in-out infinite}
+.pcpad i:nth-of-type(2){animation-delay:.6s}.pcpad i:nth-of-type(3){animation-delay:1.2s}.pcpad i:nth-of-type(4){animation-delay:1.8s}
+@keyframes floaty{50%{transform:translateY(-6px) rotate(-2deg)}}
+@keyframes blink{0%,100%{opacity:.25}35%{opacity:1}}
+/* card Premium com faixa no canto. Efeito: Uiverse.io, mrhyddenn */
+.card_box{position:relative;width:min(350px,100%);margin:0 auto;padding:24px;border-radius:30px;background:linear-gradient(170deg,rgba(58,56,86,.62),rgb(24,20,48));box-shadow:0 25px 50px rgba(0,0,0,.55);transition:transform .3s}
+@media (hover:hover){.card_box:hover{transform:scale(.975)}}
+.ribbon{position:absolute;overflow:hidden;width:150px;height:150px;top:-10px;left:-10px;display:flex;align-items:center;justify-content:center;z-index:3;pointer-events:none}
+.ribbon::before{content:"Premium";position:absolute;width:150%;height:40px;background-image:linear-gradient(45deg,#ff6547 0%,#ffb144 51%,#ff7053 100%);transform:rotate(-45deg) translateY(-20px);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:14px;box-shadow:0 5px 10px rgba(0,0,0,.23)}
+.ribbon::after{content:"";position:absolute;width:10px;height:10px;bottom:0;left:0;z-index:-1;box-shadow:140px -140px #cc3f47;background-image:linear-gradient(45deg,#ff512f 0%,#f09819 51%,#ff512f 100%)}
+/* mini celular: moldura preta com ilha no topo, proporção de tela 1320 x 2868, e telas reais do app */
+.phone{position:relative;width:100%;padding:7px;border-radius:50px;background:linear-gradient(145deg,#3a3a40,#121214 45%,#2a2a2f);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.2),inset 0 0 0 4px #050506}
+.phone::before,.phone::after{content:"";position:absolute;width:3px;border-radius:2px;background:#2b2b30}
+.phone::before{left:-3px;top:150px;height:96px;box-shadow:0 -58px 0 -20px #2b2b30}
+.phone::after{right:-3px;top:178px;height:84px}
+.screen{position:relative;aspect-ratio:1320/2868;border-radius:43px;overflow:hidden;background:#0c0920;display:flex;flex-direction:column}
+.island{position:absolute;top:11px;left:50%;width:31%;height:27px;margin-left:-15.5%;border-radius:20px;background:#000;z-index:2}
+.atop{position:absolute;top:0;left:0;right:0;z-index:1;padding-top:44px;background:linear-gradient(rgba(28,16,80,.72),rgba(12,9,32,.4));-webkit-backdrop-filter:blur(14px) saturate(1.6);backdrop-filter:blur(14px) saturate(1.6);pointer-events:none}
+.ahead{display:block;width:100%;height:auto;mix-blend-mode:screen}
+.ascroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;padding:calc(44px + var(--hh,15.5%)) 0 78px;background:#0c0920}
+.ascroll::-webkit-scrollbar{display:none}
+.ascroll img{display:block;width:100%;height:auto}
+.ascroll.right{animation:pr .26s ease-out}.ascroll.left{animation:pl .26s ease-out}
+@keyframes pr{from{opacity:0;transform:translateX(22px)}}@keyframes pl{from{opacity:0;transform:translateX(-22px)}}
+.anav{position:absolute;left:0;right:0;bottom:0}
+.anav::before{content:"";position:absolute;left:3.4%;right:3.4%;top:29.6%;bottom:9.4%;border-radius:17px;background:rgba(23,17,52,.5);-webkit-backdrop-filter:blur(14px) saturate(1.6);backdrop-filter:blur(14px) saturate(1.6)}
+.anav img{position:relative;display:block;width:100%;height:auto;mix-blend-mode:screen;pointer-events:none}
+.atabs{position:absolute;inset:0 2.6% 0;display:grid;grid-template-columns:repeat(4,1fr)}
+.atabs button{border:0;background:none;padding:0;cursor:pointer;border-radius:14px}
+.astage{position:relative}
+.astage>img{height:auto}
+#aLayer{position:absolute;inset:0}
+.hot{position:absolute;padding:0;border:0;background:transparent;border-radius:12px;cursor:pointer;transition:background .12s}
+.hot:hover{background:rgba(255,255,255,.06)}.hot:active{background:rgba(255,255,255,.18)}
+.hot:focus-visible,.spr:focus-visible,.atabs button:focus-visible{outline:2px solid #fff;outline-offset:-2px}
+.hotdim{position:absolute;border-radius:12px;background:rgba(12,9,32,.6);pointer-events:none}
+.ads{position:absolute}
+.spr{position:absolute;padding:0;border:0;background:none;cursor:pointer;touch-action:manipulation}
+.spr::before{content:"";position:absolute;inset:-5px}
+.spr[data-s^="ds_dpad"]::before{display:none}
+.spr img{display:block;width:100%;height:100%;opacity:0;transition:opacity .15s;pointer-events:none}
+.spr.done img{opacity:.28}.spr.on img{opacity:1;transition:none}
+.abar{position:absolute;display:block;border-radius:6px;overflow:hidden;pointer-events:none}
+.abar b{display:block;height:100%;background:linear-gradient(90deg,#7c5cff,#a78bfa);transform-origin:left;transition:transform .3s}
+.abadge{position:absolute;display:grid;place-items:center;font-style:normal;font-size:10px;font-weight:700;border-radius:8px;color:var(--c);background:color-mix(in srgb,var(--c) 20%,#1e1a38);pointer-events:none}
+.asum{position:absolute;margin:0;display:flex;align-items:center;font-size:12px;color:#b9b0dc;background:#0c0920;pointer-events:none}
+.asoc{position:absolute;width:12.13%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;color:#fff}
+.asoc>i{position:absolute;inset:0;border-radius:50%;background:linear-gradient(to top,var(--f,#24262a) 50%,transparent 50%) 0 0/100% 200%;background-position:0 0;opacity:1;transition:background-position .3s}
+.asoc.ig{--f:#c135b4}.asoc.yt{--f:#f00}.asoc.wa{--f:#25d366}
+.asoc svg{position:relative;width:58%;height:58%;fill:currentColor;opacity:0;transition:opacity .3s}
+.asoc span{position:absolute;bottom:100%;left:50%;margin-bottom:0;transform:translateX(-50%);white-space:nowrap;padding:3px 7px;border-radius:6px;font-size:11px;background:var(--f,#24262a);opacity:0;visibility:hidden;transition:all .3s;z-index:1}
+.asoc:first-child span{left:0;transform:none}.asoc:nth-child(5) span{left:auto;right:0;transform:none}
+.asoc:hover>i,.asoc:focus-visible>i,.asoc:active>i{background-position:0 100%}
+.asoc:hover svg,.asoc:focus-visible svg,.asoc:active svg{opacity:1}
+.asoc:hover span,.asoc:focus-visible span,.asoc:active span{opacity:1;visibility:visible;margin-bottom:6px}
+.ascroll.fade .astage{animation:afade .24s ease-out}
+@keyframes afade{from{opacity:.45}}
+.phone.buzz{animation:buzz .4s linear}
+@keyframes buzz{20%{transform:translateX(-3px)}40%{transform:translateX(3px)}60%{transform:translateX(-2px)}80%{transform:translateX(2px)}}
+.adlg{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);animation:adim .18s}
+@keyframes adim{from{opacity:0}}
+.abox{position:relative;border-radius:16px;overflow:hidden;animation:apop .2s cubic-bezier(.3,1.3,.5,1)}
+@keyframes apop{from{transform:scale(.92)}}
+.abox img{display:block;width:100%;height:auto}
+.atoast{position:absolute;left:12px;right:12px;bottom:66px;z-index:4;padding:8px 10px;border-radius:12px;font-size:12px;line-height:1.35;text-align:center;color:#f3f0ff;background:#2c1670;border:1px solid rgba(167,139,250,.5);opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
+.atoast.on{opacity:1;transform:none}
+.caption{text-align:center;font-size:13px;color:var(--muted);margin-top:14px}
 /* publicidade */
 .ad{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#0d0926;aspect-ratio:4/1;max-height:150px;width:100%;margin:6px 0 10px}
 .ad #adMedia,.ad a{display:block;width:100%;height:100%}
@@ -191,14 +247,19 @@ footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);f
 .flinks a{color:var(--muted)}
 .rv{opacity:0;transform:translateY(16px);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1)}
 .rv.in{opacity:1;transform:none}
-@media (max-width:980px){.hero{grid-template-columns:1fr;gap:32px;padding-top:34px}.bento .card,.bento .wide{grid-column:span 3}.steps{grid-template-columns:1fr 1fr}.links{display:none}.top .iconbtn{margin-left:auto}}
-@media (max-width:640px){.bento .card,.bento .wide{grid-column:span 6}.who,.prices{grid-template-columns:1fr}.top .b{display:none}.cta .b{width:100%}.sec{padding:38px 0}.lead{font-size:17px}}
+@media (max-width:980px){.hero{grid-template-columns:1fr;gap:32px;padding-top:34px}.bento .card,.bento .wide{grid-column:span 3}.steps{grid-template-columns:1fr 1fr}.links{display:none}.top .iconbtn{margin-left:auto}.webcta{grid-template-columns:auto minmax(0,1fr);}.webcta .b{grid-column:1/-1}}
+@media (max-width:640px){.bento .card,.bento .wide{grid-column:span 6}.who,.prices{grid-template-columns:1fr}.top .dl{display:none}.brand span{display:none}.webcta{grid-template-columns:1fr;justify-items:center;text-align:center}.webcta .b{width:100%}.pcpad{width:120px}.cta .b{width:100%}.sec{padding:38px 0}.lead{font-size:17px}}
 @media (max-width:420px){.steps{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.rv{opacity:1;transform:none}}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="s-bell" viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"/></symbol>
+  <symbol id="s-ig" viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm5.3-3.3a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></symbol>
+  <symbol id="s-yt" viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.5 15.6V8.4l6.3 3.6z"/></symbol>
+  <symbol id="s-wa" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 5 5.1-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.5.1l-.8 1c-.1.2-.3.2-.5.1-.8-.3-2.3-1.1-3.3-3-.2-.3 0-.5.1-.6l.4-.5.2-.4v-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s1 2.6 1.1 2.7c.1.2 1.9 3 4.7 4.2 1.7.7 2.3.6 2.8.5.6-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1 0-.1-.2-.2-.4-.3z"/></symbol>
+  <symbol id="s-gh" viewBox="0 0 24 24"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3z"/></symbol>
   <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></symbol>
   <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
@@ -216,50 +277,42 @@ footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);f
 </svg>
 
 <header class="top"><div class="wrap">
-  <a class="brand" href="./"><img src="web/logo.png" alt="">PS-5 Controle Test</a>
-  <nav class="links" aria-label="Seções"><a href="#vantagens">Vantagens</a><a href="#comparar">App ou web</a><a href="#recursos">Recursos</a><a href="#preco">Preço</a><a href="#faq">Dúvidas</a></nav>
+  <a class="brand" href="./"><img src="web/logo.png" alt=""><span>PS-5 Controle Test</span></a>
+  <nav class="links" aria-label="Seções"><a href="#web">Web grátis</a><a href="#vantagens">Vantagens</a><a href="#comparar">App ou web</a><a href="#recursos">Recursos</a><a href="#preco">Preço</a><a href="#faq">Dúvidas</a></nav>
   <button class="iconbtn" id="themeBtn" aria-label="Mudar entre claro e escuro" title="Mudar entre claro e escuro">
     <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
     <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2.5M12 20v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M1.5 12H4M20 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>
   </button>
-  <a class="b p" style="min-height:42px;padding:8px 16px;font-size:14px" href="https://github.com/MeoWDev-MOD/ps5-controle-test/releases/latest/download/PS5-Controle-Test.apk">Baixar o app</a>
+  <a class="b arrow" style="min-height:42px;padding:4px 6px 4px 14px;font-size:14px" href="web/"><span>Testador web</span><span class="ar" style="width:30px;height:30px"><svg class="i"><use href="#i-arrow"/></svg></span></a>
+  <a class="b p dl" style="min-height:42px;padding:8px 16px;font-size:14px" href="https://github.com/MeoWDev-MOD/ps5-controle-test/releases/latest/download/PS5-Controle-Test.apk">Baixar o app</a>
 </div></header>
 
 <main class="wrap">
+  <section class="webcta" aria-label="Testador web grátis">
+    <div class="pcpad" aria-hidden="true"><img src="assets/logo-cat.png" width="360" height="360" alt=""><i style="left:80.4%;top:56.8%"></i><i style="left:83.1%;top:59.6%"></i><i style="left:81.3%;top:61.8%"></i><i style="left:78.4%;top:58.9%"></i></div>
+    <div><span class="kick">Grátis, sem instalar nada</span><h2>Teste seu controle agora no navegador</h2><p>Abra, ligue o controle e veja na hora se está tudo certo.</p></div>
+    <a class="b p magnetic" style="min-height:56px;font-size:17px;padding-inline:26px" href="web/"><span>Abrir testador grátis</span><svg class="i"><use href="#i-arrow"/></svg></a>
+  </section>
+
   <section class="hero">
     <div>
-      <span class="eyebrow"><svg class="i" style="width:15px;height:15px"><use href="#i-phone"/></svg>App para Android 8.0 ou superior</span>
       <h1>Seu celular vira uma <span class="grad">bancada de teste</span> de controle.</h1>
-      <p class="lead">Ligue o DualSense no celular pelo cabo USB e descubra na hora se ele está bom: botões, analógicos, drift, gatilhos, vibração, som e mais. Sem computador, em qualquer lugar.</p>
+      <p class="lead">Ligue o controle no celular pelo cabo USB e descubra na hora se ele está bom: botões, analógicos, drift, gatilhos, vibração, som e mais. Sem computador, em qualquer lugar.</p>
       <div class="cta">
         <a class="b p magnetic" style="min-height:54px;font-size:17px" href="https://github.com/MeoWDev-MOD/ps5-controle-test/releases/latest/download/PS5-Controle-Test.apk"><svg class="i"><use href="#i-down"/></svg>Baixar para Android</a>
-        <a class="b arrow" style="min-height:54px" href="web/"><span>Testar grátis no navegador</span><span class="ar"><svg class="i"><use href="#i-arrow"/></svg></span></a>
       </div>
       <ul class="chips">
+        <li><svg class="i"><use href="#i-check"/></svg>Android 8.0 ou superior</li>
         <li><svg class="i"><use href="#i-check"/></svg>2 dias grátis</li>
         <li><svg class="i"><use href="#i-check"/></svg>R$ 24,80 por ano, no PIX</li>
         <li><svg class="i"><use href="#i-check"/></svg>Testes funcionam sem internet</li>
       </ul>
     </div>
     <div>
-      <div class="phone" role="img" aria-label="Ilustração de um celular testando os botões de um DualSense">
-        <div class="screen">
-          <div class="phead"><img src="web/logo.png" alt=""><span>Teste ao vivo</span><i class="pdot"></i></div>
-          <div id="phoneDs">
-            <img src="web/ds/ds_idle.png" width="880" height="713" alt="">
-            <img class="hit" src="web/ds/ds_triangle.png" alt="" style="left:79.2%;top:28.2%;width:8.4%">
-            <img class="hit" src="web/ds/ds_circle.png" alt="" style="left:86%;top:36.2%;width:8.4%">
-            <img class="hit" src="web/ds/ds_cross.png" alt="" style="left:79.2%;top:44.2%;width:8.4%">
-            <img class="hit" src="web/ds/ds_square.png" alt="" style="left:72.5%;top:36.2%;width:8.4%">
-            <img class="hit" src="web/ds/ds_l2.png" alt="" style="left:11.8%;top:.8%;width:11.2%">
-          </div>
-          <div class="pcard"><div class="prow"><span>Botões testados</span><b id="phoneDone">0 de 5</b></div><div class="pbar"><i id="phoneBar"></i></div></div>
-          <div class="pcard"><div class="prow"><span>Analógico esquerdo</span><span class="pok">OK</span></div></div>
-          <div class="pcard"><div class="prow"><span>Analógico direito</span><span class="pok">OK</span></div></div>
-          <div class="pcard"><div class="prow"><span>Gatilhos e vibração</span><span class="pok">OK</span></div></div>
-        </div>
+      <div class="card_box"><span class="ribbon" aria-hidden="true"></span>
+        <div class="phone"><div class="screen" id="demo"></div></div>
       </div>
-      <p class="caption">Ilustração do teste</p>
+      <p class="caption">Telas reais do app para Android. Toque nos botões, nas abas e no desenho do controle. Demonstração: nenhum controle é lido e nada é gravado.</p>
     </div>
   </section>
 
@@ -287,19 +340,29 @@ footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);f
     </div>
   </section>
 
+  <section class="sec rv" id="web">
+    <div class="h"><span class="kick">Versão web</span><h2>Sem instalar, de graça, em qualquer navegador</h2><p>Para um teste rápido, o site resolve. E no computador, com o cabo USB, ele vai ainda mais longe.</p></div>
+    <div class="who">
+      <div class="card spot"><b>Abre em segundos</b><p>Sem cadastro e sem download: botões, analógicos, gatilhos e vibração no teste básico.</p></div>
+      <div class="card spot"><b>Vários modelos</b><p>DualSense, Edge, DualShock 4 e PS VR2 reconhecidos pelo navegador.</p></div>
+      <div class="card spot"><b>Completo no computador</b><p>Pelo cabo USB: calibração, dados de fábrica e laudo em PDF.</p></div>
+    </div>
+    <div class="cta" style="margin-top:16px"><a class="b p" href="web/"><span>Abrir testador grátis</span><svg class="i"><use href="#i-arrow"/></svg></a></div>
+  </section>
+
   <section class="sec rv" id="comparar">
-    <div class="h"><span class="kick">App ou web</span><h2>Qual versão usar?</h2><p>O site é grátis e cobre mais modelos no computador. O app é a escolha para fazer tudo pelo celular.</p></div>
+    <div class="h"><span class="kick">App ou web</span><h2>Qual versão usar?</h2><p>O site é grátis e não precisa instalar nada. O app é a escolha para fazer tudo pelo celular.</p></div>
     <div class="card tablewrap"><table>
       <thead><tr><th>Recurso</th><th class="me">App Android</th><th>Site no computador</th><th>Site no celular</th></tr></thead>
       <tbody>
         <tr><td>Botões, analógicos e gatilhos</td><td class="me y">Sim</td><td class="y">Sim</td><td class="y">Sim</td></tr>
         <tr><td>Drift e circularidade</td><td class="me y">Sim</td><td class="y">Sim</td><td class="y">Sim</td></tr>
-        <tr><td>Calibração dos analógicos</td><td class="me y">Sim</td><td class="y">Sim, por USB</td><td class="n">Não</td></tr>
+        <tr><td>Calibração dos analógicos</td><td class="me">Sim, menos Edge e Xbox</td><td class="y">Sim, por USB</td><td class="n">Não</td></tr>
         <tr><td>Touchpad e giroscópio</td><td class="me y">Sim</td><td class="y">Sim, por USB</td><td class="n">Não</td></tr>
         <tr><td>Luzes, gatilho adaptável e motores separados</td><td class="me y">Sim</td><td class="y">Sim, por USB</td><td class="n">Não</td></tr>
         <tr><td>Alto-falante, fone e microfone</td><td class="me y">Sim</td><td class="y">Sim, por USB</td><td class="n">Não</td></tr>
         <tr><td>Histórico dos testes</td><td class="me y">Sim</td><td class="n">Não</td><td class="n">Não</td></tr>
-        <tr><td>Controles compatíveis</td><td class="me">DualSense; outros só no teste básico</td><td>DualSense, Edge, DualShock 4 e PS VR2</td><td>Os mesmos, no teste básico</td></tr>
+        <tr><td>Controles compatíveis</td><td class="me">DualSense, Edge, DualShock 4, PS VR2 e Xbox</td><td>DualSense, Edge, DualShock 4 e PS VR2</td><td>Os mesmos, no teste básico</td></tr>
         <tr><td>Preço</td><td class="me">2 dias grátis, depois R$ 24,80 por ano</td><td class="y">Grátis</td><td class="y">Grátis</td></tr>
       </tbody>
     </table></div>
@@ -308,7 +371,7 @@ footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);f
   <section class="sec rv" id="recursos">
     <div class="h"><span class="kick">Recursos do app</span><h2>Tudo o que você consegue testar</h2></div>
     <div class="bento">
-      <article class="card spot"><div class="ico"><svg class="i"><use href="#i-pad"/></svg></div><h3>Teste ao vivo</h3><p>Desenho do DualSense acendendo botões, D-pad e gatilhos com a intensidade real.</p></article>
+      <article class="card spot"><div class="ico"><svg class="i"><use href="#i-pad"/></svg></div><h3>Teste ao vivo</h3><p>Desenho do seu controle acendendo botões, D-pad e gatilhos com a intensidade real.</p></article>
       <article class="card spot"><div class="ico"><svg class="i"><use href="#i-target"/></svg></div><h3>Analógicos e drift</h3><p>Posição ao vivo, zoom 10x e gráfico de circularidade com erro médio em %.</p></article>
       <article class="card spot"><div class="ico"><svg class="i"><use href="#i-sliders"/></svg></div><h3>Calibração</h3><p>Centro e alcance, gravados no controle só quando você confirmar.</p></article>
       <article class="card spot"><div class="ico"><svg class="i"><use href="#i-move"/></svg></div><h3>Touchpad e movimento</h3><p>Rastro dos dedos e gráficos do giroscópio e do acelerômetro.</p></article>
@@ -332,7 +395,7 @@ footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);f
       <li class="card"><h3>Baixe o APK</h3><p>Toque em Baixar para Android direto no celular.</p></li>
       <li class="card"><h3>Autorize</h3><p>Ao abrir o arquivo, permita instalar apps desta fonte.</p></li>
       <li class="card"><h3>Confirme</h3><p>Se o Play Protect avisar, toque em Instalar mesmo assim.</p></li>
-      <li class="card"><h3>Conecte</h3><p>Ligue o DualSense pelo cabo USB e abra o app.</p></li>
+      <li class="card"><h3>Conecte</h3><p>Ligue o controle pelo cabo USB e abra o app.</p></li>
     </ol>
   </section>
 
@@ -353,10 +416,10 @@ footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);f
     <div class="faq">
       <details><summary>Que cabo eu preciso?</summary><p>Um cabo que ligue o controle ao celular: USB-C dos dois lados, ou o cabo do controle com um adaptador OTG. O celular precisa aceitar acessórios USB.</p></details>
       <details><summary>Por que aparece o aviso de app desconhecido?</summary><p>Porque o app vem deste site, e não da Google Play. O Android avisa sobre qualquer APK instalado por fora. O nosso é assinado com um certificado próprio da MeoWDeV MOD.</p></details>
-      <details><summary>Funciona com DualShock 4 ou controle de Xbox?</summary><p>O app é focado no DualSense. Outros controles abrem um layout genérico com botões e analógicos. Para DualShock 4, DualSense Edge e PS VR2, use o site no computador.</p></details>
+      <details><summary>Funciona com DualShock 4, PS VR2 ou controle de Xbox?</summary><p>Sim: o app reconhece cada modelo e mostra o desenho dele. A calibração no DualShock 4 e no PS VR2 é experimental. O Xbox não tem comando público de calibração, e o DualSense Edge se calibra pelo site no computador.</p></details>
       <details><summary>Preciso de internet?</summary><p>Só para validar a licença e checar atualizações. Os testes do controle funcionam sem internet.</p></details>
       <details><summary>A calibração conserta drift?</summary><p>Não. O drift vem do desgaste das peças do analógico. A calibração serve principalmente depois da troca delas, e pode piorar se for feita sem necessidade.</p></details>
-      <details><summary>A calibração pode estragar meu controle?</summary><p>Ela só fica permanente depois de tocar em Salvar alterações permanentemente. Mesmo assim, use apenas se os analógicos estiverem com problema.</p></details>
+      <details><summary>A calibração pode estragar meu controle?</summary><p>Ela só fica permanente depois de tocar em Salvar no controle. Mesmo assim, use apenas se os analógicos estiverem com problema.</p></details>
       <details><summary>Como pago?</summary><p>Por PIX. Os dados aparecem dentro do app. Você envia o comprovante com o código do aparelho e o acesso é liberado por 1 ano.</p></details>
     </div>
   </section>
