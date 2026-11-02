@@ -20,3 +20,35 @@ export async function fetchBanners(ms = 5000) {
     return r.ok ? cleanBanners(await r.json()) : [];
   } catch { return []; } finally { clearTimeout(t); }
 }
+
+// Liga um espaço de publicidade: busca, mostra, troca a cada 20 s e atualiza a cada 10 min.
+// Sem banner, o espaço (slot) fica escondido. Usado no painel e na página inicial.
+export function mountAds(slot, box) {
+  let ads = [], i = 0, shown = null, rotate = 0;
+  function show() {
+    const b = ads[i % ads.length];
+    if (!b) { slot.classList.add("hidden"); shown = null; return; }
+    slot.classList.remove("hidden");
+    if (shown === b.media) return;
+    shown = b.media;
+    const m = document.createElement(b.kind === "video" ? "video" : "img");
+    m.src = b.media;
+    if (b.kind === "video") {
+      m.muted = true; m.loop = true; m.playsInline = true; m.setAttribute("aria-label", b.title);
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches) m.autoplay = true;
+    } else m.alt = b.title;
+    m.onerror = () => { ads = ads.filter((x) => x !== b); shown = null; show(); };
+    let node = m;
+    if (b.link) { const a = document.createElement("a"); a.href = b.link; a.target = "_blank"; a.rel = "noopener sponsored"; a.append(m); node = a; }
+    box.replaceChildren(node);
+  }
+  async function load() {
+    ads = await fetchBanners();
+    i = 0; shown = null;
+    show();
+    clearInterval(rotate);
+    if (ads.length > 1) rotate = setInterval(() => { i++; show(); }, 20000);
+  }
+  load();
+  setInterval(load, 600000);
+}

@@ -4,7 +4,7 @@ import { t, LANGS, getLang, setLang, applyI18n } from "./i18n.js";
 import { initUI, moveSeg, themeSwitch, countTo, setRing, pop } from "./ui.js";
 import { makeHistory, FINE_NAMES } from "./history.js";
 import { PIX_KEY, pixPayload } from "./pix.js";
-import { fetchBanners } from "./banners.js";
+import { mountAds } from "./banners.js";
 
 // ================================================================ utilidades
 const $ = (id) => document.getElementById(id);
@@ -1067,34 +1067,6 @@ $("btnPixKey").onclick = () => copyText(PIX_KEY);
 $("btnPixCode").onclick = () => copyText(pixPayload());
 const waLink = () => { $("lnkWa").href = "https://wa.me/5521966547296?text=" + encodeURIComponent(t("ex.waMsg")); };
 
-// ================================================================ publicidade (banners vindos do CRM)
-let ads = [], adI = 0, adShown = null, adRotate = 0;
-function showAd() {
-  const box = $("adMedia"), b = ads[adI % ads.length];
-  if (!b) { $("adSlot").classList.add("hidden"); adShown = null; return; }
-  $("adSlot").classList.remove("hidden");
-  if (adShown === b.media) return;
-  adShown = b.media;
-  const m = document.createElement(b.kind === "video" ? "video" : "img");
-  m.src = b.media;
-  if (b.kind === "video") {
-    m.muted = true; m.loop = true; m.playsInline = true; m.setAttribute("aria-label", b.title);
-    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) m.autoplay = true;
-  } else m.alt = b.title;
-  m.onerror = () => { ads = ads.filter((x) => x !== b); adShown = null; showAd(); };
-  let node = m;
-  if (b.link) { const a = document.createElement("a"); a.href = b.link; a.target = "_blank"; a.rel = "noopener sponsored"; a.append(m); node = a; }
-  box.replaceChildren(node);
-}
-async function loadAds() {
-  ads = await fetchBanners();
-  adI = 0; adShown = null;
-  showAd();
-  clearInterval(adRotate);
-  if (ads.length > 1) adRotate = setInterval(() => { adI++; showAd(); }, 20000);
-}
-setInterval(loadAds, 600000);
-
 // ================================================================ laudo (imprimir / salvar em PDF)
 function stickImage(k) {
   const cv = document.createElement("canvas"); cv.width = cv.height = 300;
@@ -1276,7 +1248,7 @@ initUI();
 setModel(MODELS.DS5);
 refreshTexts();
 showGate();
-loadAds();
+mountAds($("adSlot"), $("adMedia"));
 requestAnimationFrame(loop);
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
