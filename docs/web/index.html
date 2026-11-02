@@ -110,7 +110,7 @@ select{font:inherit;color:var(--text);background:var(--field);border:1px solid v
 .opt{margin:0;display:flex;flex-direction:column;gap:10px}
 .opt.rec{border-color:color-mix(in srgb,var(--accent2) 55%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--accent2) 30%,transparent),0 14px 44px var(--glow)}
 .opt-head{display:flex;align-items:center;gap:12px}
-.opt-head h3{margin:0;font-size:17px}
+.card .opt-head h2{margin:0;font-size:17px;font-weight:700;color:var(--text);text-transform:none;letter-spacing:0;display:block}
 .ico{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;flex:none;color:#fff;background:linear-gradient(135deg,var(--btn1),#a855f7);box-shadow:0 6px 18px var(--glow)}
 .ico.alt{background:var(--surface2);color:var(--accent);box-shadow:none;border:1px solid var(--line)}
 .ico svg{width:22px;height:22px}
@@ -259,7 +259,7 @@ dialog h3{margin:0 0 6px;font-size:19px}
   <section class="opts">
     <article class="card opt rec">
       <div class="opt-head"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2v14M8 6l4-4 4 4M7 11v3l5 3 5-3v-3"/><circle cx="12" cy="20" r="2"/></svg></span>
-        <div><h3 data-i18n="gate.usb.t">Cabo USB · modo completo</h3><span class="badge pro" data-i18n="gate.rec">Recomendado</span></div></div>
+        <div><h2 data-i18n="gate.usb.t">Cabo USB · modo completo</h2><span class="badge pro" data-i18n="gate.rec">Recomendado</span></div></div>
       <p data-i18n="gate.usb.d">Número de série, placa, firmware, calibração, luzes, gatilhos adaptáveis, touchpad e giroscópio.</p>
       <ol class="steps3"><li data-i18n="gate.usb.s1">Ligue o controle no computador pelo cabo</li><li data-i18n="gate.usb.s2">Clique em Conectar por USB</li><li data-i18n="gate.usb.s3">Escolha o controle na lista do navegador</li></ol>
       <div class="spacer"></div>
@@ -268,7 +268,7 @@ dialog h3{margin:0 0 6px;font-size:19px}
     </article>
     <article class="card opt">
       <div class="opt-head"><span class="ico alt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 7l10 10-5 5V2l5 5L7 17"/></svg></span>
-        <h3 data-i18n="gate.bt.t">Bluetooth · modo básico</h3></div>
+        <h2 data-i18n="gate.bt.t">Bluetooth · modo básico</h2></div>
       <p data-i18n="gate.bt.d">Botões, analógicos, gatilhos e vibração em qualquer navegador, até no iPhone.</p>
       <div class="wait" role="status"><span class="pulse"></span><span data-i18n="gate.wait">Aguardando… aperte qualquer botão do controle</span></div>
       <div class="spacer"></div>
