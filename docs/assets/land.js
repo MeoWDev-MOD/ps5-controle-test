@@ -7,7 +7,7 @@ const root = document.documentElement;
 const isDark = () => (root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches);
 
 initUI();
-mountAds($("adSlot"), $("adMedia"));
+mountAds($("adSlot"), $("adMedia"), "ps5-site");
 
 $("themeBtn").onclick = (e) => themeSwitch(e, () => {
   const next = isDark() ? "light" : "dark";

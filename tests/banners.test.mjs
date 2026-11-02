@@ -1,8 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { cleanBanners } from "../docs/web/js/banners.js";
+import { bannersUrl, cleanBanners } from "../docs/web/js/banners.js";
 
 const ok = { id: "1", title: "Oficina", media_url: "https://abc.supabase.co/storage/v1/object/public/banners/u/a.gif", kind: "image", link_url: "https://loja.com" };
+
+test("pede só os anúncios do lugar", () => {
+  assert.equal(bannersUrl("ps5-web"), "https://crm-pessoal-chi.vercel.app/api/banners?local=ps5-web");
+});
 
 test("aceita banner válido", () => {
   assert.deepEqual(cleanBanners({ banners: [ok] }), [{ id: "1", title: "Oficina", media: ok.media_url, kind: "image", link: "https://loja.com" }]);

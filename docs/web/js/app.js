@@ -1248,7 +1248,7 @@ initUI();
 setModel(MODELS.DS5);
 refreshTexts();
 showGate();
-mountAds($("adSlot"), $("adMedia"));
+mountAds($("adSlot"), $("adMedia"), "ps5-web");
 requestAnimationFrame(loop);
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});

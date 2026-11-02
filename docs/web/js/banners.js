@@ -13,17 +13,20 @@ export function cleanBanners(json) {
     .map((b) => ({ id: String(b.id), title: String(b.title ?? ""), media: b.media_url, kind: b.kind, link: typeof b.link_url === "string" && isHttps(b.link_url) ? b.link_url : null }));
 }
 
-export async function fetchBanners(ms = 5000) {
+// `local`: lugar cadastrado no CRM (aba Publicidade). Cada lugar recebe só os anúncios marcados para ele.
+export const bannersUrl = (local) => `${BANNERS_URL}?local=${encodeURIComponent(local)}`;
+
+export async function fetchBanners(local, ms = 5000) {
   const c = new AbortController(), t = setTimeout(() => c.abort(), ms);
   try {
-    const r = await fetch(BANNERS_URL, { signal: c.signal });
+    const r = await fetch(bannersUrl(local), { signal: c.signal });
     return r.ok ? cleanBanners(await r.json()) : [];
   } catch { return []; } finally { clearTimeout(t); }
 }
 
 // Liga um espaço de publicidade: busca, mostra, troca a cada 20 s e atualiza a cada 10 min.
 // Sem banner, o espaço (slot) fica escondido. Usado no painel e na página inicial.
-export function mountAds(slot, box) {
+export function mountAds(slot, box, local) {
   let ads = [], i = 0, shown = null, rotate = 0;
   function show() {
     const b = ads[i % ads.length];
@@ -43,7 +46,7 @@ export function mountAds(slot, box) {
     box.replaceChildren(node);
   }
   async function load() {
-    ads = await fetchBanners();
+    ads = await fetchBanners(local);
     i = 0; shown = null;
     show();
     clearInterval(rotate);
