@@ -279,6 +279,22 @@ export class HidPad {
     return Array.from({ length: 12 }, (_, i) => v.getUint16(4 + i * 2, true));
   }
 
+  // Ajuste fino: 12 valores [LL, LT, RL, RT, LR, LB, RR, RB, LX, LY, RX, RY]
+  // (8 limites de alcance + 4 centros). Fica temporário até salvar (save()).
+  get fineMax() { return this.isEdge ? 4095 : 65535; }
+  async writeFinetune(data) {
+    if (!Array.isArray(data) || data.length !== 12) throw new ProtoError("err.finetune");
+    const max = this.fineMax;
+    const clean = data.map((v) => Math.max(0, Math.min(max, Math.round(v))));
+    await this.send(0x80, clean.reduce((a, x) => a.concat([x & 0xff, x >> 8]), [12, 1]));
+  }
+
+  // Lê qualquer relatório de configuração (só leitura, com tempo-limite) para a depuração
+  async readFeature(id) {
+    const v = await this.recv(id, 1500);
+    return Array.from(new Uint8Array(v.buffer));
+  }
+
   async edgeBarcodes() {
     const read = async (i) => { await this.send(0x80, [21, 34, i]); await sleep(100); const v = await this.recv(0x81); return ascii(v.buffer.slice(21, 38)); };
     const r = await read(0), l = await read(1);

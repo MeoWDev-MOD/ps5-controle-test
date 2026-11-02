@@ -1,8 +1,10 @@
 "use strict";
 import { MODELS, HID_FILTERS, GAMEPAD_ORDER, buttonsOf, modelFromGamepadId, parseInput, HidPad, circularity, TOUCH_W, TOUCH_H } from "./protocol.js";
 import { t, LANGS, getLang, setLang, applyI18n } from "./i18n.js";
-import { initUI, moveIndicator, themeSwitch, countTo, setRing, pop } from "./ui.js";
+import { initUI, moveSeg, themeSwitch, countTo, setRing, pop } from "./ui.js";
+import { makeHistory, FINE_NAMES } from "./history.js";
 
+// ================================================================ utilidades
 const $ = (id) => document.getElementById(id);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -12,12 +14,14 @@ const store = {
   get(k) { try { return localStorage.getItem("ps5web." + k); } catch { return null; } },
   set(k, v) { try { v === null ? localStorage.removeItem("ps5web." + k) : localStorage.setItem("ps5web." + k, v); } catch { /* modo privado */ } },
 };
+let hist; try { hist = makeHistory(localStorage); } catch { hist = makeHistory({ getItem: () => null, setItem: () => {} }); }
 const L = (n) => t("btn." + n);
 const modelName = (m) => m.side ? `${m.name} · ${t("side." + m.side)}` : m.name;
 const val = (v) => (v && typeof v === "object") ? t(v.t) : v;
 const errMsg = (e) => e?.key ? t(e.key) + (e.detail ? " " + e.detail : "") : (e?.message || String(e));
+const icon = (id) => `<svg class="i"><use href="#i-${id}"/></svg>`;
 
-// ============ idioma e tema
+// ================================================================ idioma e tema
 const langSel = $("langSel");
 for (const [code, name] of LANGS) { const o = document.createElement("option"); o.value = code; o.textContent = name; langSel.appendChild(o); }
 langSel.value = getLang();
@@ -32,24 +36,22 @@ $("themeBtn").onclick = (e) => themeSwitch(e, () => {
 let CV = {};
 function readColors() {
   const cs = getComputedStyle(document.documentElement);
-  for (const k of ["grid", "trail", "fill", "dot", "touch"]) CV[k] = cs.getPropertyValue("--cv-" + k).trim();
-  CV.ok = cs.getPropertyValue("--ok").trim(); CV.accent = cs.getPropertyValue("--accent2").trim();
+  for (const k of ["grid", "trail", "fill", "dot", "touch", "l", "r"]) CV[k] = cs.getPropertyValue("--cv-" + k).trim();
+  CV.ok = cs.getPropertyValue("--ok").trim(); CV.accent = cs.getPropertyValue("--accent2").trim(); CV.muted = cs.getPropertyValue("--muted").trim();
 }
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", readColors);
 readColors();
 
-// ============ estado ao vivo (vem do Bluetooth/Gamepad API ou do USB)
+// ================================================================ estado ao vivo
 const S = { lx: 0, ly: 0, rx: 0, ry: 0, l2: 0, r2: 0, pressed: new Set(), imu: null, touches: [], battery: null, stopL2: null, stopR2: null };
-let src = null;          // "pad" = modo básico, "hid" = USB modo completo
-let model = null;
-let unknownPad = false;
-let padIndex = null, padId = "", padStandard = true;
+let src = null;          // "pad" = Bluetooth/modo básico · "hid" = USB/modo completo
+let model = null, unknownPad = false;
+let padIndex = null, padId = "", padStandard = true, padButtons = 0, padAxes = 0, padStamp = 0, lastPad = null;
 let hid = null, hidInfo = null, wantHid = false, connecting = false, rebooting = false;
-let busy = false;        // calibração em andamento
-let onVal = false;
-let screen = "gate";     // gate | app
+let busy = false, screen = "gate", page = "overview";
+let lastRaw = null, prevRaw = null, rawFrozen = false, samples = 0, rate = 0;
 
-// ============ resultados dos testes
+// ================================================================ resultados dos testes
 const tested = new Set();
 const sectors = { L: new Array(36).fill(0), R: new Array(36).fill(0) };
 const maxTrig = { l2: 0, r2: 0 };
@@ -57,55 +59,50 @@ const drift = { L: null, R: null };
 const stickDone = { L: false, R: false };
 const manual = {};
 const touchSeen = { minX: Infinity, maxX: -Infinity, n: 0 };
-const trail = [];
-let gyroMax = 0;
-let log = [];
+const trail = [], pathL = [], pathR = [];
+const trgHist = [];
+let gyroMax = 0, log = [];
 
 function addLog(s) {
-  log.unshift(new Date().toLocaleTimeString(getLang()) + "  " + s); log = log.slice(0, 60);
+  log.unshift(new Date().toLocaleTimeString(getLang()) + "  " + s); log = log.slice(0, 80);
   $("log").textContent = log.join("\n");
 }
 let toastT;
-const TICO = {
-  ok: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
-  bad: '<path d="M12 7v6M12 17h.01"/>',
-  "": '<path d="M12 11v6M12 7h.01"/>',
-};
+const TICO = { ok: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', bad: '<path d="M12 7v6M12 17h.01"/>', "": '<path d="M12 11v6M12 7h.01"/>' };
 function toast(msg, kind = "", ms = 4200) {
   const el = $("toast"); clearTimeout(toastT);
-  el.className = "hidden"; void el.offsetWidth; // reinicia a animação
+  el.className = "hidden"; void el.offsetWidth;
   el.innerHTML = `<span class="tico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">${TICO[kind] || TICO[""]}</svg></span><span></span><i class="tbar" aria-hidden="true"></i>`;
   el.children[1].textContent = msg;
   el.style.setProperty("--dur", ms + "ms");
   el.className = kind;
   toastT = setTimeout(() => el.classList.add("hidden"), ms);
 }
+async function copyText(s) {
+  try { await navigator.clipboard.writeText(s); toast(t("copied"), "ok", 1800); } catch { toast(t("copyFail"), "bad"); }
+}
 
-// ============ telas: entrada -> carregando -> testes
+// ================================================================ telas: entrada → carregando → painel
 function showGate() {
   screen = "gate";
-  $("gate").classList.remove("hidden"); $("app").classList.add("hidden"); $("nav").classList.add("hidden");
-  $("gate").classList.remove("fade"); void $("gate").offsetWidth; $("gate").classList.add("fade");
+  $("gate").classList.remove("hidden"); $("gateTop").classList.remove("hidden"); $("app").classList.add("hidden");
+  $("gateTop").appendChild($("tools"));
   renderLast(); window.scrollTo(0, 0);
 }
 function showApp() {
   if (screen === "app") return;
   screen = "app";
-  $("gate").classList.add("hidden"); $("app").classList.remove("hidden"); $("nav").classList.remove("hidden");
-  $("app").classList.remove("fade"); void $("app").offsetWidth; $("app").classList.add("fade");
-  window.scrollTo(0, 0);
-  requestAnimationFrame(() => moveIndicator(document.querySelector("nav button.on")));
+  $("gate").classList.add("hidden"); $("gateTop").classList.add("hidden"); $("app").classList.remove("hidden");
+  $("toolsSlot").appendChild($("tools"));
+  go(location.hash.slice(1) || "overview", true);
 }
-let loadStep = 0;
 function loading(on, key = "", step = 0, sub = "") {
   $("loading").classList.toggle("hidden", !on);
   if (!on) return;
-  loadStep = step;
   $("loadTxt").textContent = t(key); $("loadSub").textContent = sub;
   [...$("loadDots").children].forEach((d, i) => d.classList.toggle("on", i <= step));
 }
 $("btnSkip").onclick = showApp;
-$("brand").onclick = (e) => { e.preventDefault(); if (screen === "app") switchController(); };
 $("btnSwitch").onclick = switchController;
 async function switchController() {
   if (busy) return;
@@ -113,22 +110,39 @@ async function switchController() {
   showGate();
 }
 
-// ============ abas
-function tab(name) {
-  onVal = name === "val";
-  $("pageTest").classList.toggle("hidden", name !== "test");
-  $("pageVal").classList.toggle("hidden", name !== "val");
-  $("pageTools").classList.toggle("hidden", name !== "tools");
-  $("drawCard").classList.toggle("hidden", name === "tools");
-  for (const [id, n] of [["tabTest", "test"], ["tabVal", "val"], ["tabTools", "tools"]]) $(id).classList.toggle("on", n === name);
-  const page = $({ test: "pageTest", val: "pageVal", tools: "pageTools" }[name]);
-  page.classList.remove("page-in"); void page.offsetWidth; page.classList.add("page-in");
-  moveIndicator(document.querySelector("nav button.on"));
+// ================================================================ navegação entre seções
+const PAGES = ["overview", "live", "sticks", "calib", "out", "diag", "info", "debug"];
+function go(p, silent = false) {
+  if (!PAGES.includes(p)) p = "overview";
+  page = p;
+  for (const x of PAGES) $("pg-" + x).classList.toggle("hidden", x !== p);
+  document.querySelectorAll("#snav button").forEach((b) => b.classList.toggle("on", b.dataset.page === p));
+  $("pageTitle").textContent = t("pg." + p);
+  $("crumb").textContent = t("pgd." + p);
+  const slot = document.querySelector(`#pg-${p} .drawslot`);
+  if (slot && $("drawCard").parentElement !== slot) slot.appendChild($("drawCard"));
   svgCache.clear();
+  if (location.hash.slice(1) !== p) history.replaceState(null, "", "#" + p);
+  renderPage();
+  if (!silent) window.scrollTo({ top: 0, behavior: "smooth" });
+  requestAnimationFrame(() => { moveSeg($("stickMode")); document.querySelector("#snav button.on")?.scrollIntoView({ block: "nearest", inline: "center" }); });
 }
-$("tabTest").onclick = () => tab("test"); $("tabVal").onclick = () => tab("val"); $("tabTools").onclick = () => tab("tools");
+$("snav").addEventListener("click", (e) => { const b = e.target.closest("button[data-page]"); if (b) go(b.dataset.page); });
+addEventListener("hashchange", () => { if (screen === "app") go(location.hash.slice(1), true); });
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("[data-act]"); if (!a) return;
+  const act = a.dataset.act;
+  if (act === "quick") quickTest();
+  else if (act === "calib") go("calib");
+  else if (act === "report") makeReport();
+  else if (act === "usb") connectUsb();
+});
+function lockedCard(key) {
+  return `<span class="ico">${icon("lock")}</span><h2 style="justify-content:center;font-size:15px;text-transform:none;letter-spacing:0;color:var(--text)">${t("lock.t")}</h2><p>${t("lock." + key)}</p>` +
+    (HAS_HID ? `<button class="b p magnetic" data-act="usb">${icon("usb")}<span>${t("gate.usb.btn")}</span></button>` : `<p class="sub">${MOBILE ? t("hint.mobile") : t("hint.browser")}</p>`);
+}
 
-// ============ desenho do DualSense (recortes em PNG, espaço 880 x 713)
+// ================================================================ desenho do DualSense (PNG, 880 x 713)
 const SPRITES = [
   ["triangle", 697, 201], ["cross", 697, 315], ["circle", 757, 258], ["square", 638, 258], ["l1", 99, 133], ["r1", 657, 132],
   ["l2", 104, 6], ["r2", 674, 6], ["l3", 243, 365], ["r3", 553, 365], ["options", 648, 184], ["create", 210, 185], ["ps", 418, 382],
@@ -143,11 +157,12 @@ const ctx = $("ds").getContext("2d");
 const ready = (i) => i.complete && i.naturalWidth > 0;
 function put(i, x, y, a) { if (a > 0 && ready(i)) { ctx.globalAlpha = a; ctx.drawImage(i, x, y); } }
 function stickOffset(x, y, travel) { const m = Math.hypot(x, y), k = m > 1 ? 1 / m : 1; return [x * k * travel, y * k * travel]; }
-const testedAlpha = (n) => tested.has(n) ? (onVal ? STRONG_TESTED_ALPHA : TESTED_ALPHA) : 0;
+const strong = () => page === "diag";
+const testedAlpha = (n) => tested.has(n) ? (strong() ? STRONG_TESTED_ALPHA : TESTED_ALPHA) : 0;
 function trigAlpha(n, v) { return v > 0.02 ? Math.min(1, 0.15 + 0.85 * Math.pow(v, 0.8)) : testedAlpha(n); }
 function drawDs5() {
   ctx.clearRect(0, 0, 880, 713);
-  ctx.filter = "hue-rotate(42deg) saturate(1.15)"; // contorno azul do app -> violeta da paleta
+  ctx.filter = "hue-rotate(42deg) saturate(1.15)";
   put(idle, 0, 0, 1);
   const [lox, loy] = stickOffset(S.lx, S.ly, STICK_TRAVEL), [rox, roy] = stickOffset(S.rx, S.ry, STICK_TRAVEL);
   put(capL, 238 + lox, 359 + loy, 1); put(capR, 547 + rox, 359 + roy, 1);
@@ -166,7 +181,7 @@ function drawDs5() {
   ctx.fillText("L2 " + Math.round(S.l2 * 100) + "%", 153, 66); ctx.fillText("R2 " + Math.round(S.r2 * 100) + "%", 723, 66);
 }
 
-// ============ desenho do DualShock 4 (SVG do dualshock-tools, licença MIT) — sempre no palco escuro
+// ================================================================ desenho do DualShock 4 (SVG do dualshock-tools, MIT)
 const SVG_IDS = { cross: "Cross", circle: "Circle", square: "Square", triangle: "Triangle", l1: "L1", r1: "R1", l2: "L2", r2: "R2", create: "Create", options: "Options", l3: "L3", r3: "R3", ps: "PS", touchpad: "Trackpad", up: "Up", down: "Down", left: "Left", right: "Right" };
 const C_BODY = "#a78bfa", C_LINE = "#7c5cff", C_FILL = "#160f3a", C_PRESS = "#8b6cff", C_OK = "#4ade80";
 const svgCache = new Map();
@@ -195,7 +210,7 @@ async function loadDs4() {
 }
 function drawDs4() {
   if (ds4State !== "ready") return;
-  const base = (n) => tested.has(n) ? mix(C_FILL, C_OK, onVal ? 0.55 : 0.3) : C_FILL;
+  const base = (n) => tested.has(n) ? mix(C_FILL, C_OK, strong() ? 0.55 : 0.3) : C_FILL;
   for (const [n, id] of Object.entries(SVG_IDS)) {
     let c;
     if (n === "l2" || n === "r2") { const v = S[n]; c = v > 0.02 ? mix(base(n), C_PRESS, Math.min(1, 0.2 + v * 0.8)) : base(n); }
@@ -211,17 +226,14 @@ function drawDs4() {
   }
 }
 
-// ============ painel de botões (PS VR2 e extras do Edge)
+// ================================================================ painel de botões (VR2 e extras do Edge)
 const chipEls = new Map();
 function buildChips(box, names) {
   box.innerHTML = "";
-  for (const n of names) { const d = document.createElement("div"); d.className = "chip"; d.textContent = L(n); d.dataset.n = n; box.appendChild(d); chipEls.set(n, d); }
+  for (const n of names) { const d = document.createElement("div"); d.className = "chip"; d.textContent = L(n); box.appendChild(d); chipEls.set(n, d); }
 }
-function drawChips() {
-  for (const [n, el] of chipEls) { el.classList.toggle("down", S.pressed.has(n)); el.classList.toggle("tested", tested.has(n)); }
-}
+function drawChips() { for (const [n, el] of chipEls) { el.classList.toggle("down", S.pressed.has(n)); el.classList.toggle("tested", tested.has(n)); } }
 
-// ============ troca de modelo: escolhe desenho, analógicos e gatilhos
 let view = "ds5", valSig = "";
 function setModel(m, unknown = false) {
   unknownPad = unknown;
@@ -237,30 +249,61 @@ function setModel(m, unknown = false) {
   if (view === "panel") buildChips($("panel"), buttonsOf(k));
   if (k === "EDGE") buildChips($("extras"), ["fn_left", "fn_right", "paddle_left", "paddle_right"]); else $("extras").innerHTML = "";
   const one = m.sticks === 1;
-  $("stickR").classList.toggle("hidden", one); $("sticks").classList.toggle("one", one);
+  $("stickR").classList.toggle("hidden", one); $("sticks").classList.toggle("one", one); $("kR").classList.toggle("hidden", one);
   $("rowL2").classList.toggle("hidden", k === "VR2R"); $("rowR2").classList.toggle("hidden", k === "VR2L");
   svgCache.clear();
 }
 
-// ============ analógicos
-function drawStick(cv, x, y, sec) {
-  const c = cv.getContext("2d"), s = cv.width, r = s / 2;
+// ================================================================ analógicos (Normal · Zoom 10x · Circularidade)
+let stickMode = "normal";
+$("stickMode").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-m]"); if (!b) return;
+  stickMode = b.dataset.m;
+  $("stickMode").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+  moveSeg($("stickMode"));
+  $("smHelp").textContent = t("smh." + stickMode);
+});
+$("btnClearSticks").onclick = () => { sectors.L.fill(0); sectors.R.fill(0); pathL.length = pathR.length = 0; drift.L = drift.R = null; stickDone.L = stickDone.R = false; };
+
+function drawStick(cv, x, y, sec, mode = "circ", path = null) {
+  const c = cv.getContext("2d"), s = cv.width, r = s / 2, R = r - 8;
   c.clearRect(0, 0, s, s);
   c.strokeStyle = CV.grid; c.lineWidth = 1;
-  [0.33, 0.66, 1].forEach((k) => { c.beginPath(); c.arc(r, r, (r - 6) * k, 0, 7); c.stroke(); });
-  c.beginPath(); c.moveTo(6, r); c.lineTo(s - 6, r); c.moveTo(r, 6); c.lineTo(r, s - 6); c.stroke();
-  const n = sec.length;
-  c.beginPath();
-  for (let i = 0; i <= n; i++) {
-    const a = ((i % n) + 0.5) / n * Math.PI * 2, m = Math.min(sec[i % n], 1) * (r - 6);
-    const px = r + Math.cos(a) * m, py = r + Math.sin(a) * m;
-    i ? c.lineTo(px, py) : c.moveTo(px, py);
+  [0.25, 0.5, 0.75, 1].forEach((k) => { c.beginPath(); c.arc(r, r, R * k, 0, 7); c.stroke(); });
+  c.beginPath(); c.moveTo(8, r); c.lineTo(s - 8, r); c.moveTo(r, 8); c.lineTo(r, s - 8); c.stroke();
+  if (mode === "zoom") {
+    // 10x: a borda vale 0,10. Mostra onde o analógico descansa e se passa da zona morta típica (0,05)
+    const z = 10;
+    c.setLineDash([5, 5]); c.strokeStyle = CV.ok; c.beginPath(); c.arc(r, r, R * 0.05 * z, 0, 7); c.stroke(); c.setLineDash([]);
+    c.fillStyle = CV.muted; c.font = `${Math.round(s / 26)}px system-ui`; c.textAlign = "left";
+    c.fillText("±0.10", 12, s - 12);
+    const m = Math.hypot(x, y) * z, k = m > 1 ? 1 / m : 1; // fica preso na borda do círculo
+    const px = r + x * z * k * R, py = r + y * z * k * R;
+    c.beginPath(); c.arc(px, py, Math.max(6, s / 24), 0, 7); c.fillStyle = Math.hypot(x, y) > 0.05 ? "#f43f5e" : CV.dot; c.fill();
+    return;
   }
-  c.closePath(); c.fillStyle = CV.fill; c.fill(); c.strokeStyle = CV.trail; c.lineWidth = 2; c.stroke();
-  const px = r + x * (r - 6), py = r + y * (r - 6);
-  c.beginPath(); c.arc(px, py, Math.max(5, s / 27), 0, 7); c.fillStyle = CV.dot; c.fill();
+  if (mode === "circ" && sec) {
+    const n = sec.length;
+    c.beginPath();
+    for (let i = 0; i <= n; i++) {
+      const a = ((i % n) + 0.5) / n * Math.PI * 2, m = Math.min(sec[i % n], 1) * R;
+      const px = r + Math.cos(a) * m, py = r + Math.sin(a) * m;
+      i ? c.lineTo(px, py) : c.moveTo(px, py);
+    }
+    c.closePath(); c.fillStyle = CV.fill; c.fill(); c.strokeStyle = CV.trail; c.lineWidth = 2; c.stroke();
+  }
+  if (mode === "normal" && path && path.length > 1) {
+    c.lineWidth = 2; c.lineCap = "round";
+    for (let i = 1; i < path.length; i++) {
+      c.globalAlpha = i / path.length * 0.8; c.strokeStyle = CV.dot;
+      c.beginPath(); c.moveTo(r + path[i - 1][0] * R, r + path[i - 1][1] * R); c.lineTo(r + path[i][0] * R, r + path[i][1] * R); c.stroke();
+    }
+    c.globalAlpha = 1;
+  }
+  const px = r + x * R, py = r + y * R;
+  c.beginPath(); c.arc(px, py, Math.max(5, s / 26), 0, 7); c.fillStyle = CV.dot; c.fill();
 }
-function stickStep(key, x, y) {
+function stickTrack(key, x, y) {
   const m = Math.hypot(x, y);
   if (m > 0.25) {
     const s = Math.floor(((Math.atan2(y, x) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI * 2) * 36) % 36;
@@ -268,63 +311,96 @@ function stickStep(key, x, y) {
   }
   if (m < 0.2) drift[key] = drift[key] === null ? m : Math.min(drift[key], m);
   if (m > 0.9) stickDone[key] = true;
-  drawStick($(key === "L" ? "cvL" : "cvR"), x, y, sectors[key]);
-  $(key === "L" ? "numL" : "numR").textContent = `X ${x.toFixed(2)}  Y ${y.toFixed(2)}  |${m.toFixed(2)}|`;
+  const p = key === "L" ? pathL : pathR;
+  p.push([x, y]); if (p.length > 40) p.shift();
+}
+function stickRead(k) {
+  const c = circularity(sectors[k]);
+  const bits = [];
+  if (drift[k] !== null) bits.push(t("v.rest", { n: drift[k].toFixed(3) }) + (drift[k] > 0.1 ? " " + t("v.drift") : ""));
+  bits.push(c ? t("sm.err", { n: c.err.toFixed(1) }) : t("v.spin", { n: sectors[k].filter((v) => v > 0.15).length }));
+  return bits.join(" · ");
 }
 
-// ============ touchpad e giroscópio (só USB)
+// ================================================================ touchpad, giroscópio, gráfico dos gatilhos
 function drawTouch() {
   const cv = $("touch"), c = cv.getContext("2d"), w = cv.width, h = cv.height;
   c.clearRect(0, 0, w, h);
   c.strokeStyle = CV.grid; c.beginPath(); c.moveTo(w / 2, 0); c.lineTo(w / 2, h); c.stroke();
   const now = performance.now();
-  while (trail.length && now - trail[0].t > 900) trail.shift();
+  while (trail.length && now - trail[0].t > 1200) trail.shift();
   for (const p of trail) {
-    c.globalAlpha = (1 - (now - p.t) / 900) * 0.55;
+    c.globalAlpha = (1 - (now - p.t) / 1200) * 0.6;
     c.fillStyle = p.id % 2 ? CV.ok : CV.accent;
-    c.beginPath(); c.arc(p.x / TOUCH_W * w, p.y / TOUCH_H * h, 5, 0, 7); c.fill();
+    c.beginPath(); c.arc(p.x / TOUCH_W * w, p.y / TOUCH_H * h, 7, 0, 7); c.fill();
   }
   c.globalAlpha = 1;
-  for (const p of S.touches) { c.fillStyle = CV.touch; c.beginPath(); c.arc(p.x / TOUCH_W * w, p.y / TOUCH_H * h, 10, 0, 7); c.fill(); }
+  for (const p of S.touches) { c.fillStyle = CV.touch; c.beginPath(); c.arc(p.x / TOUCH_W * w, p.y / TOUCH_H * h, 16, 0, 7); c.fill(); }
   $("touchTxt").textContent = S.touches.length ? S.touches.map((p, i) => t("touch.finger", { n: i + 1, x: p.x, y: p.y })).join("  ") : t("touch.hint");
 }
 function drawImu() {
-  const i = S.imu; if (!i) return;
+  const i = S.imu;
+  if (!i) { $("imu").textContent = t("imu.hint"); return; }
   const f = (v) => (v >= 0 ? " " : "") + v.toFixed(1);
   const g = Math.hypot(i.ax, i.ay, i.az);
-  $("imu").innerHTML = `<b>${t("imu.gyro")}</b> (°/s)<br>X ${f(i.gx)} · Y ${f(i.gy)} · Z ${f(i.gz)}<br><b>${t("imu.accel")}</b> (g)<br>X ${f(i.ax)} · Y ${f(i.ay)} · Z ${f(i.az)}<br>${t("imu.total")} ${g.toFixed(2)} g ${g > 0.85 && g < 1.15 ? t("imu.rest") : ""}<br>${t("imu.max")} ${gyroMax.toFixed(0)}°/s`;
+  $("imu").innerHTML = `<b>${t("imu.gyro")}</b> (°/s) X ${f(i.gx)} · Y ${f(i.gy)} · Z ${f(i.gz)}<br><b>${t("imu.accel")}</b> (g) X ${f(i.ax)} · Y ${f(i.ay)} · Z ${f(i.az)}<br>${t("imu.total")} ${g.toFixed(2)} g ${g > 0.85 && g < 1.15 ? t("imu.rest") : ""} · ${t("imu.max")} ${gyroMax.toFixed(0)}°/s`;
+  // inclinação relativa à posição de repouso (a primeira leitura, ou a de quando tocou em Zerar)
+  if (!tiltBase) tiltBase = { ax: i.ax, ay: i.ay, az: i.az };
+  const ang = (a, b) => Math.atan2(a, b) * 57.3;
+  const rx = ang(i.ay, i.az) - ang(tiltBase.ay, tiltBase.az), rz = ang(i.ax, Math.hypot(i.ay, i.az)) - ang(tiltBase.ax, Math.hypot(tiltBase.ay, tiltBase.az));
+  const cl = (v) => Math.max(-70, Math.min(70, ((v + 540) % 360) - 180));
+  $("tilt").style.transform = `rotateX(${cl(rx).toFixed(1)}deg) rotateZ(${cl(-rz).toFixed(1)}deg)`;
+}
+let tiltBase = null;
+$("btnTiltZero").onclick = () => { tiltBase = null; };
+function drawTrgGraph() {
+  const cv = $("trgGraph"), c = cv.getContext("2d"), w = cv.width, h = cv.height;
+  c.clearRect(0, 0, w, h);
+  c.strokeStyle = CV.grid; c.lineWidth = 1;
+  [0.25, 0.5, 0.75].forEach((k) => { c.beginPath(); c.moveTo(0, h * k); c.lineTo(w, h * k); c.stroke(); });
+  const n = 240;
+  for (const [key, col] of [["l2", CV.l], ["r2", CV.r]]) {
+    c.strokeStyle = col; c.lineWidth = 3; c.lineJoin = "round"; c.beginPath();
+    trgHist.forEach((p, i) => { const x = w - (trgHist.length - 1 - i) * (w / n), y = h - 6 - p[key] * (h - 12); i ? c.lineTo(x, y) : c.moveTo(x, y); });
+    c.stroke();
+  }
+  c.font = "600 20px system-ui"; c.fillStyle = CV.l; c.fillText("L2", 10, 26); c.fillStyle = CV.r; c.fillText("R2", 46, 26);
 }
 
-// ============ status
+// ================================================================ status (cartão do controle e números-resumo)
 function batteryTxt(b) {
   if (!b) return "";
   if (b.error) return t("bat.error");
   return t("bat.level", { n: b.level }) + (b.charging ? " ⚡ " + t("bat.charging") : b.cable && b.level === 100 ? " · " + t("bat.full") : "");
 }
-let lastPills = "";
+const batteryShort = (b) => b.error ? t("bat.error") : b.level + "%" + (b.charging ? " ⚡ " + t("bat.charging") : b.cable && b.level === 100 ? " · " + t("bat.full") : "");
+let lastMeta = "";
 function renderStatus() {
   const on = src !== null;
   $("dot").className = "dot" + (src === "hid" ? " hid" : on ? " on" : "");
-  if (!on) { $("stTitle").textContent = t("st.none"); $("stSub").textContent = t("st.noneSub"); }
+  if (!on) { $("devName").textContent = t("st.none"); $("devSub").textContent = t("st.noneSub"); }
   else if (src === "hid") {
-    $("stTitle").textContent = t("st.connected", { m: modelName(model) });
-    const bits = [hidInfo?.color && t("color." + hidInfo.color), hidInfo?.board, hidInfo?.serial && t("st.serial", { s: hidInfo.serial })].filter(Boolean);
-    $("stSub").textContent = bits.join(" · ") || t("st.usb");
+    $("devName").textContent = modelName(model);
+    $("devSub").textContent = [hidInfo?.color && t("color." + hidInfo.color), hidInfo?.board, hidInfo?.serial].filter(Boolean).join(" · ") || t("st.usb");
   } else {
-    $("stTitle").textContent = t("st.connected", { m: unknownPad ? t("st.controller") : modelName(model) });
-    $("stSub").textContent = padId + (padStandard ? "" : " · " + t("st.nonStd"));
+    $("devName").textContent = unknownPad ? t("st.controller") : modelName(model);
+    $("devSub").textContent = padId;
   }
   const pills = [];
   if (src === "hid") pills.push(`<span class="badge info">${t("pill.usb")}</span>`);
   if (src === "pad") pills.push(`<span class="badge">${t("pill.basic")}</span>`);
   if (src === "hid" && hidInfo?.clone) pills.push(`<span class="badge bad">${t("pill.clone")}</span>`);
   if (src === "hid" && isUnsaved()) pills.push(`<span class="badge warn">${t("pill.unsaved")}</span>`);
-  if (S.battery) pills.push(`<span class="badge">${esc(batteryTxt(S.battery))}</span>`);
   const html = pills.join("");
-  if (html !== lastPills) { $("pills").innerHTML = html; lastPills = html; }
+  if (html !== lastMeta) { $("devMeta").innerHTML = html; lastMeta = html; }
+  const b = S.battery;
+  $("devBatt").classList.toggle("hidden", !b);
+  if (b) { $("devBattBar").style.width = (b.error ? 0 : b.level) + "%"; $("devBattTxt").textContent = b.error ? t("bat.error") : b.level + "%" + (b.charging ? " ⚡" : ""); }
   $("btnUsbApp").classList.toggle("hidden", !HAS_HID || src === "hid");
-  $("btnUsbOff").classList.toggle("hidden", src !== "hid");
   $("btnUsbApp").disabled = $("btnUsb").disabled = connecting;
+  const un = src === "hid" && isUnsaved();
+  $("unsavedTop").classList.toggle("hidden", !un || page === "calib");
+  if (un && !$("unsavedTop").innerHTML) $("unsavedTop").innerHTML = `${t("top.unsaved")} <button class="b sm" data-act="calib">${t("top.unsavedBtn")}</button>`;
   notice();
 }
 function notice() {
@@ -334,46 +410,61 @@ function notice() {
     if (!padStandard) h = t("n.nonStd");
     else if (unknownPad) h = t("n.unknown");
     else if (model.key === "VR2L" || model.key === "VR2R") h = t("n.vr2");
-    else if (HAS_HID) h = t("n.upgrade");
+    else if (HAS_HID && (page === "overview")) h = t("n.upgrade");
   }
   if ($("notice").innerHTML !== h) $("notice").innerHTML = h;
 }
+function kpi(id, v, sub, cls = "") {
+  const el = $(id);
+  el.className = "card kpi " + cls;
+  el.querySelector(".kpi-v").textContent = v;
+  el.querySelector(".kpi-s").textContent = sub;
+}
+function renderKpis() {
+  const ok = ITEMS.filter((it) => it.st() === "ok").length, n = ITEMS.length || 1;
+  const pct = Math.round(ok / n * 100);
+  kpi("kHealth", pct + "%", t("k.healthS", { a: ok, b: ITEMS.length }), pct >= 90 ? "good" : pct >= 40 ? "warn" : "");
+  const b = S.battery;
+  kpi("kBat", b && !b.error ? b.level + "%" : "—", b ? batteryTxt(b) : t("k.batNone"), b && !b.error ? (b.level < 20 ? "bad" : "good") : "");
+  for (const [id, k] of [["kL", "L"], ["kR", "R"]]) {
+    const c = circularity(sectors[k]), d = drift[k];
+    const cls = d !== null && d > 0.1 ? "bad" : c ? (c.err < 12 ? "good" : "warn") : "";
+    kpi(id, d === null ? "—" : d.toFixed(3), d !== null && d > 0.1 ? t("k.drift") : c ? t("sm.err", { n: c.err.toFixed(1) }) : t("k.stickS"), cls);
+  }
+  kpi("kRate", rate ? rate + " Hz" : "—", src === "hid" ? t("k.rateUsb") : src ? t("k.ratePad") : "", rate >= 200 ? "good" : "");
+}
 function usbHint() {
   $("usbHint").textContent = HAS_HID ? t("hint.ok") : MOBILE ? t("hint.mobile") : t("hint.browser");
-  $("hidSupport").innerHTML = HAS_HID ? t("sup.ok") : "<b>" + t("sup.no") + "</b> " + (MOBILE ? t("hint.mobile") : t("hint.browser"));
-  $("btnUsb").disabled = $("btnUsb2").disabled = !HAS_HID;
+  $("btnUsb").disabled = !HAS_HID;
 }
 
-// ============ última conexão e calibração não salva
+// ================================================================ última conexão, calibração não salva
 const unsavedKey = () => hidInfo?.serial ? "unsaved." + hidInfo.serial : null;
 const isUnsaved = () => { const k = unsavedKey(); return !!k && store.get(k) === "1"; };
-function setUnsaved(v) { const k = unsavedKey(); if (k) store.set(k, v ? "1" : null); renderTools(); }
+function setUnsaved(v) { const k = unsavedKey(); if (k) store.set(k, v ? "1" : null); $("unsavedTop").innerHTML = ""; renderPage(); renderStatus(); }
 function renderLast() {
   let info = null; try { info = JSON.parse(store.get("last") || "null"); } catch { /* ignora */ }
   if (!info) { $("gateLast").innerHTML = ""; return; }
   const m = MODELS[info.key];
   const bits = [info.color && t("color." + info.color), info.board, m ? modelName(m) : ""].filter(Boolean).join(" ");
   const warn = info.serial && store.get("unsaved." + info.serial) === "1";
-  $("gateLast").innerHTML = `${t("last.t")} <b>${esc(bits)}</b>${info.serial ? ", " + esc(t("st.serial", { s: info.serial })) : ""}` +
-    (warn ? `<div class="warnline">${t("last.unsaved")}</div>` : "");
+  $("gateLast").innerHTML = `${t("last.t")} <b>${esc(bits)}</b>${info.serial ? ", " + esc(t("st.serial", { s: info.serial })) : ""}` + (warn ? `<div class="warnline">${t("last.unsaved")}</div>` : "");
 }
 
-// ============ Bluetooth / Gamepad API (modo básico)
+// ================================================================ Bluetooth / Gamepad API (modo básico)
 function readPad() {
   const list = (navigator.getGamepads && navigator.getGamepads()) || [];
   for (const g of list) if (g && g.connected) return g;
   return null;
 }
-window.addEventListener("gamepadconnected", (e) => addLog(t("log.connected", { id: e.gamepad.id })));
-window.addEventListener("gamepaddisconnected", () => addLog(t("log.disconnected")));
+addEventListener("gamepadconnected", (e) => addLog(t("log.connected", { id: e.gamepad.id })));
+addEventListener("gamepaddisconnected", () => addLog(t("log.disconnected")));
 function pollPad() {
   const g = readPad();
-  if (!g) {
-    if (src === "pad") { src = null; padIndex = null; clearLive(); renderStatus(); }
-    return;
-  }
+  if (!g) { if (src === "pad") { src = null; padIndex = null; lastPad = null; clearLive(); renderStatus(); } return; }
   if (src !== "pad" || padIndex !== g.index) { addLog(t("log.reading", { id: g.id })); src = "pad"; padIndex = g.index; }
-  padId = g.id; padStandard = g.mapping === "standard";
+  padId = g.id; padStandard = g.mapping === "standard"; padButtons = g.buttons.length; padAxes = g.axes.length; lastPad = g;
+  if (g.timestamp !== padStamp) { padStamp = g.timestamp; samples++; }
   const m = modelFromGamepadId(g.id);
   setModel(m || MODELS.DS5, !m);
   S.pressed.clear();
@@ -383,32 +474,23 @@ function pollPad() {
   S.imu = null; S.touches = []; S.battery = null;
   if (screen === "gate" && !connecting) { toast(t("toast.padIn", { m: unknownPad ? t("st.controller") : modelName(model) }), "ok"); showApp(); }
 }
-function clearLive() {
-  S.pressed.clear(); S.lx = S.ly = S.rx = S.ry = S.l2 = S.r2 = 0; S.imu = null; S.touches = []; S.battery = null; S.stopL2 = S.stopR2 = null;
-}
+function clearLive() { S.pressed.clear(); S.lx = S.ly = S.rx = S.ry = S.l2 = S.r2 = 0; S.imu = null; S.touches = []; S.battery = null; S.stopL2 = S.stopR2 = null; }
 
-// ============ USB (WebHID): modo completo
+// ================================================================ USB (WebHID): modo completo
 async function connectUsb() {
   if (!HAS_HID) { toast(t("hint.browser"), "bad"); return; }
   if (connecting || hid) return;
   let dev;
-  // sempre abre a janela do navegador para a pessoa escolher o controle
-  try { dev = (await navigator.hid.requestDevice({ filters: HID_FILTERS }))[0]; }
+  try { dev = (await navigator.hid.requestDevice({ filters: HID_FILTERS }))[0]; } // sempre mostra a janela de escolha do navegador
   catch (e) { toast(t("err.chooser") + " " + e.message, "bad"); return; }
-  if (!dev) return; // a pessoa cancelou
+  if (!dev) return;
   await openDevice(dev);
 }
 async function openDevice(dev) {
   connecting = true; renderStatus();
   loading(true, rebooting ? "load.reboot" : "load.open", 0, dev.productName || "");
-  try {
-    if (dev.opened) { await dev.close(); await sleep(300); }
-    await dev.open();
-  } catch {
-    connecting = false; rebooting = false; loading(false); renderStatus();
-    toast(t("err.busy"), "bad", 7000);
-    return;
-  }
+  try { if (dev.opened) { await dev.close(); await sleep(300); } await dev.open(); }
+  catch { connecting = false; rebooting = false; loading(false); renderStatus(); toast(t("err.busy"), "bad", 7000); return; }
   let first = true;
   dev.oninputreport = (e) => {
     if (!first) return;
@@ -419,9 +501,7 @@ async function openDevice(dev) {
       try { await dev.close(); } catch { /* já fechado */ }
     });
   };
-  setTimeout(() => {
-    if (first && connecting) { connecting = false; rebooting = false; loading(false); renderStatus(); toast(t("err.noInput"), "bad"); dev.close().catch(() => {}); }
-  }, 3000);
+  setTimeout(() => { if (first && connecting) { connecting = false; rebooting = false; loading(false); renderStatus(); toast(t("err.noInput"), "bad"); dev.close().catch(() => {}); } }, 3000);
 }
 async function setupDevice(dev, data) {
   if (data.byteLength !== 63) {
@@ -441,16 +521,21 @@ async function setupDevice(dev, data) {
   src = "hid"; clearLive(); setModel(p.model);
   dev.oninputreport = onReport;
   if (info) store.set("last", JSON.stringify({ key: p.key, serial: info.serial, board: info.board, color: info.color, when: Date.now() }));
+  // guarda o ajuste fino atual no histórico (para "Restaurar calibração")
+  if (info && !info.clone && (p.key === "DS5" || p.key === "EDGE") && !isUnsaved()) {
+    try { const d = await p.finetune(); if (d) hist.save(info.serial, d); } catch { /* opcional */ }
+  }
   addLog("USB: " + modelName(p.model) + (info?.serial ? " · " + info.serial : ""));
-  renderStatus(); renderTools();
   await sleep(450);
-  connecting = false; rebooting = false; loading(false); showApp(); renderStatus();
+  connecting = false; rebooting = false; loading(false); showApp(); renderStatus(); renderPage();
   if (info?.nv === "pending_reboot") toast(t("toast.reboot"), "bad", 8000);
   else if (isUnsaved()) toast(t("toast.unsaved"), "", 7000);
   else toast(t("toast.usbIn", { m: modelName(p.model) }), "ok");
 }
 function onReport(e) {
   if (!hid) return;
+  samples++;
+  if (!rawFrozen) { prevRaw = lastRaw; lastRaw = new Uint8Array(e.data.buffer.slice(e.data.byteOffset, e.data.byteOffset + e.data.byteLength)); }
   let r; try { r = parseInput(hid.key, e.data); } catch { return; }
   S.lx = r.lx; S.ly = r.ly; S.rx = r.rx; S.ry = r.ry; S.l2 = r.l2; S.r2 = r.r2; S.pressed = r.pressed;
   S.imu = r.imu; S.touches = r.touches; S.battery = r.battery; S.stopL2 = r.stopL2 ?? null; S.stopR2 = r.stopR2 ?? null;
@@ -459,55 +544,48 @@ function onReport(e) {
     trail.push({ x: p.x, y: p.y, id: p.id, t: now });
     touchSeen.minX = Math.min(touchSeen.minX, p.x); touchSeen.maxX = Math.max(touchSeen.maxX, p.x); touchSeen.n++;
   }
-  if (trail.length > 400) trail.splice(0, trail.length - 400);
+  if (trail.length > 500) trail.splice(0, trail.length - 500);
   if (r.imu) gyroMax = Math.max(gyroMax, Math.abs(r.imu.gx), Math.abs(r.imu.gy), Math.abs(r.imu.gz));
 }
-// msgKey null = saída pedida pela pessoa (sem aviso)
 function usbGone(msgKey = "toast.usbOut") {
   if (!hid) return;
-  hid = null; hidInfo = null;
+  hid = null; hidInfo = null; lastRaw = prevRaw = null; tiltBase = null;
   if (src === "hid") { src = null; clearLive(); }
   if (busy) { busy = false; showMsg(t("dlg.lostT"), t("dlg.lostD"), "bad"); }
   if (msgKey) { addLog(t(msgKey)); toast(t(msgKey)); }
-  renderStatus(); renderTools();
+  stopMic();
+  renderStatus(); renderPage();
   if (rebooting) { loading(true, "load.reboot", 0); setTimeout(() => { if (rebooting) { rebooting = false; loading(false); showGate(); toast(t("toast.rebootManual"), "", 7000); } }, 9000); }
   else if (msgKey && !readPad()) showGate();
 }
 if (HAS_HID) {
   navigator.hid.addEventListener("disconnect", (e) => { if (hid && e.device === hid.device) usbGone(); });
-  // depois de reiniciar o controle (Desfazer), ele volta sozinho, sem pedir de novo
   navigator.hid.addEventListener("connect", (e) => { if (wantHid && !hid && !connecting && HID_FILTERS.some((f) => f.productId === e.device.productId)) setTimeout(() => openDevice(e.device), 800); });
 }
-$("btnUsb").onclick = connectUsb; $("btnUsb2").onclick = connectUsb; $("btnUsbApp").onclick = connectUsb;
-$("btnUsbOff").onclick = async () => { wantHid = false; const d = hid?.device; usbGone(null); try { await d?.close(); } catch { /* ok */ } };
+$("btnUsb").onclick = connectUsb; $("btnUsbApp").onclick = connectUsb;
 
-// ============ vibração rápida (aba Controle)
-$("btnRumble").onclick = async () => {
+// ================================================================ vibração (ação rápida)
+async function rumbleTest() {
   const msg = $("rumbleMsg");
   if (src === "hid") {
-    if (!hid.hasHaptics) { msg.textContent = t("vib.none"); return; }
-    try { await hid.rumble(255, 255); await sleep(600); await hid.rumble(0, 0); msg.textContent = t("vib.sent"); }
-    catch (e) { msg.textContent = t("vib.fail") + " " + errMsg(e); }
-    return;
+    if (!hid.hasHaptics) { msg.textContent = t("vib.none"); return false; }
+    try { await hid.rumble(255, 255); await sleep(600); await hid.rumble(0, 0); msg.textContent = t("vib.sent"); return true; }
+    catch (e) { msg.textContent = t("vib.fail") + " " + errMsg(e); return false; }
   }
   const g = readPad();
-  if (!g) { msg.textContent = t("vib.noPad"); return; }
+  if (!g) { msg.textContent = t("vib.noPad"); return false; }
   const act = g.vibrationActuator || (g.hapticActuators && g.hapticActuators[0]);
-  if (!act) { msg.textContent = t("vib.noApi"); return; }
+  if (!act) { msg.textContent = t("vib.noApi"); return false; }
   try {
     if (act.playEffect) await act.playEffect("dual-rumble", { duration: 600, strongMagnitude: 1, weakMagnitude: 1 });
     else if (act.pulse) await act.pulse(1, 600);
-    msg.textContent = t("vib.sent");
-  } catch (e) { msg.textContent = t("vib.fail") + " " + e.message; }
-};
-
-// ============ validação
-const ST = (s) => t("vs." + s);
-function stickDesc(k) {
-  const c = circularity(sectors[k]), cover = sectors[k].filter((m) => m > 0.15).length;
-  const rest = drift[k] === null ? "" : " · " + t("v.rest", { n: drift[k].toFixed(2) }) + (drift[k] > 0.1 ? " " + t("v.drift") : "");
-  return (c ? t("v.circle", { n: c.err.toFixed(1) }) : t("v.spin", { n: cover })) + rest;
+    msg.textContent = t("vib.sent"); return true;
+  } catch (e) { msg.textContent = t("vib.fail") + " " + e.message; return false; }
 }
+$("btnRumble").onclick = rumbleTest;
+
+// ================================================================ checklist (Diagnóstico)
+const ST = (s) => t("vs." + s);
 function stickSt(k) {
   const c = circularity(sectors[k]); if (!c) return sectors[k].some((m) => m > 0.15) ? "warn" : "idle";
   if (drift[k] !== null && drift[k] > 0.1) return "bad";
@@ -515,17 +593,20 @@ function stickSt(k) {
 }
 const trigItem = (n) => ({ id: n, t: () => t("v.trigger", { n: n.toUpperCase() }), d: () => t("v.max", { n: Math.round(maxTrig[n] * 100) }), st: () => maxTrig[n] > 0.95 ? "ok" : maxTrig[n] > 0 ? "warn" : "idle" });
 const manualItem = (id, tk, dk) => ({ id, t: () => t(tk), d: () => t(dk), st: () => manual[id] || "idle", manual: true });
+const isDs5 = () => model && (model.key === "DS5" || model.key === "EDGE");
+const isVr2 = () => model && (model.key === "VR2L" || model.key === "VR2R");
+function reqButtons() { const k = model?.key || "DS5"; return buttonsOf(k).filter((n) => src === "hid" || !["touchpad", "mute"].includes(n)); }
 function items() {
-  const k = model?.key || "DS5", usb = src === "hid", vr2 = k === "VR2L" || k === "VR2R";
-  const req = buttonsOf(k).filter((n) => usb || !["touchpad", "mute"].includes(n));
+  const k = model?.key || "DS5", usb = src === "hid", vr2 = isVr2();
+  const req = reqButtons();
   const list = [manualItem("usb", "v.usb", "v.usbD")];
   list.push({
     id: "btn", t: () => t("v.buttons"),
     d: () => { const f = req.filter((n) => !tested.has(n)); return f.length ? t("v.btnMissing", { a: req.length - f.length, b: req.length, list: f.map(L).join(", ") }) : t("v.btnAll") + (usb ? "" : " " + t("v.btnBrowser")); },
     st: () => req.every((n) => tested.has(n)) ? "ok" : req.some((n) => tested.has(n)) ? "warn" : "idle",
   });
-  if (vr2) list.push({ id: "L", t: () => t("v.stick"), d: () => stickDesc("L"), st: () => stickSt("L") });
-  else list.push({ id: "L", t: () => t("v.stickL"), d: () => stickDesc("L"), st: () => stickSt("L") }, { id: "R", t: () => t("v.stickR"), d: () => stickDesc("R"), st: () => stickSt("R") });
+  if (vr2) list.push({ id: "L", t: () => t("v.stick"), d: () => stickRead("L"), st: () => stickSt("L") });
+  else list.push({ id: "L", t: () => t("v.stickL"), d: () => stickRead("L"), st: () => stickSt("L") }, { id: "R", t: () => t("v.stickR"), d: () => stickRead("R"), st: () => stickSt("R") });
   if (k !== "VR2R") list.push(trigItem("l2"));
   if (k !== "VR2L") list.push(trigItem("r2"));
   if (usb && !vr2) {
@@ -535,7 +616,7 @@ function items() {
   }
   if (!vr2) list.push(manualItem("vib", "v.vib", usb ? "v.vibUsb" : "v.vibD"));
   if (usb && !vr2) list.push(manualItem("light", "v.light", "v.lightD"));
-  if (usb && (k === "DS5" || k === "EDGE")) list.push(manualItem("spk", "v.spk", "v.spkD"));
+  if (usb && isDs5()) list.push(manualItem("adaptive", "v.adaptive", "v.adaptiveD"), manualItem("spk", "v.spk", "v.spkD"), manualItem("mic", "v.mic", "v.micD"));
   return list;
 }
 let ITEMS = [], rows = [], prevSt = [];
@@ -543,10 +624,10 @@ function buildVal() {
   const sig = (model?.key || "-") + src + getLang();
   if (sig === valSig) return;
   valSig = sig; ITEMS = items(); prevSt = [];
-  $("valList").innerHTML = "";
+  $("valList").innerHTML = `<h2>${t("val.list")}</h2>`;
   rows = ITEMS.map((it) => {
     const r = document.createElement("div"); r.className = "row";
-    r.innerHTML = `<div><div class="t">${esc(it.t())}</div><div class="d"></div>${it.manual ? `<div class="acts"><button class="b sm" data-v="ok">${t("v.pass")}</button><button class="b sm" data-v="fail">${t("v.fail")}</button></div>` : ""}</div><span class="badge"></span>`;
+    r.innerHTML = `<div><div class="t">${esc(it.t())}</div><div class="d"></div>${it.manual ? `<div class="acts"><button class="b sm" data-v="ok">${t("v.pass")}</button><button class="b sm neon" data-v="fail">${t("v.fail")}</button></div>` : ""}</div><span class="badge"></span>`;
     r.querySelectorAll("[data-v]").forEach((b) => { b.onclick = () => { manual[it.id] = b.dataset.v; addLog(it.t() + ": " + ST(b.dataset.v)); renderVal(); }; });
     $("valList").appendChild(r); return r;
   });
@@ -566,15 +647,17 @@ function renderVal() {
   });
   countTo($("sumOk"), ok); $("sumAll").textContent = ITEMS.length;
   setRing($("vring"), ITEMS.length ? ok / ITEMS.length : 0);
+  $("nbDiag").textContent = `${ok}/${ITEMS.length}`;
 }
-$("btnReset").onclick = () => {
+function resetTests() {
   tested.clear(); sectors.L.fill(0); sectors.R.fill(0); maxTrig.l2 = maxTrig.r2 = 0; drift.L = drift.R = null;
   stickDone.L = stickDone.R = false; for (const k of Object.keys(manual)) delete manual[k];
   touchSeen.minX = Infinity; touchSeen.maxX = -Infinity; touchSeen.n = 0; gyroMax = 0; trail.length = 0;
   log = []; $("log").textContent = ""; svgCache.clear(); renderVal();
-};
+}
+$("btnReset").onclick = resetTests;
 
-// ============ janela (calibração e confirmações)
+// ================================================================ janelas
 const dlg = $("dlg");
 dlg.addEventListener("cancel", (e) => { if (busy) e.preventDefault(); });
 function showDlg(html) { $("dlgBody").innerHTML = html; if (!dlg.open) dlg.showModal(); }
@@ -594,7 +677,15 @@ function confirmDlg(title, html, okLabel, cls = "p") {
     $("dlgNo").focus();
   });
 }
-const waitClick = (id) => new Promise((res) => { $(id).onclick = () => res(); });
+// espera um clique num dos ids; se a janela fechar, devolve "close"
+function waitAny(ids) {
+  return new Promise((res) => {
+    const onClose = () => res("close");
+    dlg.addEventListener("close", onClose, { once: true });
+    for (const id of ids) { const el = $(id); if (el) el.onclick = () => { dlg.removeEventListener("close", onClose); res(id); }; }
+  });
+}
+const nextBtn = (id, key) => `<button class="b arrow" id="${id}"><span>${t(key)}</span><span class="ar">${icon("arrow")}</span></button>`;
 const stepsBar = (n, cur) => `<div class="steps">${Array.from({ length: n }, (_, i) => `<i class="${i < cur ? "done" : i === cur ? "on" : ""}"></i>`).join("")}</div>`;
 function failMsg(e) {
   busy = false;
@@ -602,7 +693,7 @@ function failMsg(e) {
   addLog("✖ " + errMsg(e));
 }
 
-// ============ calibração
+// ================================================================ calibração
 function calibBlock() {
   if (!hidInfo) return t("cb.noInfo");
   if (hidInfo.clone) return t("cb.clone");
@@ -610,12 +701,11 @@ function calibBlock() {
   if (hidInfo.nv === "pending_reboot") return t("cb.reboot");
   return "";
 }
-async function centerWizard() {
+async function centerWizard(quick) {
   if (!hid || busy || calibBlock()) return;
-  const quick = hid.key === "DS5" || hid.key === "EDGE", one = hid.model.sticks === 1;
-  const os = t(one ? "c.one" : "c.both");
+  const one = hid.model.sticks === 1, os = t(one ? "c.one" : "c.both");
   const intro = `<p>${t(quick ? "c.introQuick" : "c.intro4", { s: os })}</p>`;
-  if (!await confirmDlg(t("c.title"), intro + `<div class="alert warn">${t("c.dontClose")}</div>`, t("c.start"))) return;
+  if (!await confirmDlg(t(quick ? "c.titleQuick" : "c.title4"), intro + `<div class="alert warn">${t("c.dontClose")}</div>`, t("c.start"))) return;
   busy = true;
   const dev = hid;
   try {
@@ -629,9 +719,10 @@ async function centerWizard() {
       await dev.centerBegin();
       const corners = [["↖", "c.tl"], ["↗", "c.tr"], ["↙", "c.bl"], ["↘", "c.br"]];
       for (let i = 0; i < 4; i++) {
-        showDlg(`<h3>${t("c.step", { n: i + 1 })}</h3>${stepsBar(4, i)}<div class="arrow" aria-hidden="true">${corners[i][0]}</div><p>${t(one ? "c.pushOne" : "c.pushBoth", { c: t(corners[i][1]) })}</p><div class="acts"><button class="b p" id="cNext">${t("c.next")}</button></div>`);
+        showDlg(`<h3>${t("c.step", { n: i + 1 })}</h3>${stepsBar(4, i)}<div class="arrowbig" aria-hidden="true">${corners[i][0]}</div><p>${t(one ? "c.pushOne" : "c.pushBoth", { c: t(corners[i][1]) })}</p><div class="acts">${nextBtn("cNext", "c.next")}</div>`);
         $("cNext").focus();
-        await waitClick("cNext");
+        busy = true;
+        await waitAny(["cNext"]);
         $("cNext").disabled = true; $("cNext").innerHTML = `<span class="spin"></span>${t("c.reading")}`;
         await sleep(150);
         await dev.centerSample();
@@ -640,31 +731,30 @@ async function centerWizard() {
       await dev.centerEnd();
     }
     busy = false;
-    addLog(t("log.center"));
-    setUnsaved(true);
+    addLog(t("log.center")); setUnsaved(true);
     showMsg(t("c.doneT"), t("c.doneD"));
   } catch (e) { failMsg(e); }
 }
 
-async function rangeWizard() {
+async function rangeWizard(expert) {
   if (!hid || busy || calibBlock()) return;
   const one = hid.model.sticks === 1;
-  const intro = `<p>${t("r.intro", { s: t(one ? "c.one" : "c.both") })}</p><div class="alert warn">${t("r.warn")}</div>`;
-  if (!await confirmDlg(t("r.title"), intro, t("c.start"))) return;
+  const intro = `<p>${t(expert ? "r.introExpert" : "r.intro", { s: t(one ? "c.one" : "c.both") })}</p><div class="alert warn">${t("r.warn")}</div>`;
+  if (!await confirmDlg(t(expert ? "r.titleExpert" : "r.title"), intro, t("c.start"))) return;
   busy = true;
   const dev = hid, N = 48, need = 4;
   const fill = { L: new Array(N).fill(0), R: new Array(N).fill(0) }, cyc = { L: 0, R: 0 };
   showDlg(`<h3>${t("r.spin")}</h3><p class="sub">${t("r.keep")}</p>
-    <div class="dlgsticks"><canvas id="rL" width="280" height="280"></canvas>${one ? "" : '<canvas id="rR" width="280" height="280"></canvas>'}</div>
-    <div class="prog"><i id="rp"></i></div><div class="sub" id="rt">0%</div>
-    <div class="acts"><button class="b p" id="rDone" disabled>${t("r.done")}</button></div>`);
-  let running = true, secs = 15, pct = 0;
+    <div class="dlgsticks"><canvas id="rL" width="300" height="300"></canvas>${one ? "" : '<canvas id="rR" width="300" height="300"></canvas>'}</div>
+    ${expert ? "" : '<div class="prog"><i id="rp"></i></div><div class="sub" id="rt">0%</div>'}
+    <div class="acts"><button class="b go" id="rDone" ${expert ? "" : "disabled"}>${t("r.done")}</button></div>`);
+  let running = true, secs = expert ? 0 : 15, pct = 0;
   try { await sleep(500); await dev.rangeBegin(); } catch (e) { running = false; failMsg(e); return; }
   const tick = setInterval(() => { secs--; refreshBtn(); }, 1000);
   function refreshBtn() {
-    const b = $("rDone"); if (!b) return;
-    const ready = secs <= 0 || pct >= 100;
-    b.disabled = !ready; b.textContent = ready ? t("r.done") : `${t("r.done")} (${secs})`;
+    const b = $("rDone"); if (!b || expert) return;
+    const ok = secs <= 0 || pct >= 100;
+    b.disabled = !ok; b.textContent = ok ? t("r.done") : `${t("r.done")} (${secs})`;
   }
   function frame() {
     if (!running || hid !== dev) { clearInterval(tick); return; }
@@ -678,28 +768,89 @@ async function rangeWizard() {
     pct = Math.round(one ? Math.min(100, 2 * part("L")) : part("L") + part("R"));
     const rp = $("rp"); if (rp) rp.style.width = pct + "%";
     const rt = $("rt"); if (rt) rt.textContent = `${pct}% · ` + t(one ? "r.turnsOne" : "r.turns", { l: Math.min(cyc.L, need), r: Math.min(cyc.R, need), n: need });
-    const cl = $("rL"); if (cl) drawStick(cl, S.lx, S.ly, fill.L);
-    const cr = $("rR"); if (cr) drawStick(cr, S.rx, S.ry, fill.R);
+    const cl = $("rL"); if (cl) drawStick(cl, S.lx, S.ly, fill.L, "circ");
+    const cr = $("rR"); if (cr) drawStick(cr, S.rx, S.ry, fill.R, "circ");
     refreshBtn();
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-  await waitClick("rDone");
+  await waitAny(["rDone"]);
   running = false; clearInterval(tick);
   $("rDone").disabled = true; $("rDone").innerHTML = `<span class="spin"></span>${t("r.saving")}`;
   try {
     await dev.rangeEnd();
     busy = false;
-    addLog(t("log.range"));
-    setUnsaved(true);
+    addLog(t("log.range")); setUnsaved(true);
     showMsg(t("r.doneT"), t("r.doneD"));
   } catch (e) { failMsg(e); }
 }
 
+// ---- ajuste fino (DualSense e Edge): mexe nos números do centro de cada analógico
+async function fineTune() {
+  if (!hid || busy || calibBlock() || !(hid.key === "DS5" || hid.key === "EDGE")) return;
+  const dev = hid;
+  let orig;
+  try { orig = await dev.finetune(); } catch (e) { failMsg(e); return; }
+  if (!orig) { failMsg({ key: "err.finetune" }); return; }
+  const cur = orig.slice(); let step = 5, changed = false;
+  const center = [["LX", 8], ["LY", 9], ["RX", 10], ["RY", 11]];
+  const nudgeRow = ([n, i]) => `<div><div class="sub">${n}</div><div class="nudge"><button class="b sm" data-i="${i}" data-d="-1" aria-label="${n} −">−</button><output id="fv${i}">${cur[i]}</output><button class="b sm" data-i="${i}" data-d="1" aria-label="${n} +">+</button></div></div>`;
+  showDlg(`<h3>${t("fine.title")}</h3><p class="sub">${t("fine.help")}</p>
+    <div class="dlgsticks"><canvas id="fL" width="300" height="300"></canvas><canvas id="fR" width="300" height="300"></canvas></div>
+    <div class="fine">${center.map(nudgeRow).join("")}</div>
+    <div class="row"><div class="t">${t("fine.step")}</div><span class="seg" id="fStep"><span class="segpill"></span>${[1, 5, 20, 100].map((s) => `<button data-s="${s}" class="${s === 5 ? "on" : ""}">${s}</button>`).join("")}</span></div>
+    <details><summary>${t("fine.adv")}</summary><div class="fine" style="margin-top:8px">${FINE_NAMES.map((n, i) => `<label class="sub">${n}<input type="number" min="0" max="${dev.fineMax}" id="fa${i}" value="${cur[i]}"></label>`).join("")}</div>
+      <div class="acts"><button class="b sm" id="fApply">${t("fine.apply")}</button></div></details>
+    <div class="acts"><button class="b go" id="fDone">${t("fine.done")}</button><button class="b neon" id="fUndo">${t("fine.undo")}</button></div>`);
+  requestAnimationFrame(() => moveSeg($("fStep")));
+  busy = true;
+  let writing = false, pending = false;
+  async function push() {
+    if (writing) { pending = true; return; }
+    writing = true;
+    try { await dev.writeFinetune(cur); changed = true; } catch (e) { toast(t("err.cmd") + " " + errMsg(e), "bad"); }
+    writing = false;
+    if (pending) { pending = false; push(); }
+  }
+  const sync = () => { for (const [, i] of center) { const o = $("fv" + i); if (o) o.textContent = cur[i]; } FINE_NAMES.forEach((_, i) => { const a = $("fa" + i); if (a) a.value = cur[i]; }); };
+  $("dlgBody").onclick = (e) => {
+    const b = e.target.closest("button[data-i]");
+    if (b) { const i = +b.dataset.i; cur[i] = Math.max(0, Math.min(dev.fineMax, cur[i] + step * +b.dataset.d)); sync(); push(); return; }
+    const s = e.target.closest("#fStep button[data-s]");
+    if (s) { step = +s.dataset.s; $("fStep").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === s)); moveSeg($("fStep")); }
+  };
+  $("fApply").onclick = () => { FINE_NAMES.forEach((_, i) => { cur[i] = Math.max(0, Math.min(dev.fineMax, Math.round(+$("fa" + i).value || 0))); }); sync(); push(); };
+  let live = true;
+  (function frame() { if (!live || hid !== dev) return; const a = $("fL"), b = $("fR"); if (a) drawStick(a, S.lx, S.ly, null, "zoom"); if (b) drawStick(b, S.rx, S.ry, null, "zoom"); requestAnimationFrame(frame); })();
+  const r = await waitAny(["fDone", "fUndo"]);
+  live = false; $("dlgBody").onclick = null;
+  if (r === "fUndo" || r === "close") {
+    try { await dev.writeFinetune(orig); } catch { /* o controle saiu */ }
+    busy = false; closeDlg(); toast(t("fine.reverted"));
+    return;
+  }
+  busy = false; closeDlg();
+  if (changed) { setUnsaved(true); addLog(t("log.fine")); toast(t("fine.saved"), "ok"); }
+}
+
+async function restoreFrom(id) {
+  if (!hid || busy || !hidInfo?.serial) return;
+  const e = hist.get(hidInfo.serial, id); if (!e) return;
+  if (!await confirmDlg(t("hist.confirmT"), `<p>${t("hist.confirmD", { d: new Date(e.ts).toLocaleString(getLang()) })}</p>`, t("hist.restore"), "go")) return;
+  try { await hid.writeFinetune(e.data); setUnsaved(true); addLog(t("log.restored")); closeDlg(); toast(t("hist.done"), "ok"); }
+  catch (err) { failMsg(err); }
+}
+function renderHistory() {
+  const list = hidInfo?.serial ? hist.list(hidInfo.serial) : [];
+  $("histList").innerHTML = list.length ? list.map((e, i) => `<div class="row"><div><div class="t">${esc(new Date(e.ts).toLocaleString(getLang()))}${i === 0 ? ` <span class="badge info">${t("hist.latest")}</span>` : ""}</div><div class="d mono">LX ${e.data[8]} · LY ${e.data[9]} · RX ${e.data[10]} · RY ${e.data[11]}</div></div><button class="b sm" data-restore="${e.id}">${t("hist.restore")}</button></div>`).join("")
+    : `<p class="sub">${t("hist.empty")}</p>`;
+}
+$("histList").addEventListener("click", (e) => { const b = e.target.closest("[data-restore]"); if (b) restoreFrom(b.dataset.restore); });
+
 async function saveCalib() {
   if (!hid || busy) return;
   const edge = hid.isEdge;
-  if (!await confirmDlg(t("s.title"), `<p>${t("s.intro")}</p>${edge ? `<div class="alert warn">${t("s.edge")}</div>` : ""}`, t("s.btn"), "ok")) return;
+  if (!await confirmDlg(t("s.title"), `<p>${t("s.intro")}</p>${edge ? `<div class="alert warn">${t("s.edge")}</div>` : ""}`, t("s.btn"), "go")) return;
   busy = true;
   const dev = hid;
   showDlg(`<h3>${t("s.running")}</h3><p class="sub">${t("s.noCable")}</p><div class="prog"><i id="sp"></i></div>`);
@@ -707,26 +858,27 @@ async function saveCalib() {
     await dev.save((v) => { const el = $("sp"); if (el) el.style.width = v + "%"; });
     busy = false;
     if (hidInfo) hidInfo.nv = await dev.nvStatus();
+    if (hidInfo?.serial && (dev.key === "DS5" || dev.key === "EDGE")) { try { const d = await dev.finetune(); if (d) hist.save(hidInfo.serial, d); } catch { /* opcional */ } }
     setUnsaved(false);
     addLog(t("log.saved"));
     showMsg(t("s.doneT"), t("s.doneD") + (edge ? " " + t("s.doneEdge") : ""));
   } catch (e) { failMsg(e); }
 }
-async function undoCalib() {
+async function rebootCtrl() {
   if (!hid || busy) return;
-  if (!await confirmDlg(t("u.title"), `<p>${t("u.d")}</p>`, t("u.btn"))) return;
-  closeDlg();
-  setUnsaved(false);
-  addLog(t("log.reboot"));
+  if (!await confirmDlg(t("u.title"), `<p>${t("u.d")}</p>`, t("u.btn"), "neon")) return;
+  closeDlg(); setUnsaved(false); addLog(t("log.reboot"));
   rebooting = true;
   await hid.reboot();
 }
-$("btnCenter").onclick = centerWizard; $("btnRange").onclick = rangeWizard; $("btnSave").onclick = saveCalib; $("btnUndo").onclick = undoCalib;
+$("btnCenterQuick").onclick = () => centerWizard(true); $("btnCenter4").onclick = () => centerWizard(false);
+$("btnRange").onclick = () => rangeWizard(false); $("btnRangeExpert").onclick = () => rangeWizard(true);
+$("btnFine").onclick = fineTune; $("btnSave").onclick = saveCalib; $("btnReboot").onclick = rebootCtrl;
 
-// ============ ferramentas: luzes, motores, gatilhos, som
+// ================================================================ saídas: luzes, motores, gatilhos, som, microfone
 async function act(fn) {
-  if (!hid || busy) return;
-  try { await fn(); } catch (e) { toast(t("err.cmd") + " " + errMsg(e), "bad"); }
+  if (!hid || busy) return false;
+  try { await fn(); return true; } catch (e) { toast(t("err.cmd") + " " + errMsg(e), "bad"); return false; }
 }
 const COLORS = [["blue", "#7c5cff"], ["cyan", "#59c8ff"], ["white", "#ffffff"], ["red", "#ff2030"], ["green", "#20ff70"], ["purple", "#b040ff"], ["orange", "#ff8a1a"], ["pink", "#ff4fb0"], ["off", "#000000"]];
 const swatchEls = [];
@@ -756,75 +908,280 @@ $("btnMotorB").onclick = () => pulse(+$("mL").value, +$("mR").value);
 const beep = (where) => act(async () => { await hid.speaker(where); await sleep(1000); if (hid) await hid.speakerOff(); });
 $("btnSpk").onclick = () => beep("speaker"); $("btnHp").onclick = () => beep("headphones");
 
-function renderTools() {
-  const on = !!hid;
-  $("toolsOff").classList.toggle("hidden", on);
-  $("toolsOn").classList.toggle("hidden", !on);
-  if (!on) return;
-  const k = hid.key, ds5 = k === "DS5" || k === "EDGE";
-  const dl = (list) => list.map(([a, b, c]) => `<dt>${esc(t(a))}</dt><dd class="${c || ""}">${esc(val(b))}</dd>`).join("");
-  const base = [["info.model", modelName(hid.model)], ...(hidInfo ? hidInfo.items : [["info.title", { t: "info.fail" }, "bad"]])];
-  if (S.battery) base.push(["info.battery", batteryTxt(S.battery)]);
-  $("infoList").innerHTML = dl(base);
-  $("infoExtra").innerHTML = dl(hidInfo?.extra || []);
-  $("infoMore").classList.toggle("hidden", !hidInfo?.extra?.length);
-  const block = calibBlock();
-  $("btnCenter").disabled = $("btnRange").disabled = !!block;
-  $("centerDesc").textContent = t(ds5 ? "cal.centerQuick" : "cal.center4");
-  if (block) { $("calibBlock").textContent = block; $("calibBlock").className = "alert bad"; }
-  else if (hid.isVr2) { $("calibBlock").textContent = t("cb.vr2"); $("calibBlock").className = "alert warn"; }
-  else $("calibBlock").className = "alert bad hidden";
-  $("unsaved").classList.toggle("hidden", !isUnsaved());
-  const nv = hidInfo?.nv;
-  const NV = { locked: ["ok"], unlocked: ["warn"], pending_reboot: ["bad"], unknown: [""], error: ["bad"] };
-  const known = NV[nv];
-  $("nvBadge").textContent = known ? t("nv." + nv) : "—"; $("nvBadge").className = "badge " + (known ? known[0] : "");
-  $("nvDesc").textContent = known ? t("nv." + nv + "D") : t("nv.none");
-  $("cardMotors").classList.toggle("hidden", !hid.hasHaptics);
-  $("cardLight").classList.toggle("hidden", hid.isVr2);
-  $("ledsRow").classList.toggle("hidden", !ds5); $("muteRow").classList.toggle("hidden", !ds5);
-  $("cardTrig").classList.toggle("hidden", !ds5); $("cardAudio").classList.toggle("hidden", !ds5);
+// microfone: procura a entrada de áudio do controle e mostra o volume ao vivo
+let mic = null;
+function stopMic() {
+  if (!mic) return;
+  mic.stream.getTracks().forEach((tr) => tr.stop()); mic.ctx.close().catch(() => {}); clearTimeout(mic.timer);
+  mic = null; $("micBar").style.width = "0"; $("btnMic").querySelector("span").textContent = t("mic.btn");
+}
+async function micTest() {
+  if (mic) { stopMic(); return; }
+  if (!navigator.mediaDevices?.getUserMedia) { $("micTxt").textContent = t("mic.none"); return; }
+  try {
+    let stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const devs = await navigator.mediaDevices.enumerateDevices();
+    const d = devs.find((x) => x.kind === "audioinput" && /dualsense|wireless controller|sony|ps5|ps4/i.test(x.label));
+    if (d && stream.getAudioTracks()[0]?.getSettings().deviceId !== d.deviceId) {
+      stream.getTracks().forEach((tr) => tr.stop());
+      stream = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: { exact: d.deviceId } } });
+    }
+    $("micTxt").textContent = d ? t("mic.using", { n: d.label }) : t("mic.default");
+    const ac = new AudioContext(), an = ac.createAnalyser(); an.fftSize = 1024;
+    ac.createMediaStreamSource(stream).connect(an);
+    const buf = new Float32Array(an.fftSize);
+    mic = { stream, ctx: ac, peak: 0, timer: setTimeout(stopMic, 12000) };
+    $("btnMic").querySelector("span").textContent = t("mic.stop");
+    (function meter() {
+      if (!mic) return;
+      an.getFloatTimeDomainData(buf);
+      const rms = Math.sqrt(buf.reduce((a, v) => a + v * v, 0) / buf.length), lvl = Math.min(1, rms * 6);
+      mic.peak = Math.max(mic.peak, lvl);
+      $("micBar").style.width = Math.round(lvl * 100) + "%";
+      requestAnimationFrame(meter);
+    })();
+  } catch { $("micTxt").textContent = t("mic.denied"); }
+}
+$("btnMic").onclick = micTest;
+
+// ================================================================ teste rápido guiado
+function quickSteps() {
+  const usb = src === "hid", vr2 = isVr2(), steps = [];
+  steps.push({ id: "btn", auto: () => reqButtons().every((n) => tested.has(n)), prog: () => `${reqButtons().filter((n) => tested.has(n)).length} / ${reqButtons().length}` });
+  steps.push({ id: "sticks", auto: () => stickSt("L") === "ok" && (vr2 || stickSt("R") === "ok"), prog: () => stickRead("L") + (vr2 ? "" : "  |  " + stickRead("R")) });
+  steps.push({ id: "trig", auto: () => (model.key === "VR2R" || maxTrig.l2 > 0.95) && (model.key === "VR2L" || maxTrig.r2 > 0.95), prog: () => `L2 ${Math.round(maxTrig.l2 * 100)}% · R2 ${Math.round(maxTrig.r2 * 100)}%` });
+  if (usb && !vr2) {
+    steps.push({ id: "touch", auto: () => (touchSeen.maxX - touchSeen.minX) / TOUCH_W > 0.7, prog: () => touchSeen.n ? Math.round((touchSeen.maxX - touchSeen.minX) / TOUCH_W * 100) + "%" : "0%" });
+    steps.push({ id: "gyro", auto: () => gyroMax > 150, prog: () => gyroMax.toFixed(0) + "°/s" });
+  }
+  if (!vr2) steps.push({ id: "vib", manual: "vib", run: rumbleTest });
+  if (usb && !vr2) steps.push({ id: "light", manual: "light", run: async () => { for (const c of ["#ff2030", "#20ff70", "#2f6bff", "#7c5cff"]) { await act(() => hid.light(...rgb(c))); await sleep(350); } } });
+  if (usb && isDs5()) {
+    steps.push({ id: "adaptive", manual: "adaptive", run: () => act(() => hid.triggers("heavy", "heavy")), after: () => act(() => hid.triggers("off", "off")) });
+    steps.push({ id: "spk", manual: "spk", run: () => beep("speaker") });
+  }
+  steps.push({ id: "usb", manual: "usb" });
+  return steps;
+}
+async function quickTest() {
+  if (busy) return;
+  if (!src) { toast(t("vib.noPad"), "bad"); return; }
+  const steps = quickSteps();
+  const res = {};
+  for (let i = 0; i < steps.length; i++) {
+    const s = steps[i];
+    const head = `<h3>${t("qt.step", { a: i + 1, b: steps.length })} · ${t("qt." + s.id + ".t")}</h3>${stepsBar(steps.length, i)}<p>${t("qt." + s.id + ".d")}</p>`;
+    let r;
+    if (s.auto) {
+      showDlg(head + `<div class="alert" id="qtProg"></div><div class="acts">${nextBtn("qtNext", "qt.next")}<button class="b ghost sm" id="qtSkip">${t("qt.skip")}</button></div>`);
+      const okNow = () => s.auto();
+      let done = false;
+      const iv = setInterval(() => {
+        const p = $("qtProg"); if (!p) return;
+        p.textContent = s.prog();
+        const ok = okNow();
+        p.className = "alert" + (ok ? "" : "");
+        $("qtNext").disabled = !ok;
+        if (ok && !done) { done = true; p.innerHTML = "✓ " + esc(s.prog()); setTimeout(() => $("qtNext")?.click(), 700); }
+      }, 120);
+      $("qtNext").disabled = true;
+      r = await waitAny(["qtNext", "qtSkip"]);
+      clearInterval(iv);
+      res[s.id] = r === "qtNext" ? "ok" : r === "qtSkip" ? "skip" : null;
+    } else {
+      showDlg(head + `<div class="acts">${s.run ? `<button class="b sm" id="qtRun">${icon("play")}<span>${t("qt.again")}</span></button>` : ""}</div>
+        <div class="acts"><button class="b go" id="qtYes">${t("qt.yes")}</button><button class="b neon" id="qtNo">${t("qt.no")}</button><button class="b ghost sm" id="qtSkip">${t("qt.skip")}</button></div>`);
+      if (s.run) { $("qtRun").onclick = () => s.run(); s.run(); }
+      r = await waitAny(["qtYes", "qtNo", "qtSkip"]);
+      if (s.after) await s.after();
+      res[s.id] = r === "qtYes" ? "ok" : r === "qtNo" ? "fail" : r === "qtSkip" ? "skip" : null;
+      if (s.manual && (r === "qtYes" || r === "qtNo")) manual[s.manual] = r === "qtYes" ? "ok" : "fail";
+    }
+    if (r === "close") { renderVal(); return; }
+  }
+  renderVal();
+  const okN = Object.values(res).filter((v) => v === "ok").length;
+  showDlg(`<h3>${t("qt.endT")}</h3><p class="summary grad">${okN} / ${steps.length}</p>
+    <div class="qt-list">${steps.map((s) => `<div><span>${t("qt." + s.id + ".t")}</span><span class="badge ${res[s.id] === "ok" ? "ok" : res[s.id] === "fail" ? "bad" : ""}">${t("qr." + (res[s.id] || "skip"))}</span></div>`).join("")}</div>
+    <div class="acts"><button class="b shine" id="qtReport">${icon("doc")}<span>${t("qa.make")}</span></button><button class="b" id="qtClose">${t("dlg.ok")}</button></div>`);
+  const r = await waitAny(["qtReport", "qtClose"]);
+  closeDlg();
+  if (r === "qtReport") makeReport();
+  addLog(t("log.quick", { a: okN, b: steps.length }));
+}
+$("btnQuick").onclick = quickTest;
+
+// ================================================================ laudo (imprimir / salvar em PDF)
+function stickImage(k) {
+  const cv = document.createElement("canvas"); cv.width = cv.height = 300;
+  const c = cv.getContext("2d"); c.fillStyle = "#fff"; c.fillRect(0, 0, 300, 300);
+  const keep = CV; CV = { ...CV, grid: "rgba(0,0,0,.18)", fill: "rgba(91,63,212,.15)", trail: "#5b3fd4", dot: "#5b3fd4" };
+  drawStick(cv, 0, 0, sectors[k], "circ"); CV = keep;
+  return cv.toDataURL("image/png");
+}
+function makeReport() {
+  renderVal();
+  const ok = ITEMS.filter((it) => it.st() === "ok").length;
+  const cls = (s) => s === "ok" ? "ok" : s === "bad" || s === "fail" ? "bad" : s === "warn" ? "warn" : "";
+  const info = [["info.model", model ? modelName(model) : "—"], ["rep.mode", src === "hid" ? t("pill.usb") : src ? t("pill.basic") : "—"], ...(hidInfo?.items || []), ...(S.battery ? [["info.battery", batteryShort(S.battery)]] : [])];
+  if (src === "pad") info.push(["rep.padId", padId]);
+  $("report").innerHTML = `
+    <div class="rh"><img src="logo.png" alt=""><div><h1>${t("rep.title")}</h1><div>PS-5 Controle Test · MeoWDeV MOD · ${esc(new Date().toLocaleString(getLang()))}</div></div><div style="margin-left:auto;text-align:right"><div class="score">${ok} / ${ITEMS.length}</div><div>${t("rep.score")}</div></div></div>
+    <h2>${t("info.title")}</h2><table>${info.map(([k, v, c]) => `<tr><th>${esc(t(k))}</th><td class="${c || ""}">${esc(val(v))}</td></tr>`).join("")}</table>
+    <h2>${t("val.list")}</h2><table><tr><th>${t("rep.item")}</th><th>${t("rep.status")}</th><th>${t("rep.detail")}</th></tr>
+      ${ITEMS.map((it) => { const s = it.st(); return `<tr><td>${esc(it.t())}</td><td class="${cls(s)}">${esc(ST(s))}</td><td>${esc(it.d())}</td></tr>`; }).join("")}</table>
+    <h2>${t("sticks")}</h2><div class="rs"><div><img src="${stickImage("L")}" alt=""><div>${t("v.stickL")}: ${esc(stickRead("L"))}</div></div>${model?.sticks === 2 ? `<div><img src="${stickImage("R")}" alt=""><div>${t("v.stickR")}: ${esc(stickRead("R"))}</div></div>` : ""}</div>
+    <p style="margin-top:14px;color:#555">${t("rep.foot")}</p>`;
+  setTimeout(() => window.print(), 80);
+}
+$("btnReport").onclick = makeReport;
+
+// ================================================================ informações
+let infoAll = false;
+function infoRows() {
+  if (src === "hid") return [["info.model", modelName(hid.model)], ...(hidInfo ? hidInfo.items : [["info.title", { t: "info.fail" }, "bad"]]), ...(S.battery ? [["info.battery", batteryShort(S.battery)]] : []), ...(infoAll && hidInfo ? [["sep"], ...hidInfo.extra] : [])];
+  if (src === "pad") return [["info.model", unknownPad ? t("st.controller") : modelName(model)], ["rep.mode", t("pill.basic")], ["rep.padId", padId], ["info.mapping", padStandard ? t("info.std") : t("st.nonStd")], ["info.counts", t("info.countsV", { b: padButtons, a: padAxes })]];
+  return [];
+}
+function renderInfo() {
+  const rowsI = infoRows();
+  $("infoList").innerHTML = rowsI.length ? rowsI.map(([k, v, c]) => k === "sep" ? `<div class="sep"></div>` : `<dt>${esc(t(k))}</dt><dd class="${c || ""}">${esc(val(v))}</dd><button class="cp" data-copy="${esc(val(v))}" aria-label="${t("copy")} ${esc(t(k))}">${icon("copy")}</button>`).join("")
+    : `<p class="sub" style="grid-column:1/-1">${t("info.noneYet")}</p>`;
+  $("btnInfoAll").classList.toggle("hidden", !(src === "hid" && hidInfo?.extra?.length));
+  $("btnInfoAll").textContent = t(infoAll ? "info.showLess" : "info.showAll");
+}
+$("infoList").addEventListener("click", (e) => { const b = e.target.closest("[data-copy]"); if (b) copyText(b.dataset.copy); });
+$("btnInfoAll").onclick = () => { infoAll = !infoAll; renderInfo(); };
+$("btnCopyInfo").onclick = () => copyText(infoRows().filter(([k]) => k !== "sep").map(([k, v]) => `${t(k)}: ${val(v)}`).join("\n"));
+
+// ================================================================ depuração
+function renderRaw() {
+  if (rawFrozen) return;
+  if (src === "hid" && lastRaw) {
+    let out = "";
+    for (let r = 0; r < lastRaw.length; r += 16) {
+      out += r.toString(16).padStart(2, "0") + "  ";
+      for (let i = r; i < Math.min(r + 16, lastRaw.length); i++) {
+        const h = lastRaw[i].toString(16).padStart(2, "0");
+        out += (prevRaw && prevRaw[i] !== lastRaw[i]) ? `<b>${h}</b> ` : lastRaw[i] ? `<em>${h}</em> ` : h + " ";
+      }
+      out += "\n";
+    }
+    $("rawHex").innerHTML = out;
+  } else if (src === "pad" && lastPad) {
+    $("rawHex").textContent = "axes  " + lastPad.axes.map((a) => a.toFixed(3)).join("  ") + "\n" +
+      lastPad.buttons.map((b, i) => `b${String(i).padStart(2, "0")} ${b.value.toFixed(2)}${b.pressed ? " ●" : ""}`).join("\n");
+  } else $("rawHex").textContent = t("dbg.none");
+  $("dbgRate").textContent = (rate || "—") + " Hz";
+}
+$("btnFreeze").onclick = () => { rawFrozen = !rawFrozen; $("btnFreeze").textContent = t(rawFrozen ? "dbg.resume" : "dbg.freeze"); };
+$("btnCopyRaw").onclick = () => copyText($("rawHex").textContent);
+$("btnFr").onclick = async () => {
+  if (!hid) { $("frOut").textContent = t("lock.debug"); return; }
+  const s = $("frId").value.trim(), id = s.startsWith("0x") ? parseInt(s, 16) : parseInt(s, 10);
+  if (!(id >= 0 && id <= 255)) { $("frOut").textContent = t("dbg.badId"); return; }
+  try {
+    const bytes = await hid.readFeature(id);
+    let out = "";
+    for (let r = 0; r < bytes.length; r += 16) out += r.toString(16).padStart(2, "0") + "  " + bytes.slice(r, r + 16).map((b) => b.toString(16).padStart(2, "0")).join(" ") + "\n";
+    $("frOut").textContent = out || "—";
+    addLog(t("log.feature", { id: "0x" + id.toString(16) }));
+  } catch (e) { $("frOut").textContent = t("dbg.fail") + " " + errMsg(e); }
+};
+
+// ================================================================ cada seção
+function renderPage() {
+  if (screen !== "app") return;
+  const usb = !!hid, ds5 = usb && (hid.key === "DS5" || hid.key === "EDGE");
+  if (page === "calib") {
+    const lk = document.querySelector('[data-locked="calib"]');
+    lk.classList.toggle("hidden", usb); if (!usb) lk.innerHTML = lockedCard("calib");
+    $("calibOn").classList.toggle("hidden", !usb);
+    if (usb) {
+      const block = calibBlock();
+      ["btnCenterQuick", "btnCenter4", "btnRange", "btnRangeExpert", "btnFine"].forEach((id) => { $(id).disabled = !!block; });
+      if (block) { $("calibBlock").textContent = block; $("calibBlock").className = "alert bad"; }
+      else if (hid.isVr2) { $("calibBlock").textContent = t("cb.vr2"); $("calibBlock").className = "alert warn"; }
+      else $("calibBlock").className = "alert bad hidden";
+      $("cardFine").classList.toggle("hidden", !ds5); $("cardHist").classList.toggle("hidden", !ds5);
+      $("unsaved").classList.toggle("hidden", !isUnsaved());
+      const nv = hidInfo?.nv, NV = { locked: "ok", unlocked: "warn", pending_reboot: "bad", unknown: "", error: "bad" };
+      $("nvBadge").textContent = nv in NV ? t("nv." + nv) : "—"; $("nvBadge").className = "badge " + (NV[nv] || "");
+      $("nvDesc").textContent = nv in NV ? t("nv." + nv + "D") : t("nv.none");
+      if (ds5) renderHistory();
+    }
+  } else if (page === "out") {
+    const lk = document.querySelector('[data-locked="out"]');
+    lk.classList.toggle("hidden", usb); if (!usb) lk.innerHTML = lockedCard("out");
+    $("outOn").classList.toggle("hidden", !usb);
+    if (usb) {
+      $("cardMotors").classList.toggle("hidden", !hid.hasHaptics);
+      $("cardLight").classList.toggle("hidden", hid.isVr2);
+      $("ledsRow").classList.toggle("hidden", !ds5); $("muteRow").classList.toggle("hidden", !ds5);
+      $("cardTrig").classList.toggle("hidden", !ds5); $("cardAudio").classList.toggle("hidden", !ds5);
+    }
+  } else if (page === "info") renderInfo();
+  else if (page === "sticks") $("smHelp").textContent = t("smh." + stickMode);
+  document.querySelectorAll('#snav button[data-usb]').forEach((b) => {
+    let l = b.querySelector(".lock");
+    if (!usb && !l) { b.insertAdjacentHTML("beforeend", `<svg class="i lock"><use href="#i-lock"/></svg>`); }
+    if (usb && l) l.remove();
+  });
+  notice();
 }
 
-// ============ textos (troca de idioma)
+// ================================================================ textos (troca de idioma)
 function refreshTexts() {
   applyI18n();
   for (const [b, name] of swatchEls) { const s = t("light." + name); b.title = s; b.setAttribute("aria-label", s); }
   pick.setAttribute("aria-label", t("light.pick"));
   ledEls.forEach((b, i) => b.setAttribute("aria-label", t("light.led", { n: i + 1 })));
   for (const [n, el] of chipEls) el.textContent = L(n);
-  valSig = ""; lastPills = ""; lastBat = "";
-  usbHint(); renderStatus(); renderTools(); renderLast(); renderVal();
-  requestAnimationFrame(() => moveIndicator(document.querySelector("nav button.on")));
-  if (!$("touchTxt").textContent || !S.touches.length) $("touchTxt").textContent = t("touch.hint");
-  if (!S.imu) $("imu").textContent = t("imu.hint");
+  document.querySelectorAll("#snav button[data-page]").forEach((b) => b.setAttribute("aria-label", t("pg." + b.dataset.page)));
+  valSig = ""; lastMeta = ""; $("unsavedTop").innerHTML = "";
+  usbHint(); renderStatus(); renderLast(); renderVal();
+  if (screen === "app") { $("pageTitle").textContent = t("pg." + page); $("crumb").textContent = t("pgd." + page); renderPage(); }
+  if (!mic) $("btnMic").querySelector("span").textContent = t("mic.btn");
+  $("btnFreeze").textContent = t(rawFrozen ? "dbg.resume" : "dbg.freeze");
+  requestAnimationFrame(() => moveSeg($("stickMode")));
 }
 
-// ============ laço principal
-let lastSlow = 0, lastBat = "";
+// ================================================================ laço principal
+let lastSlow = 0, lastRate = 0;
 function loop(now) {
   if (src !== "hid" && !connecting && !rebooting) pollPad();
   if (src) {
     for (const n of S.pressed) if (!tested.has(n)) { tested.add(n); addLog(t("log.tested", { b: L(n) })); }
     if (S.l2 > 0.02) tested.add("l2"); if (S.r2 > 0.02) tested.add("r2");
     maxTrig.l2 = Math.max(maxTrig.l2, S.l2); maxTrig.r2 = Math.max(maxTrig.r2, S.r2);
+    stickTrack("L", S.lx, S.ly); if (model.sticks === 2) stickTrack("R", S.rx, S.ry);
+    trgHist.push({ l2: S.l2, r2: S.r2 }); if (trgHist.length > 240) trgHist.shift();
   }
+  if (now - lastRate >= 1000) { rate = Math.round(samples * 1000 / (now - lastRate || 1000)); samples = 0; lastRate = now; }
   if (screen === "app") {
-    if (src) { stickStep("L", S.lx, S.ly); if (model.sticks === 2) stickStep("R", S.rx, S.ry); }
-    if (view === "ds5") drawDs5(); else if (view === "ds4") drawDs4();
-    drawChips();
-    $("bL2").style.width = S.l2 * 100 + "%"; $("vL2").textContent = Math.round(S.l2 * 100) + "%";
-    $("bR2").style.width = S.r2 * 100 + "%"; $("vR2").textContent = Math.round(S.r2 * 100) + "%";
-    const sensors = src === "hid" && !!S.imu;
-    $("cardSensors").classList.toggle("hidden", !sensors);
-    if (sensors) { drawTouch(); drawImu(); }
-    const stops = S.stopL2 !== null;
-    $("stops").classList.toggle("hidden", !stops);
-    if (stops) $("stops").textContent = t("edge.stops", { l: S.stopL2, r: S.stopR2 });
-    if (now - lastSlow > 150) {
-      lastSlow = now; renderVal(); renderStatus();
-      const b = batteryTxt(S.battery);
-      if (hid && !busy && b !== lastBat) { lastBat = b; renderTools(); }
+    const drawVisible = page === "overview" || page === "live";
+    if (drawVisible) { if (view === "ds5") drawDs5(); else if (view === "ds4") drawDs4(); drawChips(); }
+    if (page === "live") {
+      $("bL2").style.width = S.l2 * 100 + "%"; $("vL2").textContent = Math.round(S.l2 * 100) + "%";
+      $("bR2").style.width = S.r2 * 100 + "%"; $("vR2").textContent = Math.round(S.r2 * 100) + "%";
+      drawTrgGraph();
+      const usbS = src === "hid" && !!S.imu;
+      $("cardTilt").classList.toggle("hidden", !usbS); $("cardTouch").classList.toggle("hidden", !usbS);
+      if (usbS) { drawTouch(); drawImu(); }
+      const stops = S.stopL2 !== null;
+      $("stops").classList.toggle("hidden", !stops);
+      if (stops) $("stops").textContent = t("edge.stops", { l: S.stopL2, r: S.stopR2 });
+    }
+    if (page === "sticks") {
+      drawStick($("cvL"), S.lx, S.ly, sectors.L, stickMode, pathL);
+      if (model?.sticks === 2) drawStick($("cvR"), S.rx, S.ry, sectors.R, stickMode, pathR);
+      const f = (v) => (v >= 0 ? "+" : "") + v.toFixed(stickMode === "zoom" ? 3 : 2);
+      $("aLX").textContent = f(S.lx); $("aLY").textContent = f(S.ly); $("aRX").textContent = f(S.rx); $("aRY").textContent = f(S.ry);
+    }
+    if (page === "debug") renderRaw();
+    if (now - lastSlow > 200) {
+      lastSlow = now; renderVal(); renderStatus(); renderKpis();
+      if (page === "sticks") { $("readL").textContent = stickRead("L"); $("readR").textContent = stickRead("R"); }
     }
   }
   requestAnimationFrame(loop);
@@ -833,7 +1190,6 @@ function loop(now) {
 initUI();
 setModel(MODELS.DS5);
 refreshTexts();
-drawStick($("cvL"), 0, 0, sectors.L); drawStick($("cvR"), 0, 0, sectors.R);
 showGate();
 requestAnimationFrame(loop);
 

@@ -23,6 +23,11 @@ function usedKeys() {
   for (const s of ["locked", "unlocked", "pending_reboot", "unknown", "error"]) { keys.add("nv." + s); keys.add("nv." + s + "D"); }
   for (const c of ["blue", "cyan", "white", "red", "green", "purple", "orange", "pink", "off"]) keys.add("light." + c);
   keys.add("side.L"); keys.add("side.R");
+  for (const p of ["overview", "live", "sticks", "calib", "out", "diag", "info", "debug"]) { keys.add("pg." + p); keys.add("pgd." + p); }
+  for (const s of ["btn", "sticks", "trig", "touch", "gyro", "vib", "light", "adaptive", "spk", "usb"]) { keys.add(`qt.${s}.t`); keys.add(`qt.${s}.d`); }
+  for (const s of ["ok", "fail", "skip"]) keys.add("qr." + s);
+  for (const s of ["normal", "zoom", "circ"]) keys.add("smh." + s);
+  for (const s of ["calib", "out", "debug"]) keys.add("lock." + s);
   return keys;
 }
 

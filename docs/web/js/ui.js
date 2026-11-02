@@ -18,7 +18,7 @@ function spotlight() {
 // ---- ondinha no toque dos botões (confirma o clique)
 function ripple() {
   document.addEventListener("pointerdown", (e) => {
-    const b = e.target.closest?.("button.b, nav button");
+    const b = e.target.closest?.("button.b, .snav button");
     if (!b || b.disabled || reduced()) return;
     const r = b.getBoundingClientRect(), s = Math.max(r.width, r.height) * 2;
     const w = document.createElement("span");
@@ -29,13 +29,27 @@ function ripple() {
   });
 }
 
-// ---- pílula que desliza até a aba ativa
-export function moveIndicator(btn) {
-  const pill = document.querySelector(".navpill");
-  if (!pill || !btn || !btn.offsetWidth) return;
-  pill.style.width = btn.offsetWidth + "px";
-  pill.style.transform = `translateX(${btn.offsetLeft}px)`;
-  pill.style.opacity = "1";
+// ---- botão magnético: puxa levemente em direção ao cursor
+function magnetic() {
+  document.addEventListener("pointermove", (e) => {
+    if (reduced() || e.pointerType !== "mouse") return;
+    const b = e.target.closest?.(".magnetic");
+    document.querySelectorAll(".magnetic.pull").forEach((x) => { if (x !== b) { x.classList.remove("pull"); x.style.transform = ""; } });
+    if (!b || b.disabled) return;
+    const r = b.getBoundingClientRect();
+    const dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2), dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+    b.classList.add("pull");
+    b.style.transform = `translate(${(dx * 6).toFixed(1)}px,${(dy * 4).toFixed(1)}px)`;
+  }, { passive: true });
+  document.addEventListener("pointerleave", () => document.querySelectorAll(".magnetic.pull").forEach((x) => { x.classList.remove("pull"); x.style.transform = ""; }));
+}
+
+// ---- pílula que desliza até o item ativo de um seletor (.seg)
+export function moveSeg(seg) {
+  const pill = seg?.querySelector(".segpill"), on = seg?.querySelector("button.on");
+  if (!pill || !on || !on.offsetWidth) return;
+  pill.style.width = on.offsetWidth + "px";
+  pill.style.transform = `translateX(${on.offsetLeft}px)`;
 }
 
 // ---- troca de tema com revelação circular a partir do botão
@@ -88,5 +102,6 @@ export function pop(el) {
 export function initUI() {
   spotlight();
   ripple();
-  addEventListener("resize", () => moveIndicator(document.querySelector("nav button.on")));
+  magnetic();
+  addEventListener("resize", () => document.querySelectorAll(".seg").forEach(moveSeg));
 }
