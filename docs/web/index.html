@@ -304,10 +304,17 @@ html.pt::before{content:"";position:fixed;inset:0;z-index:9999;background:#0c092
 a.b{font:inherit;font-weight:600;color:var(--text);text-decoration:none;background:var(--surface2);border:1px solid var(--line);border-radius:99px;padding:10px 18px;min-height:44px;display:flex;align-items:center;justify-content:center}
 a.b.p{color:#fff;border-color:transparent;background:linear-gradient(100deg,#5a3cf0,#7c3aed 45%,#c026d3 100%)}
 a.b.wa{color:#fff;border-color:transparent;background:#0f7a41}
-.ad{position:relative;margin-bottom:14px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#0d0926;aspect-ratio:4/1;max-height:130px;width:100%}
+.ad{position:relative;margin:0 auto 14px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#0d0926;aspect-ratio:4/1;max-width:520px;width:100%}
 .ad #adMedia,.ad a{display:block;width:100%;height:100%}
-.ad img,.ad video{display:block;width:100%;height:100%;object-fit:cover}
+.ad img,.ad video{display:block;width:100%;height:100%;object-fit:contain}
 .adtag{position:absolute;top:8px;left:8px;z-index:1;font-size:11px;font-weight:600;color:#fff;background:rgba(10,6,32,.72);padding:2px 8px;border-radius:99px}
+/* anúncios verticais (1:4) nas laterais da tela inicial, centralizados na sobra ao lado dos 880px do conteúdo */
+.adv{position:fixed;top:50%;z-index:2;height:min(calc(100vh - 96px),820px);aspect-ratio:1/4;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#0d0926}
+.adv.l{left:calc((100vw - 880px)/4);transform:translate(-50%,-50%)}
+.adv.r{right:calc((100vw - 880px)/4);transform:translate(50%,-50%)}
+.adv .advm,.adv a{display:block;width:100%;height:100%}
+.adv img,.adv video{display:block;width:100%;height:100%;object-fit:contain}
+@media (max-width:1299px),(max-height:599px){.adv{display:none}}
 .donate{text-align:center}
 .donate h2{justify-content:center}
 .qr{display:block;margin:6px auto 10px;width:220px;height:220px;max-width:100%;border-radius:14px;background:#fff;padding:6px}
@@ -494,6 +501,8 @@ details[open] summary::before{transform:rotate(45deg)}
 </header>
 
 <main id="gate">
+  <aside class="adv l hidden" id="adLeft" data-i18n-aria="ad.label"><span class="adtag" data-i18n="ad.label"></span><div class="advm" id="adLeftMedia"></div></aside>
+  <aside class="adv r hidden" id="adRight" data-i18n-aria="ad.label"><span class="adtag" data-i18n="ad.label"></span><div class="advm" id="adRightMedia"></div></aside>
   <section class="hero">
     <img class="hero-logo" src="logo.png" alt="MeoWDeV MOD" width="190" height="190">
     <h1 class="grad" data-i18n="gate.title">Teste seu controle</h1>

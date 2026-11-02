@@ -4,7 +4,7 @@ import { t, LANGS, getLang, setLang, applyI18n } from "./i18n.js";
 import { initUI, moveSeg, themeSwitch, countTo, setRing, pop } from "./ui.js";
 import { makeHistory, FINE_NAMES } from "./history.js";
 import { PIX_KEY, pixPayload } from "./pix.js";
-import { mountAds } from "./banners.js";
+import { mountAds, mountSideAds } from "./banners.js";
 import { startShader } from "./shader.js";
 import { initPageFx } from "./pagefx.js";
 
@@ -1265,6 +1265,7 @@ setModel(MODELS.DS5);
 refreshTexts();
 showGate();
 mountAds($("adSlot"), $("adMedia"), "ps5-web");
+mountSideAds([[$("adLeft"), $("adLeftMedia")], [$("adRight"), $("adRightMedia")]], "ps5-web-lado", "(min-width:1300px) and (min-height:600px)");
 requestAnimationFrame(loop);
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
