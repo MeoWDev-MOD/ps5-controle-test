@@ -11,7 +11,7 @@ const T = {
   theme: ["Mudar entre claro e escuro", "Switch light/dark mode", "Cambiar entre claro y oscuro"],
 
   // ---- tela de entrada
-  "gate.title": ["Teste seu controle", "Test your controller", "Prueba tu control"],
+  "gate.title": ["Teste e calibre seu controle de PS5 e PS4", "Test and calibrate your PS5 and PS4 controller", "Prueba y calibra tu control de PS5 y PS4"],
   "gate.lead": [
     "Conecte o controle para começar. Testamos botões, analógicos, gatilhos e vibração, e pelo cabo USB lemos as informações de fábrica e calibramos os analógicos.",
     "Connect your controller to start. We test buttons, sticks, triggers and vibration, and over USB we read factory info and calibrate the sticks.",
@@ -610,15 +610,81 @@ const T = {
   "color.ZD": ["Marathon (edição limitada)", "Marathon Limited Edition", "Marathon (edición limitada)"],
   "color.ZE": ["Genshin Impact (edição limitada)", "Genshin Impact Limited Edition", "Genshin Impact (edición limitada)"],
   "color.ZF": ["007 First Light (edição limitada)", "007 First Light Limited Edition", "007 First Light (edición limitada)"],
+
+  // ---- página que o Google lê (tools/gerar-seo.mjs coloca estes textos no HTML)
+  "seo.title": ["Calibrar controle PS5 e PS4 grátis: teste online de drift | PS-5 Controle Test", "Calibrate PS5 & PS4 Controller Free: Online Drift Test | PS-5 Controle Test", "Calibrar control PS5 y PS4 gratis: prueba online de drift | PS-5 Controle Test"],
+  "seo.desc": [
+    "Calibre e teste grátis seu controle de PS5 e PS4 no navegador: analógicos, drift, gatilhos adaptáveis, vibração, touchpad e laudo em PDF. Sem instalar nada.",
+    "Calibrate and test your PS5 or PS4 controller for free in your browser: sticks, drift, adaptive triggers, vibration, touchpad and a PDF report. Nothing to install.",
+    "Calibra y prueba gratis tu control o mando de PS5 y PS4 en el navegador: sticks, drift, gatillos adaptativos, vibración, touchpad e informe PDF. Sin instalar nada.",
+  ],
+  "gate.wa": ["Quer divulgar sua loja ou fazer parceria? Fale no WhatsApp", "Want to promote your shop or partner with us? Message us on WhatsApp", "¿Quieres promocionar tu tienda o hacer una alianza? Escríbenos por WhatsApp"],
+  "gate.waMsg": ["Olá! Vim pelo PS-5 Controle Test e quero divulgar minha loja ou falar sobre uma parceria.", "Hi! I came from PS-5 Controle Test and I'd like to promote my shop or talk about a partnership.", "¡Hola! Vengo de PS-5 Controle Test y quiero promocionar mi tienda o hablar sobre una alianza."],
+  "seo.how.t": ["Como calibrar o controle de PS5 ou PS4", "How to calibrate a PS5 or PS4 controller", "Cómo calibrar un control o mando de PS5 o PS4"],
+  "seo.how.1": ["Ligue o controle no computador com um cabo USB e abra esta página no Chrome ou no Edge.", "Plug the controller into your computer with a USB cable and open this page in Chrome or Edge.", "Conecta el control al ordenador con un cable USB y abre esta página en Chrome o Edge."],
+  "seo.how.2": ["Clique em Conectar por USB e escolha o controle na janela do navegador.", "Click Connect via USB and pick the controller in the browser window.", "Haz clic en Conectar por USB y elige el control en la ventana del navegador."],
+  "seo.how.3": ["Abra Calibração e calibre o centro e o alcance dos analógicos, seguindo os passos na tela.", "Open Calibration and calibrate the center and range of the sticks, following the on-screen steps.", "Abre Calibración y calibra el centro y el rango de los sticks siguiendo los pasos en pantalla."],
+  "seo.how.4": ["Confira os analógicos e clique em Salvar no controle. Sem salvar, reiniciar o controle desfaz o ajuste.", "Check the sticks and click Save to controller. Without saving, restarting the controller undoes the adjustment.", "Revisa los sticks y haz clic en Guardar en el control. Sin guardar, reiniciar el control deshace el ajuste."],
+  "seo.tests.t": ["O que dá para testar", "What you can test", "Qué puedes probar"],
+  "seo.tests.1": ["Botões e direcional", "Buttons and D-pad", "Botones y cruceta"],
+  "seo.tests.2": ["Analógicos e drift", "Sticks and drift", "Sticks y drift"],
+  "seo.tests.3": ["Gatilhos L2 e R2", "L2 and R2 triggers", "Gatillos L2 y R2"],
+  "seo.tests.4": ["Gatilhos adaptáveis", "Adaptive triggers", "Gatillos adaptativos"],
+  "seo.tests.5": ["Vibração", "Vibration", "Vibración"],
+  "seo.tests.6": ["Touchpad", "Touchpad", "Touchpad"],
+  "seo.tests.7": ["Giroscópio", "Gyroscope", "Giroscopio"],
+  "seo.tests.8": ["Luzes", "Lights", "Luces"],
+  "seo.tests.9": ["Alto-falante", "Speaker", "Altavoz"],
+  "seo.tests.10": ["Conector USB", "USB port", "Conector USB"],
+  "seo.tests.11": ["Bateria", "Battery", "Batería"],
+  "seo.tests.12": ["Número de série, placa e firmware", "Serial number, board and firmware", "Número de serie, placa y firmware"],
+  "seo.why.t": ["Por que usar o PS-5 Controle Test", "Why use PS-5 Controle Test", "Por qué usar PS-5 Controle Test"],
+  "seo.why.1": ["Grátis e sem cadastro: abre no navegador, sem instalar nada.", "Free, with no sign-up: it opens in your browser, with nothing to install.", "Gratis y sin registro: se abre en el navegador, sin instalar nada."],
+  "seo.why.2": ["Laudo em PDF: imprima ou mande ao cliente o resultado dos testes.", "PDF report: print the test results or send them to your customer.", "Informe en PDF: imprime o envía al cliente el resultado de las pruebas."],
+  "seo.why.3": ["Três jeitos de usar: cabo USB no computador, Bluetooth em qualquer navegador ou app para Android.", "Three ways to use it: USB cable on a computer, Bluetooth in any browser, or the Android app.", "Tres formas de usarlo: cable USB en el ordenador, Bluetooth en cualquier navegador o app para Android."],
+  "seo.why.4": ["Seus dados ficam com você: as informações do controle ficam só no seu navegador.", "Your data stays with you: controller information stays in your browser.", "Tus datos quedan contigo: la información del control queda solo en tu navegador."],
+  "seo.faq.t": ["Perguntas frequentes", "Frequently asked questions", "Preguntas frecuentes"],
+  "seo.faq.1.q": ["A calibração conserta o drift?", "Does calibration fix stick drift?", "¿La calibración arregla el drift?"],
+  "seo.faq.1.a": ["Não. O drift vem do desgaste das peças do analógico, que precisam ser trocadas. A calibração ajusta o centro e o alcance dos analógicos e deixa o controle preciso depois da troca.", "No. Drift comes from worn stick parts, which must be replaced. Calibration adjusts the center and range of the sticks and keeps the controller accurate after the replacement.", "No. El drift viene del desgaste de las piezas del stick, que deben cambiarse. La calibración ajusta el centro y el rango de los sticks y deja el control preciso después del cambio."],
+  "seo.faq.2.q": ["Como saber se meu controle tem drift?", "How do I know if my controller has drift?", "¿Cómo sé si mi control tiene drift?"],
+  "seo.faq.2.a": ["Conecte o controle, abra a seção Analógicos e solte os dois analógicos. Se o ponto andar sozinho ou não voltar para o centro, o controle tem drift.", "Connect the controller, open the Sticks section and let go of both sticks. If the dot moves by itself or does not return to the center, the controller has drift.", "Conecta el control, abre la sección Sticks y suelta los dos sticks. Si el punto se mueve solo o no vuelve al centro, el control tiene drift."],
+  "seo.faq.3.q": ["Preciso instalar alguma coisa?", "Do I need to install anything?", "¿Tengo que instalar algo?"],
+  "seo.faq.3.a": ["Não. Tudo funciona no navegador. Para o modo completo, use o Chrome ou o Edge no computador, com o controle ligado no cabo USB.", "No. Everything works in the browser. For full mode, use Chrome or Edge on a computer, with the controller connected by USB cable.", "No. Todo funciona en el navegador. Para el modo completo, usa Chrome o Edge en el ordenador, con el control conectado por cable USB."],
+  "seo.faq.4.q": ["É grátis?", "Is it free?", "¿Es gratis?"],
+  "seo.faq.4.a": ["Sim, o testador no navegador é grátis. O app para Android tem 2 dias de teste grátis e depois custa R$ 24,80 por ano.", "Yes, the browser tester is free. The Android app has a 2-day free trial and then costs R$ 24.80 per year.", "Sí, el probador en el navegador es gratis. La app para Android tiene 2 días de prueba gratis y después cuesta R$ 24,80 al año."],
+  "seo.faq.5.q": ["Funciona no celular ou no iPhone?", "Does it work on a phone or iPhone?", "¿Funciona en el celular o el iPhone?"],
+  "seo.faq.5.a": ["No navegador do celular, até no iPhone, o modo básico por Bluetooth testa botões, analógicos, gatilhos e vibração. Para testar tudo e calibrar pelo celular, use o app para Android.", "In a phone's browser, even on iPhone, the basic Bluetooth mode tests buttons, sticks, triggers and vibration. To test everything and calibrate from a phone, use the Android app.", "En el navegador del celular, incluso en iPhone, el modo básico por Bluetooth prueba botones, sticks, gatillos y vibración. Para probar todo y calibrar desde el celular, usa la app para Android."],
+  "seo.faq.6.q": ["Quais controles funcionam?", "Which controllers work?", "¿Qué controles funcionan?"],
+  "seo.faq.6.a": ["DualSense (PS5), DualSense Edge, DualShock 4 (PS4) e PS VR2 Sense. Em controle paralelo (não original), a calibração não funciona e pode travar o controle.", "DualSense (PS5), DualSense Edge, DualShock 4 (PS4) and PS VR2 Sense. On clone (non-genuine) controllers, calibration does not work and may freeze the controller.", "DualSense (PS5), DualSense Edge, DualShock 4 (PS4) y PS VR2 Sense. En controles clon (no originales), la calibración no funciona y puede bloquear el control."],
+  "seo.faq.7.q": ["É seguro calibrar?", "Is it safe to calibrate?", "¿Es seguro calibrar?"],
+  "seo.faq.7.a": ["Use um controle original e não desconecte durante a calibração. Até você salvar, reiniciar o controle desfaz o ajuste. Se aceitar os cookies, este navegador também guarda cópias para restaurar a calibração.", "Use a genuine controller and do not disconnect it during calibration. Until you save, restarting the controller undoes the adjustment. If you accept cookies, this browser also keeps copies for restoring the calibration.", "Usa un control original y no lo desconectes durante la calibración. Hasta que guardes, reiniciar el control deshace el ajuste. Si aceptas las cookies, este navegador también guarda copias para restaurar la calibración."],
+  "seo.faq.8.q": ["Qual a diferença para o DualShock Calibration GUI?", "How is it different from DualShock Calibration GUI?", "¿En qué se diferencia de DualShock Calibration GUI?"],
+  "seo.faq.8.a": ["Os dois são grátis, rodam no navegador e calibram e testam o controle; este projeto usa desenhos e comandos dele, com licença MIT. Aqui você também tem laudo em PDF, modo básico por Bluetooth em qualquer navegador e app para Android, para quem usa o celular. Lá há mais idiomas. Conferido em novembro de 2026.", "Both are free, run in the browser, and calibrate and test controllers; this project uses its drawings and commands under the MIT license. Here you also get a PDF report, a basic Bluetooth mode in any browser and an Android app for phone users. That tool offers more languages. Checked in November 2026.", "Los dos son gratis, funcionan en el navegador y calibran y prueban el control; este proyecto usa sus dibujos y comandos con licencia MIT. Aquí también tienes informe en PDF, modo básico por Bluetooth en cualquier navegador y app para Android, para quien usa el celular. Allí hay más idiomas. Comprobado en noviembre de 2026."],
+  // ---- termos e cookies
+  "ck.title": ["Termos de uso e cookies", "Terms of use and cookies", "Términos de uso y cookies"],
+  "ck.text": [
+    "Para usar o testador, você precisa aceitar os {terms}. Os cookies opcionais guardam neste navegador seu último controle e o histórico de calibração e contam, sem identificar você, as exibições e os cliques dos anúncios. Veja {privacy}.",
+    "To use the tester, you need to accept the {terms}. Optional cookies keep your last controller and calibration history in this browser and count ad views and clicks without identifying you. See {privacy}.",
+    "Para usar el probador, debes aceptar los {terms}. Las cookies opcionales guardan en este navegador tu último control y el historial de calibración y cuentan, sin identificarte, las vistas y los clics de los anuncios. Consulta {privacy}.",
+  ],
+  "ck.yes": ["Aceitar tudo e continuar", "Accept all and continue", "Aceptar todo y continuar"],
+  "ck.no": ["Aceitar só o necessário", "Accept only what's necessary", "Aceptar solo lo necesario"],
+  "ck.need": ["Para usar o testador, escolha uma das opções abaixo.", "To use the tester, choose one of the options below.", "Para usar el probador, elige una de las opciones de abajo."],
+  "legal.terms": ["Termos de uso", "Terms of use", "Términos de uso"],
+  "legal.privacy": ["Privacidade e cookies", "Privacy and cookies", "Privacidad y cookies"],
+  "legal.manage": ["Gerenciar cookies", "Manage cookies", "Gestionar cookies"],
 };
 
+// O endereço manda no idioma: /web/en/ é inglês e /web/es/ é espanhol. Em /web/, português ou o que a pessoa já escolheu.
+// Não usa o idioma do navegador: o robô do Google se apresenta em inglês e leria /web/ errado.
+export const langFromPath = (path) => /\/web\/(en|es)(?:\/|$)/.exec(path)?.[1] ?? null;
 function pick() {
+  let fromUrl = null;
+  try { fromUrl = langFromPath(location.pathname); } catch { /* fora do navegador */ }
+  if (fromUrl) return fromUrl;
   let saved = null;
   try { saved = localStorage.getItem("ps5web.lang"); } catch { /* modo privado */ }
-  if (saved && saved in COL) return saved;
-  const nav = (navigator.languages || [navigator.language || "pt-BR"]).map((l) => l.toLowerCase());
-  for (const l of nav) { if (l.startsWith("pt")) return "pt-BR"; if (l.startsWith("es")) return "es"; if (l.startsWith("en")) return "en"; }
-  return "pt-BR";
+  return saved && saved in COL ? saved : "pt-BR";
 }
 let lang = pick();
 
@@ -633,6 +699,8 @@ export function t(key, vars = {}) {
   const s = row ? (row[COL[lang]] ?? row[0]) : key;
   return s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? ""));
 }
+// Texto de um idioma específico, sem depender do idioma atual (tools/gerar-seo.mjs).
+export const tr = (key, l) => { if (!(key in T)) throw new Error(`texto sem chave: ${key}`); return T[key][COL[l]]; };
 export const hasKey = (key) => key in T;
 export const allKeys = () => Object.keys(T);
 export const incompleteKeys = () => Object.entries(T).filter(([, r]) => r.length !== LANGS.length || r.some((s) => !s)).map(([k]) => k);

@@ -1,6 +1,8 @@
 // Banners de publicidade: vêm do CRM (rota pública /api/banners). Se o CRM falhar, o site só fica sem banner.
 "use strict";
 
+import { optionalAllowed } from "./consent.js";
+
 export const BANNERS_URL = "https://crm-pessoal-chi.vercel.app/api/banners";
 export const EVENTS_URL = `${BANNERS_URL}/evento`;
 const isHttps = (u) => { try { return new URL(u).protocol === "https:"; } catch { return false; } };
@@ -34,8 +36,9 @@ export function firstIndex(ads, lastId, random = Math.random) {
 }
 
 // O histórico fica só no navegador; sem armazenamento, os anúncios apenas não alternam entre visitas.
-const readLast = (key) => { try { return localStorage.getItem(key); } catch { return null; } };
-const saveLast = (key, id) => { try { localStorage.setItem(key, id); } catch { /* segue sem histórico */ } };
+// Sem o aceite dos cookies opcionais, nada fica salvo: o primeiro anúncio da visita é sorteado.
+const readLast = (key) => { try { return optionalAllowed() ? localStorage.getItem(key) : null; } catch { return null; } };
+const saveLast = (key, id) => { try { if (optionalAllowed()) localStorage.setItem(key, id); } catch { /* segue sem histórico */ } };
 
 // Números do anúncio no CRM (só somas: nada de IP, cookie ou identificação de quem viu). Falhar não atrapalha o site.
 function sendEvent(data) {
@@ -53,7 +56,13 @@ function visitSource() {
 }
 
 // O clique passa pelo CRM, que conta e leva ao destino; a origem vai junto só nesse caso.
-export const clickLink = (link, source) => (source && link.startsWith(`${BANNERS_URL}/clique?`) ? `${link}&de=${encodeURIComponent(source)}` : link);
+// Sem o aceite (allowed = false), o CRM só leva ao destino, sem contar.
+export function clickLink(link, source, allowed = true) {
+  if (!link.startsWith(`${BANNERS_URL}/clique?`)) return link;
+  if (!allowed) return `${link}&contar=0`;
+  return source ? `${link}&de=${encodeURIComponent(source)}` : link;
+}
+const currentClickLink = (link) => (optionalAllowed() ? clickLink(link, visitSource(), true) : clickLink(link, "", false));
 
 // Primeira vez que este navegador vê o anúncio: é o que soma em "Pessoas".
 function firstTime(id) {
@@ -73,12 +82,12 @@ export function mostlyOnScreen(r, width, height) {
   return w > 0 && h > 0 && w * h >= (r.width * r.height) / 2;
 }
 
-// Avisa quando o anúncio fica 1 s na tela, com a aba à vista. Devolve como parar de olhar.
+// Avisa quando o anúncio fica 1 s na tela, com a aba à vista e o aceite dos cookies opcionais. Devolve como parar de olhar.
 function watchView(el, onSeen) {
   let seen = 0;
   const timer = setInterval(() => {
     seen = !document.hidden && mostlyOnScreen(el.getBoundingClientRect(), innerWidth, innerHeight) ? seen + 1 : 0;
-    if (seen >= 2) { clearInterval(timer); onSeen(); }
+    if (seen >= 2 && optionalAllowed()) { clearInterval(timer); onSeen(); }
   }, 500);
   return () => clearInterval(timer);
 }
@@ -102,7 +111,7 @@ function slotView(slot, box, onFail, onSeen) {
     } else m.alt = b.title;
     m.onerror = () => { shown = null; onFail(b); };
     let node = m;
-    if (b.link) { const a = document.createElement("a"); a.href = clickLink(b.link, visitSource()); a.target = "_blank"; a.rel = "noopener sponsored"; a.append(m); node = a; }
+    if (b.link) { const a = document.createElement("a"); a.href = currentClickLink(b.link); a.onclick = () => { a.href = currentClickLink(b.link); }; a.target = "_blank"; a.rel = "noopener sponsored"; a.append(m); node = a; }
     box.replaceChildren(node);
   };
 }

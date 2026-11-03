@@ -1,6 +1,7 @@
 // Página inicial: reaproveita os efeitos e o banner do painel web.
 import { initUI, themeSwitch } from "../web/js/ui.js";
 import { mountAds } from "../web/js/banners.js";
+import { mountConsent } from "../web/js/consent.js";
 import { initDemo } from "./phone.js";
 import { initFx } from "./fx.js";
 import { startShader } from "../web/js/shader.js";
@@ -37,6 +38,7 @@ function mobileFocus() {
 const isDark = () => (root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches);
 
 initUI();
+mountConsent();
 mountAds($("adSlot"), $("adMedia"), "ps5-site");
 
 $("themeBtn").onclick = (e) => themeSwitch(e, () => {

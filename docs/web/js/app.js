@@ -1,6 +1,7 @@
 "use strict";
 import { MODELS, HID_FILTERS, GAMEPAD_ORDER, buttonsOf, modelFromGamepadId, parseInput, HidPad, circularity, TOUCH_W, TOUCH_H } from "./protocol.js";
 import { t, LANGS, getLang, setLang, applyI18n } from "./i18n.js";
+import { isOptionalKey, mountConsent, optionalStorage, refreshConsent, termsAccepted, whenAccepted } from "./consent.js";
 import { initUI, moveSeg, themeSwitch, countTo, setRing, pop } from "./ui.js";
 import { makeHistory, FINE_NAMES } from "./history.js";
 import { PIX_KEY, pixPayload } from "./pix.js";
@@ -19,11 +20,14 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const HAS_HID = "hid" in navigator;
 const MOBILE = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+// Último controle e histórico só ficam salvos com o aceite dos cookies opcionais; sem ele, valem até fechar a página.
+const optional = optionalStorage();
+const box = (k) => (isOptionalKey("ps5web." + k) ? optional : localStorage);
 const store = {
-  get(k) { try { return localStorage.getItem("ps5web." + k); } catch { return null; } },
-  set(k, v) { try { v === null ? localStorage.removeItem("ps5web." + k) : localStorage.setItem("ps5web." + k, v); } catch { /* modo privado */ } },
+  get(k) { try { return box(k).getItem("ps5web." + k); } catch { return null; } },
+  set(k, v) { try { v === null ? box(k).removeItem("ps5web." + k) : box(k).setItem("ps5web." + k, v); } catch { /* modo privado */ } },
 };
-let hist; try { hist = makeHistory(localStorage); } catch { hist = makeHistory({ getItem: () => null, setItem: () => {} }); }
+const hist = makeHistory(optional);
 const L = (n) => t("btn." + n);
 const modelName = (m) => m.side ? `${m.name} · ${t("side." + m.side)}` : m.name;
 const val = (v) => (v && typeof v === "object") ? t(v.t) : v;
@@ -114,7 +118,7 @@ function loading(on, key = "", step = 0, sub = "") {
   $("loadTxt").textContent = t(key); $("loadSub").textContent = sub;
   [...$("loadDots").children].forEach((d, i) => d.classList.toggle("on", i <= step));
 }
-$("btnSkip").onclick = showApp;
+$("btnSkip").onclick = () => whenAccepted(showApp); // usar o testador pede o aceite dos termos
 $("btnSwitch").onclick = switchController;
 async function switchController() {
   if (busy) return;
@@ -134,7 +138,7 @@ function go(p, silent = false) {
   const slot = document.querySelector(`#pg-${p} .drawslot`);
   if (slot && $("drawCard").parentElement !== slot) slot.appendChild($("drawCard"));
   svgCache.clear();
-  if (location.hash.slice(1) !== p) history.replaceState(null, "", "#" + p);
+  if (location.hash.slice(1) !== p) history.replaceState(null, "", location.pathname + "#" + p); // sem o caminho, o <base> de /web/en/ levaria para /web/
   renderPage();
   if (moved()) {
     const cards = document.querySelectorAll(`#pg-${p} .card`);
@@ -543,7 +547,16 @@ function pollPad() {
   S.lx = g.axes[0] || 0; S.ly = g.axes[1] || 0; S.rx = g.axes[2] || 0; S.ry = g.axes[3] || 0;
   S.l2 = g.buttons[6] ? g.buttons[6].value : 0; S.r2 = g.buttons[7] ? g.buttons[7].value : 0;
   S.imu = null; S.touches = []; S.battery = null;
-  if (screen === "gate" && !connecting) { toast(t("toast.padIn", { m: unknownPad ? t("st.controller") : modelName(model) }), "ok"); showApp(); }
+  if (screen === "gate" && !connecting) {
+    if (termsAccepted()) enterWithPad();
+    else if (!padAsked) { padAsked = true; whenAccepted(enterWithPad); } // pede o aceite uma vez; depois do aceite, entra
+  }
+}
+let padAsked = false;
+function enterWithPad() {
+  if (screen !== "gate" || connecting) return;
+  toast(t("toast.padIn", { m: unknownPad ? t("st.controller") : modelName(model) }), "ok");
+  showApp();
 }
 function clearLive() { S.pressed.clear(); S.lx = S.ly = S.rx = S.ry = S.l2 = S.r2 = 0; S.imu = null; S.touches = []; S.battery = null; S.stopL2 = S.stopR2 = null; }
 
@@ -628,7 +641,7 @@ if (HAS_HID) {
   navigator.hid.addEventListener("disconnect", (e) => { if (hid && e.device === hid.device) usbGone(); });
   navigator.hid.addEventListener("connect", (e) => { if (wantHid && !hid && !connecting && HID_FILTERS.some((f) => f.productId === e.device.productId)) setTimeout(() => openDevice(e.device), 800); });
 }
-$("btnUsb").onclick = connectUsb; $("btnUsbApp").onclick = connectUsb;
+$("btnUsb").onclick = () => whenAccepted(connectUsb); $("btnUsbApp").onclick = connectUsb;
 
 // ================================================================ vibração (ação rápida)
 async function rumbleTest() {
@@ -1081,7 +1094,10 @@ $("btnQuick").onclick = quickTest;
 $("pixKey").textContent = PIX_KEY;
 $("btnPixKey").onclick = () => copyText(PIX_KEY);
 $("btnPixCode").onclick = () => copyText(pixPayload());
-const waLink = () => { $("lnkWa").href = "https://wa.me/5521966547296?text=" + encodeURIComponent(t("ex.waMsg")); };
+const waLink = () => {
+  $("lnkWa").href = "https://wa.me/5521966547296?text=" + encodeURIComponent(t("ex.waMsg"));
+  $("gateWa").href = "https://wa.me/5521966547296?text=" + encodeURIComponent(t("gate.waMsg"));
+};
 
 // ================================================================ laudo (imprimir / salvar em PDF)
 function stickImage(k) {
@@ -1205,6 +1221,8 @@ function renderPage() {
 // ================================================================ textos (troca de idioma)
 function refreshTexts() {
   applyI18n();
+  document.title = t("seo.title");
+  refreshConsent();
   waLink();
   for (const [b, name] of swatchEls) { const s = t("light." + name); b.title = s; b.setAttribute("aria-label", s); }
   pick.setAttribute("aria-label", t("light.pick"));
@@ -1261,6 +1279,7 @@ function loop(now) {
 }
 
 initUI();
+mountConsent("../");
 setModel(MODELS.DS5);
 refreshTexts();
 showGate();
