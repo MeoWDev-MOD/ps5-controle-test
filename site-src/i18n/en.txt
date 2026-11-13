@@ -1,0 +1,355 @@
+# Traduções do PS-5 Controle Test (en). Cada "@@ chave" vem de textos-pt.json (rode traduzir.py extrair).
+@@ d7c842bf54
+PS-5 Controle Test: test and calibrate the PS5 controller in the browser or on Android
+@@ 265f9dc5ba
+Test and calibrate the PS5 DualSense controller: free in the computer browser or through the Android app, with no computer. Sticks and drift, triggers, touchpad, gyroscope, vibration, lights and sound.
+@@ df58762a07
+PS-5 Controle Test, test PS5 controller, test DualSense, calibrate PS5 stick, DualSense drift, PS5 controller test on phone, Android app to test PS5 controller, validate DualSense, adaptive trigger test, DualSense touchpad test
+@@ ee21462b43
+PS-5 Controle Test: your phone becomes a controller test bench
+@@ 7b3ef4aed3
+Test, validate and calibrate the DualSense from your Android phone, with no computer. 2 days free.
+@@ 92617b388f
+PS-5 Controle Test: test and calibrate your DualSense from your phone
+@@ 98e4ab44f2
+Android app to test, validate and calibrate the DualSense over the USB cable, with no computer.
+@@ f17eaefe1c
+Android app that tests, validates and calibrates the PS5 DualSense controller over the USB cable: buttons, sticks, triggers, touchpad, gyroscope, vibration, lights, speaker and microphone.
+@@ 33b511d9a8
+Yearly plan, with a 2-day free trial
+@@ cec5a35096
+Sections
+@@ 38040c351d
+Free web
+@@ a8c61d490b
+Benefits
+@@ 0c18a909b9
+App or web
+@@ fb7f240fb3
+Features
+@@ 2f11b88a8d
+Price
+@@ f4c0260715
+FAQ
+@@ 750c79e9b6
+Switch between light and dark
+@@ 3fdd3713c8
+Web tester
+@@ 1ff9b6fcd3
+Download the app
+@@ 0f79551567
+<b>On a phone or tablet?</b> Through the browser, this device cannot make the full connection with the controller. To <strong>sync, calibrate and run every test</strong>, download the app. Without it, that only works on a computer.
+@@ 06ebdbb983
+<b>The app is for Android only.</b> On iPhone and iPad, the browser only runs the basic Bluetooth test. To <strong>sync over the cable, calibrate and run every test</strong>, use a computer.
+@@ fc9b1aa6a2
+Open in the browser anyway →
+@@ 2ec2d707e5
+Free web tester
+@@ e802994bab
+Free, nothing to install
+@@ f996e09632
+Test your controller now in the browser
+@@ aaa00054ed
+Open it, plug in the controller and see right away if everything is fine.
+@@ 1f001afc01
+Open the free tester
+@@ fed449e8fb
+Your phone becomes a controller <span class="grad">test bench</span>.
+@@ a93bf34eb5
+Plug the controller into the phone with a USB cable and find out right away if it is good: buttons, sticks, drift, triggers, vibration, sound and more. No computer, anywhere.
+@@ 5874cfdff1
+<svg class="i"><use href="#i-down"/></svg>Download for Android
+@@ 97e4252af3
+<svg class="i"><use href="#i-check"/></svg>Android 8.0 or later
+@@ 344734276b
+<svg class="i"><use href="#i-check"/></svg>2 days free
+@@ 17bd548117
+<svg class="i"><use href="#i-check"/></svg>R$24.80 per year, by PIX (Brazilian instant payment)
+@@ 1a3a1ed6d8
+<svg class="i"><use href="#i-check"/></svg>Tests work offline
+@@ 566b9dd4b1
+Real screens of the Android app. Tap the buttons, the tabs and the controller drawing. Demo: no controller is read and nothing is saved.
+@@ 59b7adb81b
+Advertisement
+@@ f356c32b6c
+Why have the app
+@@ 37ad29ba13
+The full test fits in your pocket
+@@ 90ac4c55ae
+The phone browser cannot talk directly to the controller over the cable. The app can, and that is why it does on the phone what the website can only do on a computer.
+@@ 4c0b1874a9
+No computer needed
+@@ 8a776c4b0e
+Test and calibrate wherever the controller is: at the shop, at the customer's home or when buying a used one.
+@@ 5f1fb43e4a
+Full access over the cable
+@@ 284914f1bb
+Over USB, the app reads the gyroscope and controls the lights, adaptive triggers, speaker, headset and both vibration motors.
+@@ 6b853458dc
+Test history
+@@ 758562d29e
+Every test is kept on the device to check later.
+@@ 7bb5e04822
+Results to share
+@@ 906b78155e
+Send the result through WhatsApp or another app, straight from the phone.
+@@ 8537fb5511
+Tests work offline
+@@ 40eeecd6e7
+Internet only to validate the license and check for updates.
+@@ 3727520db8
+Always up to date
+@@ d5f9c37230
+The app tells you when there is a new version and updates with one tap.
+@@ 9f8852f250
+Validation checklist
+@@ dc9fd77440
+Pass, Fail or Skip on each item, so nothing is forgotten in the test.
+@@ cb09abd442
+Who it is for
+@@ 3487760701
+Made for people who need a quick answer
+@@ e5680e1110
+Buying a used controller
+@@ 0bf77462f8
+Check buttons, sticks and vibration before paying, with the cable and the phone in hand.
+@@ 720ee03207
+Repairing controllers
+@@ 1686271c4e
+Test before and after replacing parts, calibrate the sticks and show the result to the customer.
+@@ 34162cca63
+Suspecting drift
+@@ 7a6f687955
+With the 10x zoom you can see if the stick leaves the center on its own.
+@@ be5a7d9496
+Web version
+@@ 2b687b6b54
+No install, free, in any browser
+@@ a9536a4ca1
+For a quick test, the website does the job. And on a computer, with the USB cable, it goes even further.
+@@ 893274ddf0
+Opens in seconds
+@@ d3e7596731
+No sign-up and no download: buttons, sticks, triggers and vibration in the basic test.
+@@ ab5da6fc9f
+Several models
+@@ 3c2cee0459
+DualSense, Edge, DualShock 4 and PS VR2 recognized by the browser.
+@@ d48ab749f8
+Full on a computer
+@@ 8221d97bb1
+Over the USB cable: calibration, factory data and PDF report.
+@@ 309a7275af
+Which version to use?
+@@ f1c557a55e
+The website is free and needs no install. The app is the choice for doing everything from the phone.
+@@ 701babe8bc
+Feature
+@@ 622775d507
+Android app
+@@ b4a0098fde
+Website on a computer
+@@ 1d3e0bff70
+Website on a phone
+@@ da7f9b338c
+Full mode over the USB cable
+@@ 84fb9bfc81
+Yes
+@@ 72534bbb0c
+No
+@@ cd940238ea
+Buttons, sticks and triggers
+@@ 863e369241
+Drift and circularity
+@@ 2715a75bde
+Stick calibration
+@@ fca64f66be
+Yes, except Edge and Xbox
+@@ af8a8cb36c
+Yes, over USB
+@@ bc1aea4684
+Touchpad and gyroscope
+@@ 71c02a289b
+Lights, adaptive triggers and separate motors
+@@ b3f0f38572
+Speaker, headset and microphone
+@@ 7bba3f57fb
+Supported controllers
+@@ 1076c3aac9
+DualSense, Edge, DualShock 4, PS VR2 and Xbox
+@@ 15e7ea3cd4
+DualSense, Edge, DualShock 4 and PS VR2
+@@ 0ff0bb97b1
+The same, in the basic test
+@@ cdda75d4f1
+2 days free, then R$24.80 per year
+@@ 26f630caad
+Free
+@@ 94527d7ccb
+App features
+@@ 9c8e2a55ca
+Everything you can test
+@@ d0e6628ed1
+Live test
+@@ 33a82252f2
+A drawing of your controller lighting up buttons, D-pad and triggers with the real intensity.
+@@ cc20e9cdfe
+Sticks and drift
+@@ a0f4961264
+Live position, 10x zoom and circularity chart with the average error in %.
+@@ bddc645aec
+Calibration
+@@ 4097eff1d9
+Center and range, written to the controller only when you confirm.
+@@ e43bf89fa0
+Touchpad and motion
+@@ 8d0b125984
+Finger trails and charts of the gyroscope and the accelerometer.
+@@ 6c94c6d52c
+Vibration and lights
+@@ e242d57b5b
+Sweep between the motors, light bar, player LEDs and the Mute LED.
+@@ 3c37466056
+Full validation
+@@ 2e96e06607
+USB connector, adaptive triggers, speaker, headset, microphone and more.
+@@ 1fdce66f77
+In the app, why the cable?
+@@ b2e857a3b3
+USB cable
+@@ c3b414887e
+Bluetooth
+@@ e8739c6246
+Buttons, D-pad, triggers, sticks and touchpad
+@@ 4fd6342051
+Mute button
+@@ 8e2b676f21
+Limited
+@@ 1f562d3210
+Gyroscope, lights, adaptive triggers, vibration on two motors
+@@ a3eda32af2
+Speaker, headset and calibration
+@@ fbfb4ea832
+Getting started
+@@ 3ed13b62d3
+Install in a few minutes
+@@ ef9a9d1264
+The app is distributed through this website, not through Google Play.
+@@ 2ab2691af2
+Download the APK
+@@ 0a63fbf01b
+Tap Download for Android right on the phone.
+@@ 1c212d5d1e
+Allow it
+@@ 6eb5856a17
+When opening the file, allow installing apps from this source.
+@@ 52897ac0e1
+Confirm
+@@ f5cda0a420
+If Play Protect warns you, tap Install anyway.
+@@ 913ef88c54
+Connect
+@@ ce55a91aea
+Plug the controller in with the USB cable and open the app.
+@@ 5f9e5f238c
+Start without paying anything
+@@ cb1c1c5cae
+R$24.80 <small>per year</small>
+@@ 5048c1f115
+Less than R$2.10 per month, paid by PIX (Brazilian instant payment).
+@@ 78d4a6860e
+<svg class="i"><use href="#i-check"/></svg>2 days free with every feature
+@@ ff0aa788aa
+<svg class="i"><use href="#i-check"/></svg>Test, validation and calibration from the phone
+@@ cc33f20835
+<svg class="i"><use href="#i-check"/></svg>History and results to share
+@@ 1382c4f7bd
+<svg class="i"><use href="#i-check"/></svg>Unlocked for 1 year after the payment receipt
+@@ 539c7378ef
+<svg class="i"><use href="#i-down"/></svg>Download and try for free
+@@ 5b6825d3c6
+Website
+@@ 5b9a855d28
+Nothing to install.
+@@ 0a18c563b1
+<svg class="i"><use href="#i-check"/></svg>DualSense, Edge, DualShock 4 and PS VR2
+@@ ab8121c3c7
+<svg class="i"><use href="#i-check"/></svg>Buttons, sticks, triggers and vibration
+@@ 8680a57a70
+<svg class="i"><use href="#i-check"/></svg>On a computer: calibration, factory data and PDF report
+@@ d343ee0340
+Open the tester
+@@ 7231a3bb43
+Frequently asked questions
+@@ f0fc03f8dc
+Which cable do I need?
+@@ 648238d565
+A cable that connects the controller to the phone: USB-C on both ends, or the controller's cable with an OTG adapter. The phone must accept USB accessories.
+@@ 660db5ba1d
+Why does the unknown app warning appear?
+@@ 49119c14d6
+Because the app comes from this website, not from Google Play. Android warns about any APK installed from outside. Ours is signed with MeoWDeV MOD's own certificate.
+@@ 5f400f1755
+Does it work with the DualShock 4, PS VR2 or an Xbox controller?
+@@ 3e99cf16b9
+Yes: the app recognizes each model and shows its drawing. Calibration on the DualShock 4 and PS VR2 is experimental. Xbox has no public calibration command, and the DualSense Edge is calibrated through the website on a computer.
+@@ b580980b50
+Do I need internet?
+@@ 24a9e990ee
+Only to validate the license and check for updates. The controller tests work offline.
+@@ 29e2d84015
+Does calibration fix drift?
+@@ 185593f2f1
+No. Drift comes from wear of the stick parts. Calibration is mainly for after replacing them, and it can make things worse if done without need.
+@@ e9134144c7
+Can calibration damage my controller?
+@@ b8e53b9086
+It only becomes permanent after you tap Save to the controller. Even so, use it only if the sticks have a problem.
+@@ 8cb7937389
+How do I pay?
+@@ 5bb01df788
+By PIX (Brazilian instant payment). The details appear inside the app. You send the receipt with the device code and access is unlocked for 1 year.
+@@ 777cc06437
+Test your controller now
+@@ bf5669ed16
+Two days free, no card: payment is by PIX only, if you decide to continue.
+@@ 2f1ff30d73
+WhatsApp · partnerships
+@@ a21abebb0e
+Other projects
+@@ b633e4cdf0
+Another project of ours
+@@ 1d795d9352
+PS5 controller on the Nintendo Switch
+@@ 3a15332d02
+Control PS-5 is a free app for hacked Nintendo Switch consoles: it connects the DualSense over Bluetooth, with no adapter, with adaptive triggers, light bar and per-game profiles.
+@@ be8b4751e3
+See how to connect the PS5 controller to the Nintendo Switch
+@@ 28cfb6dfbd
+See how to connect
+@@ 9e377697ad
+<b style="color:var(--text)">Developed by MeoWDeV MOD</b><br>PS5 and DualSense are trademarks of Sony Interactive Entertainment. This project is not affiliated with Sony.
+@@ 0529ad3057
+Releases
+@@ 42237dd3e6
+Terms of use
+@@ 00998dcd68
+Privacy and cookies
+@@ 68bf44c0db
+Manage cookies
+@@ 86a9bec602
+On this device, download the app
+@@ fe7691a7cf
+Through the phone or tablet browser you only get the basic Bluetooth test. Without the app, you cannot:
+@@ 2e5541db13
+Connect in full mode over the USB cable
+@@ 4da10bde11
+Calibrate the sticks
+@@ 92e0fff89a
+Test the touchpad, gyroscope, lights, adaptive triggers and sound
+@@ 544a43ad09
+<svg class="i"><use href="#i-down"/></svg>Download for Android · 2 days free
+@@ c8fc8598eb
+Continue in the browser
+@@ 4f869a8464
+Hello! I came from PS-5 Controle Test and I'd like to talk about a partnership.

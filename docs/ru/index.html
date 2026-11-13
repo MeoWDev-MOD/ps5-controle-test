@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PS-5 Controle Test: проверка и калибровка геймпада PS5 в браузере или на Android</title>
+<meta name="description" content="Проверьте и откалибруйте геймпад DualSense от PS5: бесплатно в браузере компьютера или в приложении для Android, без компьютера. Стики и дрифт, триггеры, тачпад, гироскоп, вибрация, подсветка и звук.">
+<meta name="keywords" content="PS-5 Controle Test, проверить геймпад PS5, проверить DualSense, калибровка стика PS5, дрифт DualSense, проверка геймпада PS5 на телефоне, приложение для проверки геймпада PS5 Android, проверка DualSense, тест адаптивных триггеров, тест тачпада DualSense">
+<meta name="author" content="MeoWDeV MOD">
+<meta name="theme-color" content="#0c0920">
+<link rel="canonical" href="https://techmeow.app/ps5-controle-test/ru/">
+<link rel="icon" href="../web/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="../web/icon-180.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PS-5 Controle Test">
+<meta property="og:title" content="PS-5 Controle Test: ваш телефон становится стендом для проверки геймпадов">
+<meta property="og:description" content="Проверяйте, оценивайте и калибруйте DualSense с телефона на Android, без компьютера. 2 дня бесплатно.">
+<meta property="og:image" content="https://techmeow.app/ps5-controle-test/web/icon-512.png">
+<meta property="og:url" content="https://techmeow.app/ps5-controle-test/ru/">
+<meta property="og:locale" content="ru_RU">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PS-5 Controle Test: проверьте и откалибруйте DualSense с телефона">
+<meta name="twitter:description" content="Приложение для Android, которое проверяет, оценивает и калибрует DualSense по USB-кабелю, без компьютера.">
+<meta name="twitter:image" content="https://techmeow.app/ps5-controle-test/web/icon-512.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "PS-5 Controle Test",
+  "description": "Приложение для Android, которое проверяет, оценивает и калибрует геймпад DualSense от PS5 по USB-кабелю: кнопки, стики, триггеры, тачпад, гироскоп, вибрация, подсветка, динамик и микрофон.",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Android 8.0+",
+  "offers": {
+    "@type": "Offer",
+    "price": "24.80",
+    "priceCurrency": "BRL",
+    "description": "Годовой план с 2 днями бесплатной пробы"
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "MeoWDeV MOD"
+  },
+  "creator": {
+    "@type": "Person",
+    "name": "Jefferson Honorio"
+  },
+  "downloadUrl": "https://github.com/MeoWDev-MOD/ps5-controle-test/releases/latest",
+  "image": "https://techmeow.app/ps5-controle-test/web/icon-512.png",
+  "inLanguage": "ru"
+}
+</script>
+<script>
+  try { const t = localStorage.getItem("ps5web.theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+<script>
+  // celular ou tablet: "m"; iPhone e iPad: também "ios" (o app é só para Android)
+  (function () { var n = navigator, ios = /iPhone|iPad|iPod/i.test(n.userAgent) || (n.platform === "MacIntel" && n.maxTouchPoints > 1), c = document.documentElement.classList;
+    if (ios || /Android/i.test(n.userAgent)) c.add("m"); if (ios) c.add("ios"); })();
+</script>
+<script>
+  // chegada com cortina, quando veio de outra página do site
+  try { if (sessionStorage.getItem("ps5.pt")) { sessionStorage.removeItem("ps5.pt"); document.documentElement.classList.add("pt"); } } catch (e) {}
+</script>
+<style>
+@media (max-width:1500px){.i18n-btn span{display:none}.i18n-btn{padding:0 11px}}
+:root{
+  color-scheme:light;
+  --bg:#f4f1ff; --bg-top:#e3dbff; --surface:rgba(255,255,255,.8); --surface2:rgba(91,63,212,.07); --line:rgba(91,63,212,.18);
+  --text:#1b1440; --muted:#5b5480; --accent:#5b3fd4; --accent2:#7c5cff; --grad1:#5b3fd4; --grad2:#a855f7;
+  --ok:#15803d; --warn:#a15c07; --btn1:#6d4cff; --btn2:#4f2fd0; --glow:rgba(124,92,255,.22); --shadow:0 10px 30px rgba(60,40,140,.10); --nav:rgba(244,241,255,.82);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#0c0920; --bg-top:#2a1670; --surface:rgba(255,255,255,.05); --surface2:rgba(255,255,255,.08); --line:rgba(167,139,250,.22);
+  --text:#f3f0ff; --muted:#b9b0dc; --accent:#a78bfa; --accent2:#7c5cff; --grad1:#e9d5ff; --grad2:#a78bfa;
+  --ok:#4ade80; --warn:#fbbf24; --btn1:#6d4cff; --btn2:#5428e0; --glow:rgba(124,92,255,.35); --shadow:0 14px 40px rgba(0,0,0,.35); --nav:rgba(12,9,32,.82);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0c0920; --bg-top:#2a1670; --surface:rgba(255,255,255,.05); --surface2:rgba(255,255,255,.08); --line:rgba(167,139,250,.22);
+  --text:#f3f0ff; --muted:#b9b0dc; --accent:#a78bfa; --accent2:#7c5cff; --grad1:#e9d5ff; --grad2:#a78bfa;
+  --ok:#4ade80; --warn:#fbbf24; --btn1:#6d4cff; --btn2:#5428e0; --glow:rgba(124,92,255,.35); --shadow:0 14px 40px rgba(0,0,0,.35); --nav:rgba(12,9,32,.82);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+body{margin:0;color:var(--text);font:16px/1.55 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;background:radial-gradient(1200px 620px at 50% -140px,var(--bg-top),transparent 70%),var(--bg);min-height:100vh}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hidden{display:none!important}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.grad{background:linear-gradient(90deg,var(--grad1),var(--grad2));-webkit-background-clip:text;background-clip:text;color:transparent}
+/* celular e tablet: o foco é baixar o app */
+html:not(.m) .only-m{display:none!important}
+html.ios .not-ios{display:none!important}
+html:not(.ios) .if-ios{display:none!important}
+html.m .webcta{display:none}
+html.m:not(.ios) #web{display:none}
+html.ios a[href$=".apk"],html.ios .hero .cta,html.ios .hero .chips,html.ios #instalar{display:none!important}
+html.m:not(.ios) .top .b.arrow{display:none}
+html.m:not(.ios) .top .dl{display:inline-flex}
+html.m .hero{padding-top:22px}
+.mnote{margin-top:14px;padding:12px 14px;border-radius:16px;font-size:14px;line-height:1.45;border:1px solid color-mix(in srgb,var(--warn) 50%,transparent);background:color-mix(in srgb,var(--warn) 11%,var(--bg))}
+.mnote b{color:var(--warn)}
+.mnote a{display:inline-flex;align-items:center;min-height:44px;font-weight:700}
+.mdl{position:fixed;left:0;right:0;bottom:0;z-index:7;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:var(--nav);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid var(--line);transform:translateY(110%);transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+.mdl.on{transform:none}
+.mdl .b{width:100%;min-height:52px}
+html.m:not(.ios) footer{padding-bottom:96px}
+.mdlg{width:min(420px,calc(100vw - 32px));padding:22px;border-radius:22px;color:var(--text);background:var(--bg);border:1px solid var(--line)}
+.mdlg::backdrop{background:rgba(5,3,20,.7)}
+.mdlg h2{font-size:22px;margin:0 0 8px}
+.mdlg p{margin:0 0 12px;color:var(--muted);font-size:15px}
+.mdlg ul{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:7px;font-size:15px}
+.mdlg .no::before{content:"✕  ";color:var(--warn);font-weight:700}
+.mdlg .b{width:100%;margin-top:8px}
+/* cortina entre páginas */
+html.pt::before{content:"";position:fixed;inset:0;z-index:9999;background:#0c0920 url(../web/logo-xl.webp) center/clamp(210px,44vmin,360px) no-repeat;pointer-events:none;animation:ptout .55s cubic-bezier(.7,0,.2,1) .06s both}
+@keyframes ptout{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(0 0 100% 0);visibility:hidden}}
+.ptc{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#0c0920}
+.ptc img{width:clamp(210px,44vmin,360px);height:auto;filter:drop-shadow(0 12px 44px rgba(124,92,255,.55))}
+@media print{html.pt::before,.ptc,#fxBg{display:none!important}}
+@media (prefers-reduced-motion:reduce){html.pt::before{display:none}}
+/* fundo vivo e movimento */
+#fxBg{position:absolute;top:0;left:0;width:100%;height:min(115vh,1000px);z-index:-1;pointer-events:none;-webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent)}
+html.lenis,html.lenis body{height:auto}
+html.lenis{scroll-behavior:auto}
+.lenis.lenis-stopped{overflow:clip}
+.lenis [data-lenis-prevent]{overscroll-behavior:contain}
+.hero h1 .w{display:inline-block}
+#scrollBar{position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--btn1),#a855f7);transform:scaleX(0);transform-origin:left;pointer-events:none}
+.links a.on{color:var(--text);background:var(--surface2)}
+/* botões */
+.b{font:inherit;font-weight:600;color:var(--text);text-decoration:none;background:var(--surface2);border:1px solid var(--line);border-radius:99px;padding:11px 20px;min-height:48px;cursor:pointer;
+  position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:9px;transition:transform .12s,box-shadow .25s,border-color .2s,background-position .5s}
+.b:hover{border-color:color-mix(in srgb,var(--accent2) 55%,transparent)}
+.b:active{transform:scale(.97)}
+.b.p{color:#fff;border-color:transparent;background:linear-gradient(100deg,#5a3cf0,#7c3aed 45%,#c026d3 100%) 0 0/220% 100%;box-shadow:0 8px 24px var(--glow)}
+.b.p:hover{background-position:100% 0}
+.b.p::after,.b.shine::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.35) 50%,transparent 65%);transform:translateX(-120%);pointer-events:none}
+.b.p:hover::after{transform:translateX(120%);transition:transform .7s ease}
+.b.shine{color:#fff;border:0;background:linear-gradient(135deg,#1c1240,#3b1d8a)}
+.b.shine::after{animation:shim 3.2s ease-in-out infinite}
+@keyframes shim{0%,55%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+.b.arrow{padding-right:7px;color:#fff;border:0;background:linear-gradient(135deg,#1b1240,#2c1670)}
+.b.arrow .ar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;border:1.5px solid rgba(255,255,255,.7);transition:all .35s cubic-bezier(.3,1.3,.5,1)}
+.b.arrow:hover{background:linear-gradient(135deg,#5a3cf0,#7c3aed)}
+.b.arrow:hover .ar{background:#fff;color:#4c1d95;border-color:#fff;transform:translateX(3px) scale(1.08)}
+.b.arrow .ar svg{width:16px;height:16px}
+.b.wa{color:#fff;border-color:transparent;background:#0f7a41}
+.magnetic{transition:transform .25s cubic-bezier(.3,1.3,.5,1),box-shadow .25s,background-position .5s!important}
+.ripple{position:absolute;border-radius:50%;background:currentColor;opacity:.22;transform:scale(0);animation:rp .55s ease-out forwards;pointer-events:none;z-index:-1}
+@keyframes rp{to{transform:scale(1);opacity:0}}
+/* topo */
+.top{position:sticky;top:0;z-index:8;background:var(--nav);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:14px;min-height:64px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-weight:700;white-space:nowrap}
+.brand img{width:38px;height:38px;border-radius:11px;background:linear-gradient(180deg,#2a176b,#0d0824)}
+.links{display:flex;gap:4px;margin-left:auto}
+.links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:600;padding:8px 12px;border-radius:99px}
+.links a:hover{color:var(--text);background:var(--surface2)}
+.iconbtn{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;flex:none}
+.iconbtn svg{width:18px;height:18px}
+:root .i-sun{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .i-sun{display:block}:root:not([data-theme="light"]) .i-moon{display:none}}
+:root[data-theme="dark"] .i-sun{display:block}:root[data-theme="dark"] .i-moon{display:none}
+.iconbtn.flip svg{animation:flip .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes flip{from{transform:rotate(-120deg) scale(.4);opacity:0}to{transform:none;opacity:1}}
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+/* primeira dobra */
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:40px;align-items:center;padding:34px 0 36px}
+h1{font-size:clamp(34px,5.4vw,58px);line-height:1.06;letter-spacing:-.03em;font-weight:800;margin:14px 0 14px}
+.lead{font-size:18px;color:var(--muted);max-width:560px;margin:0 0 22px}
+.cta{display:flex;flex-wrap:wrap;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px 18px;margin:18px 0 0;padding:0;list-style:none;font-size:14px;color:var(--muted)}
+.chips li{display:flex;align-items:center;gap:7px}
+.chips svg{width:17px;height:17px;color:var(--ok)}
+/* faixa do topo: testador web grátis */
+.webcta,.projeto{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:22px;margin-top:22px;padding:14px 22px;border-radius:24px;border:1px solid color-mix(in srgb,var(--accent2) 45%,transparent);background:linear-gradient(110deg,color-mix(in srgb,var(--accent2) 22%,transparent),var(--surface));box-shadow:0 14px 44px var(--glow)}
+.webcta h2,.projeto h2{font-size:clamp(20px,2.4vw,27px);margin:2px 0}
+.webcta p,.projeto p{margin:0;color:var(--muted);font-size:15px}
+.pcpad{position:relative;display:block;width:132px;animation:floaty 4s ease-in-out infinite}
+.pcpad img{display:block;width:100%;height:auto}
+.pcpad i{position:absolute;width:4.4%;aspect-ratio:1;margin:-2.2% 0 0 -2.2%;border-radius:50%;background:#c4b5fd;box-shadow:0 0 6px 1px #7c5cff;animation:blink 2.4s ease-in-out infinite}
+.pcpad i:nth-of-type(2){animation-delay:.6s}.pcpad i:nth-of-type(3){animation-delay:1.2s}.pcpad i:nth-of-type(4){animation-delay:1.8s}
+@keyframes floaty{50%{transform:translateY(-6px) rotate(-2deg)}}
+@keyframes blink{0%,100%{opacity:.25}35%{opacity:1}}
+/* card Premium com faixa no canto. Efeito: Uiverse.io, mrhyddenn */
+.card_box{position:relative;width:min(350px,100%);margin:0 auto;padding:24px;border-radius:30px;background:linear-gradient(170deg,rgba(58,56,86,.62),rgb(24,20,48));box-shadow:0 25px 50px rgba(0,0,0,.55);transition:transform .3s}
+@media (hover:hover){.card_box:hover{transform:scale(.975)}}
+.ribbon{position:absolute;overflow:hidden;width:150px;height:150px;top:-10px;left:-10px;display:flex;align-items:center;justify-content:center;z-index:3;pointer-events:none}
+html[lang="ru"] .ribbon::before{content:"Премиум";font-size:12px}
+.ribbon::before{content:"Premium";position:absolute;width:150%;height:40px;background-image:linear-gradient(45deg,#ff6547 0%,#ffb144 51%,#ff7053 100%);transform:rotate(-45deg) translateY(-20px);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:14px;box-shadow:0 5px 10px rgba(0,0,0,.23)}
+.ribbon::after{content:"";position:absolute;width:10px;height:10px;bottom:0;left:0;z-index:-1;box-shadow:140px -140px #cc3f47;background-image:linear-gradient(45deg,#ff512f 0%,#f09819 51%,#ff512f 100%)}
+/* mini celular: moldura preta com ilha no topo, proporção de tela 1320 x 2868, e telas reais do app */
+.phone{position:relative;width:100%;padding:7px;border-radius:50px;background:linear-gradient(145deg,#3a3a40,#121214 45%,#2a2a2f);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.2),inset 0 0 0 4px #050506}
+.phone::before,.phone::after{content:"";position:absolute;width:3px;border-radius:2px;background:#2b2b30}
+.phone::before{left:-3px;top:150px;height:96px;box-shadow:0 -58px 0 -20px #2b2b30}
+.phone::after{right:-3px;top:178px;height:84px}
+.screen{position:relative;aspect-ratio:1320/2868;border-radius:43px;overflow:hidden;background:#0c0920;display:flex;flex-direction:column}
+.island{position:absolute;top:11px;left:50%;width:31%;height:27px;margin-left:-15.5%;border-radius:20px;background:#000;z-index:2}
+.atop{position:absolute;top:0;left:0;right:0;z-index:1;padding-top:44px;background:linear-gradient(rgba(28,16,80,.72),rgba(12,9,32,.4));-webkit-backdrop-filter:blur(14px) saturate(1.6);backdrop-filter:blur(14px) saturate(1.6);pointer-events:none}
+.ahead{display:block;width:100%;height:auto;mix-blend-mode:screen}
+.ascroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;padding:calc(44px + var(--hh,15.5%)) 0 78px;background:#0c0920}
+.ascroll::-webkit-scrollbar{display:none}
+.ascroll img{display:block;width:100%;height:auto}
+.ascroll.right{animation:pr .26s ease-out}.ascroll.left{animation:pl .26s ease-out}
+@keyframes pr{from{opacity:0;transform:translateX(22px)}}@keyframes pl{from{opacity:0;transform:translateX(-22px)}}
+.anav{position:absolute;left:0;right:0;bottom:0}
+.anav::before{content:"";position:absolute;left:3.4%;right:3.4%;top:29.6%;bottom:9.4%;border-radius:17px;background:rgba(23,17,52,.5);-webkit-backdrop-filter:blur(14px) saturate(1.6);backdrop-filter:blur(14px) saturate(1.6)}
+.anav img{position:relative;display:block;width:100%;height:auto;mix-blend-mode:screen;pointer-events:none}
+.atabs{position:absolute;inset:0 2.6% 0;display:grid;grid-template-columns:repeat(4,1fr)}
+.atabs button{border:0;background:none;padding:0;cursor:pointer;border-radius:14px}
+.astage{position:relative}
+.astage>img{height:auto}
+#aLayer{position:absolute;inset:0}
+.hot{position:absolute;padding:0;border:0;background:transparent;border-radius:12px;cursor:pointer;transition:background .12s}
+.hot:hover{background:rgba(255,255,255,.06)}.hot:active{background:rgba(255,255,255,.18)}
+.hot:focus-visible,.spr:focus-visible,.atabs button:focus-visible{outline:2px solid #fff;outline-offset:-2px}
+.hotdim{position:absolute;border-radius:12px;background:rgba(12,9,32,.6);pointer-events:none}
+.ads{position:absolute}
+.spr{position:absolute;padding:0;border:0;background:none;cursor:pointer;touch-action:manipulation}
+.spr::before{content:"";position:absolute;inset:-5px}
+.spr[data-s^="ds_dpad"]::before{display:none}
+.spr img{display:block;width:100%;height:100%;opacity:0;transition:opacity .15s;pointer-events:none}
+.spr.done img{opacity:.28}.spr.on img{opacity:1;transition:none}
+.abar{position:absolute;display:block;border-radius:6px;overflow:hidden;pointer-events:none}
+.abar b{display:block;height:100%;background:linear-gradient(90deg,#7c5cff,#a78bfa);transform-origin:left;transition:transform .3s}
+.abadge{position:absolute;display:grid;place-items:center;font-style:normal;font-size:10px;font-weight:700;border-radius:8px;color:var(--c);background:color-mix(in srgb,var(--c) 20%,#1e1a38);pointer-events:none}
+.asum{position:absolute;margin:0;display:flex;align-items:center;font-size:12px;color:#b9b0dc;background:#0c0920;pointer-events:none}
+.asoc{position:absolute;width:12.13%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;color:#fff}
+.asoc>i{position:absolute;inset:0;border-radius:50%;background:linear-gradient(to top,var(--f,#24262a) 50%,transparent 50%) 0 0/100% 200%;background-position:0 0;opacity:1;transition:background-position .3s}
+.asoc.ig{--f:#c135b4}.asoc.yt{--f:#f00}.asoc.wa{--f:#25d366}
+.asoc svg{position:relative;width:58%;height:58%;fill:currentColor;opacity:0;transition:opacity .3s}
+.asoc span{position:absolute;bottom:100%;left:50%;margin-bottom:0;transform:translateX(-50%);white-space:nowrap;padding:3px 7px;border-radius:6px;font-size:11px;background:var(--f,#24262a);opacity:0;visibility:hidden;transition:all .3s;z-index:1}
+.asoc:first-child span{left:0;transform:none}.asoc:nth-child(5) span{left:auto;right:0;transform:none}
+.asoc:hover>i,.asoc:focus-visible>i,.asoc:active>i{background-position:0 100%}
+.asoc:hover svg,.asoc:focus-visible svg,.asoc:active svg{opacity:1}
+.asoc:hover span,.asoc:focus-visible span,.asoc:active span{opacity:1;visibility:visible;margin-bottom:6px}
+.ascroll.fade .astage{animation:afade .24s ease-out}
+@keyframes afade{from{opacity:.45}}
+.phone.buzz{animation:buzz .4s linear}
+@keyframes buzz{20%{transform:translateX(-3px)}40%{transform:translateX(3px)}60%{transform:translateX(-2px)}80%{transform:translateX(2px)}}
+.adlg{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);animation:adim .18s}
+@keyframes adim{from{opacity:0}}
+.abox{position:relative;border-radius:16px;overflow:hidden;animation:apop .2s cubic-bezier(.3,1.3,.5,1)}
+@keyframes apop{from{transform:scale(.92)}}
+.abox img{display:block;width:100%;height:auto}
+.atoast{position:absolute;left:12px;right:12px;bottom:66px;z-index:4;padding:8px 10px;border-radius:12px;font-size:12px;line-height:1.35;text-align:center;color:#f3f0ff;background:#2c1670;border:1px solid rgba(167,139,250,.5);opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
+.atoast.on{opacity:1;transform:none}
+.caption{text-align:center;font-size:13px;color:var(--muted);margin-top:14px}
+/* publicidade */
+.ad{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#0d0926;aspect-ratio:4/1;width:100%;margin:6px 0 10px}
+.ad #adMedia,.ad a{display:block;width:100%;height:100%}
+.ad img,.ad video{display:block;width:100%;height:100%;object-fit:contain}
+.adtag{position:absolute;top:8px;left:8px;z-index:1;font-size:11px;font-weight:600;color:#fff;background:rgba(10,6,32,.72);padding:2px 8px;border-radius:99px}
+/* seções */
+.sec{padding:52px 0}
+.sec>.h{max-width:680px;margin:0 0 24px}
+.kick{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+h2{font-size:clamp(26px,3.6vw,38px);line-height:1.14;letter-spacing:-.02em;font-weight:800;margin:6px 0 8px}
+.sec .h p{color:var(--muted);margin:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:var(--shadow);min-width:0;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.spot{position:relative;isolation:isolate}
+.spot::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;opacity:0;transition:opacity .3s;background:radial-gradient(340px circle at var(--mx,-999px) var(--my,-999px),color-mix(in srgb,var(--accent2) 18%,transparent),transparent 62%)}
+.spot:hover::before{opacity:1}
+.bento{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+.bento .card{grid-column:span 2}
+.bento .wide{grid-column:span 3}
+.bento .card{display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:13px;align-content:start}
+.ico{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--btn1),#a855f7);grid-row:span 2}
+.ico svg{width:22px;height:22px}
+h3{font-size:18px;margin:0 0 5px;letter-spacing:-.01em}
+.card p{margin:0;color:var(--muted);font-size:15px}
+.who{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.who b{display:block;font-size:17px;margin-bottom:4px}
+.tablewrap{overflow-x:auto;padding:6px 8px}
+table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:620px}
+th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font-size:13px}
+th.me{color:var(--accent)}
+td.me{background:color-mix(in srgb,var(--accent2) 9%,transparent);font-weight:600}
+.y{color:var(--ok)} .n{color:var(--muted)} .l{color:var(--warn)}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;counter-reset:s}
+.steps li{counter-increment:s}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:34px;height:34px;border-radius:50%;margin-bottom:10px;font-weight:800;color:var(--accent);background:var(--surface2);border:1px solid var(--line)}
+.prices{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.price.best{border-color:color-mix(in srgb,var(--accent2) 55%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--accent2) 30%,transparent),0 14px 44px var(--glow)}
+.val{font-size:42px;font-weight:800;letter-spacing:-.02em;line-height:1.1;margin:8px 0 2px}
+.val small{font-size:15px;font-weight:500;color:var(--muted)}
+.price ul{list-style:none;margin:14px 0 18px;padding:0;display:grid;gap:8px;font-size:15px}
+.price li{display:flex;gap:8px}
+.price li svg{width:18px;height:18px;color:var(--ok);margin-top:3px}
+.tag{display:inline-block;font-size:12px;font-weight:700;color:#fff;padding:3px 10px;border-radius:99px;background:linear-gradient(90deg,var(--btn2),#7c2fd0)}
+.tag.alt{color:var(--muted);background:var(--surface2);border:1px solid var(--line)}
+.faq{display:grid;gap:8px;max-width:820px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+summary{cursor:pointer;font-weight:600;list-style:none;display:flex;align-items:center;gap:10px}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"";width:7px;height:7px;flex:none;border-right:2px solid var(--accent);border-bottom:2px solid var(--accent);transform:rotate(-45deg);transition:transform .25s}
+details[open] summary::before{transform:rotate(45deg)}
+details p{margin:9px 0 0;color:var(--muted);font-size:15px}
+.final{text-align:center;padding:38px 20px}
+.final .cta{justify-content:center}
+footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);font-size:14px}
+.fgrid{display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px}
+.flinks{display:flex;flex-wrap:wrap;gap:6px 16px}
+.flinks a{color:var(--muted)}
+@media (max-width:980px){.hero{grid-template-columns:1fr;gap:32px;padding-top:34px}.bento .card,.bento .wide{grid-column:span 3}.steps{grid-template-columns:1fr 1fr}.links{display:none}.top .iconbtn{margin-left:auto}.webcta,.projeto{grid-template-columns:auto minmax(0,1fr);}.webcta .b{grid-column:1/-1}}
+@media (max-width:640px){.bento .card,.bento .wide{grid-column:span 6}.who,.prices{grid-template-columns:1fr}.top .dl{display:none}.brand span{display:none}.webcta,.projeto{grid-template-columns:1fr;justify-items:center;text-align:center}.webcta .b{width:100%}.pcpad{width:120px}.cta .b{width:100%}.sec{padding:38px 0}.lead{font-size:17px}}
+@media (max-width:420px){.steps{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.projeto{margin-top:0}
+.selo{display:grid;place-items:center;width:96px;height:96px;border-radius:24px;background:linear-gradient(180deg,#2a176b,#0d0824);animation:floaty 4s ease-in-out infinite}
+.selo img{display:block;width:82px;height:auto}
+</style>
+<!--i18n:head-->
+<link rel="alternate" hreflang="pt-BR" href="https://techmeow.app/ps5-controle-test/">
+<link rel="alternate" hreflang="en" href="https://techmeow.app/ps5-controle-test/en/">
+<link rel="alternate" hreflang="es" href="https://techmeow.app/ps5-controle-test/es/">
+<link rel="alternate" hreflang="ru" href="https://techmeow.app/ps5-controle-test/ru/">
+<link rel="alternate" hreflang="x-default" href="https://techmeow.app/ps5-controle-test/">
+<style>.i18n-menu{position:relative;display:inline-flex;flex:none}.i18n-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border-radius:99px;border:1px solid var(--line,rgba(127,127,127,.35));background:var(--surface2,transparent);color:inherit;font:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer}.i18n-btn:hover{border-color:currentColor}.i18n-lista{position:absolute;right:0;top:calc(100% + 8px);z-index:200;list-style:none;margin:0;padding:6px;min-width:176px;border-radius:14px;border:1px solid var(--line,rgba(127,127,127,.35));background:var(--surface,#16122c);box-shadow:0 18px 40px rgba(0,0,0,.35)}.i18n-lista a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;color:inherit;text-decoration:none;font-size:14px;font-weight:600}.i18n-lista a b{font-size:11px;letter-spacing:.06em;opacity:.65;width:22px}.i18n-lista a:hover,.i18n-lista a:focus-visible{background:var(--surface2,rgba(127,127,127,.15))}.i18n-lista a[aria-current]{color:var(--accent,#a78bfa)}.i18n-sug{position:absolute;right:0;top:calc(100% + 8px);z-index:199;display:flex;align-items:center;gap:8px;white-space:nowrap;padding:8px 8px 8px 14px;border-radius:99px;font-size:13px;font-weight:600;border:1px solid var(--line,rgba(127,127,127,.35));background:var(--surface,#16122c);box-shadow:0 14px 34px rgba(0,0,0,.35)}.i18n-sug a{padding:6px 12px;border-radius:99px;background:var(--accent,#7c5cff);color:#fff;text-decoration:none}.i18n-sug button{border:0;background:none;color:inherit;font:inherit;font-size:16px;line-height:1;padding:4px 6px;cursor:pointer;opacity:.7}.i18n-sug.m{position:fixed;left:12px;right:12px;top:calc(76px + env(safe-area-inset-top));z-index:60;justify-content:space-between;white-space:normal}</style>
+<script>(function(){var A="ru",M={"pt": "../", "en": "../en/", "es": "../es/", "ru": "./"},S={"pt": ["Ler esta página em português?", "Abrir"], "en": ["Read this page in English?", "Open"], "es": ["¿Leer esta página en español?", "Abrir"], "ru": ["Открыть эту страницу на русском?", "Открыть"]},K="techmeow.lang";
+function salva(l){try{localStorage.setItem(K,l)}catch(e){}}
+var p=null;try{p=localStorage.getItem(K)}catch(e){}
+if(p&&p!==A&&M[p]){location.replace(M[p]+location.search+location.hash);return}
+document.addEventListener("DOMContentLoaded",function(){var m=document.querySelector("[data-i18n-menu]");if(!m)return;
+var b=m.querySelector(".i18n-btn"),l=m.querySelector(".i18n-lista");
+function abre(v){l.hidden=!v;b.setAttribute("aria-expanded",v?"true":"false")}
+b.addEventListener("click",function(e){e.stopPropagation();var s=document.querySelector(".i18n-sug");if(s)s.remove();abre(l.hidden)});
+document.addEventListener("click",function(e){if(!m.contains(e.target))abre(false)});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){abre(false);b.focus()}});
+m.querySelectorAll("a[data-lang]").forEach(function(a){a.addEventListener("click",function(e){salva(a.dataset.lang);
+e.preventDefault();location.href=a.getAttribute("href")+location.hash})});
+if(p)return;var n=((navigator.languages&&navigator.languages[0])||navigator.language||"").toLowerCase().slice(0,2);
+var q=M[n]?n:(n&&n!=="pt"?"en":null);if(!q||q===A||!M[q])return;
+var s=document.createElement("div");s.className="i18n-sug";s.setAttribute("role","status");s.lang=q;
+s.innerHTML='<span></span><a></a><button type="button" aria-label="×">×</button>';
+s.querySelector("span").textContent=S[q][0];var a=s.querySelector("a");a.textContent=S[q][1];a.href=M[q];
+a.addEventListener("click",function(){salva(q)});
+s.querySelector("button").addEventListener("click",function(){salva(A);s.remove()});
+if(matchMedia("(max-width:600px)").matches){s.classList.add("m");document.body.appendChild(s)}else m.appendChild(s)})})();</script>
+<!--/i18n:head-->
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="s-bell" viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"/></symbol>
+  <symbol id="s-ig" viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm5.3-3.3a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></symbol>
+  <symbol id="s-yt" viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.5 15.6V8.4l6.3 3.6z"/></symbol>
+  <symbol id="s-wa" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 5 5.1-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.5.1l-.8 1c-.1.2-.3.2-.5.1-.8-.3-2.3-1.1-3.3-3-.2-.3 0-.5.1-.6l.4-.5.2-.4v-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s1 2.6 1.1 2.7c.1.2 1.9 3 4.7 4.2 1.7.7 2.3.6 2.8.5.6-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1 0-.1-.2-.2-.4-.3z"/></symbol>
+  <symbol id="s-gh" viewBox="0 0 24 24"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3z"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></symbol>
+  <symbol id="i-usb" viewBox="0 0 24 24"><path d="M12 2v14M8 6l4-4 4 4M7 11v3l5 3 5-3v-3"/><circle cx="12" cy="20" r="2"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></symbol>
+  <symbol id="i-off" viewBox="0 0 24 24"><path d="M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M5 12.9a10 10 0 0 1 4-2.5M19 12.9a10 10 0 0 0-3-2.1M12 20h.01"/></symbol>
+  <symbol id="i-sync" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></symbol>
+  <symbol id="i-pad" viewBox="0 0 24 24"><path d="M6 8h12a4 4 0 0 1 4 4v1.5a3.5 3.5 0 0 1-6.3 2.1L14.5 14h-5l-1.2 1.6A3.5 3.5 0 0 1 2 13.5V12a4 4 0 0 1 4-4z"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></symbol>
+  <symbol id="i-move" viewBox="0 0 24 24"><path d="M12 2v20M2 12h20M12 2l-3 3M12 2l3 3M12 22l-3-3M12 22l3-3M2 12l3-3M2 12l3 3M22 12l-3-3M22 12l-3 3"/></symbol>
+</svg>
+
+<canvas id="fxBg" aria-hidden="true"></canvas>
+<header class="top"><div class="wrap">
+  <a class="brand" href="./"><img src="../web/logo.png" alt=""><span>PS-5 Controle Test</span></a>
+  <nav class="links" aria-label="Разделы"><a href="#web">Бесплатно в браузере</a><a href="#vantagens">Преимущества</a><a href="#comparar">Приложение или сайт</a><a href="#recursos">Возможности</a><a href="#preco">Цена</a><a href="#faq">Вопросы</a></nav>
+  <!--i18n:menu--><div class="i18n-menu" data-i18n-menu><button type="button" class="i18n-btn" aria-haspopup="true" aria-expanded="false" aria-label="Язык: Русский" title="Язык"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9c-2.6-2.8-3.9-5.8-3.9-9s1.3-6.2 3.9-9z"/></svg><span>RU</span></button><ul class="i18n-lista" hidden><li><a href="../" hreflang="pt-BR" lang="pt-BR" data-lang="pt"><b>PT</b>Português</a></li><li><a href="../en/" hreflang="en" lang="en" data-lang="en"><b>EN</b>English</a></li><li><a href="../es/" hreflang="es" lang="es" data-lang="es"><b>ES</b>Español</a></li><li><a href="./" hreflang="ru" lang="ru" data-lang="ru" aria-current="true"><b>RU</b>Русский</a></li></ul></div><!--/i18n:menu-->
+  <button class="iconbtn" id="themeBtn" aria-label="Переключить светлую и тёмную тему" title="Переключить светлую и тёмную тему">
+    <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2.5M12 20v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M1.5 12H4M20 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>
+  </button>
+  <a class="b arrow" style="min-height:42px;padding:4px 6px 4px 14px;font-size:14px" href="../web/"><span>Проверка в браузере</span><span class="ar" style="width:30px;height:30px"><svg class="i"><use href="#i-arrow"/></svg></span></a>
+  <a class="b p dl" style="min-height:42px;padding:8px 16px;font-size:14px" href="https://github.com/MeoWDev-MOD/ps5-controle-test/releases/latest/download/PS5-Controle-Test.apk">Скачать приложение</a>
+</div><i id="scrollBar" aria-hidden="true"></i></header>
+
+<main class="wrap">
+  <aside class="mnote only-m">
+    <span class="not-ios"><b>Вы с телефона или планшета?</b> Через браузер это устройство не может полностью подключиться к геймпаду. Чтобы <strong>синхронизировать, калибровать и выполнять все проверки</strong>, скачайте приложение. Без него это работает только на компьютере.</span>
+    <span class="if-ios"><b>Приложение только для Android.</b> На iPhone и iPad браузер выполняет только базовую проверку по Bluetooth. Чтобы <strong>синхронизировать по кабелю, калибровать и выполнять все проверки</strong>, используйте компьютер.</span>
+    <br><a href="../web/" data-ok>Всё равно открыть в браузере →</a>
+  </aside>
+  <section class="webcta" aria-label="Бесплатная проверка в браузере">
+    <div class="pcpad" aria-hidden="true"><img src="../assets/logo-cat.png" width="360" height="360" alt=""><i style="left:80.4%;top:56.8%"></i><i style="left:83.1%;top:59.6%"></i><i style="left:81.3%;top:61.8%"></i><i style="left:78.4%;top:58.9%"></i></div>
+    <div><span class="kick">Бесплатно, ничего устанавливать не нужно</span><h2>Проверьте геймпад прямо сейчас в браузере</h2><p>Откройте, подключите геймпад и сразу увидите, всё ли в порядке.</p></div>
+    <a class="b p magnetic" style="min-height:56px;font-size:17px;padding-inline:26px" href="../web/"><span>Открыть бесплатную проверку</span><svg class="i"><use href="#i-arrow"/></svg></a>
+  </section>
+
+  <section class="hero">
+    <div>
+      <h1>Ваш телефон становится <span class="grad">стендом для проверки</span> геймпадов.</h1>
+      <p class="lead">Подключите геймпад к телефону USB-кабелем и сразу узнайте, исправен ли он: кнопки, стики, дрифт, триггеры, вибрация, звук и многое другое. Без компьютера, где угодно.</p>
+      <div class="cta">
+        <a class="b p magnetic" style="min-height:54px;font-size:17px" href="https://github.com/MeoWDev-MOD/ps5-controle-test/releases/latest/download/PS5-Controle-Test.apk"><svg class="i"><use href="#i-down"/></svg>Скачать для Android</a>
+      </div>
+      <ul class="chips">
+        <li><svg class="i"><use href="#i-check"/></svg>Android 8.0 и новее</li>
+        <li><svg class="i"><use href="#i-check"/></svg>2 дня бесплатно</li>
+        <li><svg class="i"><use href="#i-check"/></svg>24,80 R$ в год, через PIX (бразильская система мгновенных платежей)</li>
+        <li><svg class="i"><use href="#i-check"/></svg>Проверки работают без интернета</li>
+      </ul>
+    </div>
+    <div id="phoneHero">
+      <div class="card_box"><span class="ribbon" aria-hidden="true"></span>
+        <div class="phone"><div class="screen" id="demo"></div></div>
+      </div>
+      <p class="caption">Настоящие экраны приложения для Android. Нажимайте кнопки, вкладки и рисунок геймпада. Это демонстрация: геймпад не считывается и ничего не сохраняется.</p>
+    </div>
+  </section>
+
+  <aside class="ad hidden" id="adSlot" aria-label="Реклама"><span class="adtag">Реклама</span><div id="adMedia"></div></aside>
+
+  <section class="sec rv" id="vantagens">
+    <div class="h"><span class="kick">Зачем нужно приложение</span><h2>Полная проверка помещается в карман</h2><p>Браузер телефона не может напрямую общаться с геймпадом по кабелю. Приложение может, поэтому оно делает на телефоне то, что сайт может сделать только на компьютере.</p></div>
+    <div class="bento">
+      <article class="card wide spot"><div class="ico"><svg class="i"><use href="#i-phone"/></svg></div><h3>Без компьютера</h3><p>Проверяйте и калибруйте там, где находится геймпад: в магазине, у клиента или при покупке б/у.</p></article>
+      <article class="card wide spot"><div class="ico"><svg class="i"><use href="#i-usb"/></svg></div><h3>Полный доступ по кабелю</h3><p>По USB приложение считывает гироскоп и управляет подсветкой, адаптивными триггерами, динамиком, гарнитурой и обоими моторами вибрации.</p></article>
+      <article class="card spot"><div class="ico"><svg class="i"><use href="#i-list"/></svg></div><h3>История проверок</h3><p>Каждая проверка сохраняется на устройстве, чтобы посмотреть её позже.</p></article>
+      <article class="card spot"><div class="ico"><svg class="i"><use href="#i-share"/></svg></div><h3>Результат, которым можно поделиться</h3><p>Отправьте результат через WhatsApp или другое приложение прямо с телефона.</p></article>
+      <article class="card spot"><div class="ico"><svg class="i"><use href="#i-off"/></svg></div><h3>Проверки без интернета</h3><p>Интернет нужен только для проверки лицензии и поиска обновлений.</p></article>
+      <article class="card wide spot"><div class="ico"><svg class="i"><use href="#i-sync"/></svg></div><h3>Всегда актуально</h3><p>Приложение сообщает о новой версии и обновляется одним нажатием.</p></article>
+      <article class="card wide spot"><div class="ico"><svg class="i"><use href="#i-check"/></svg></div><h3>Чек-лист проверки</h3><p>«Пройдено», «Ошибка» или «Пропустить» по каждому пункту, чтобы ничего не забыть.</p></article>
+    </div>
+  </section>
+
+  <section class="sec rv">
+    <div class="h"><span class="kick">Для кого</span><h2>Для тех, кому нужен быстрый ответ</h2></div>
+    <div class="who">
+      <div class="card spot"><b>Покупаете б/у геймпад</b><p>Проверьте кнопки, стики и вибрацию до оплаты — нужны только кабель и телефон.</p></div>
+      <div class="card spot"><b>Ремонтируете геймпады</b><p>Проверяйте до и после замены деталей, калибруйте стики и показывайте результат клиенту.</p></div>
+      <div class="card spot"><b>Подозреваете дрифт</b><p>С 10-кратным увеличением видно, уходит ли стик из центра сам по себе.</p></div>
+    </div>
+  </section>
+
+  <section class="sec rv" id="web">
+    <div class="h"><span class="kick">Веб-версия</span><h2>Без установки, бесплатно, в любом браузере</h2><p>Для быстрой проверки хватит сайта. А на компьютере, по USB-кабелю, он умеет ещё больше.</p></div>
+    <div class="who">
+      <div class="card spot"><b>Открывается за секунды</b><p>Без регистрации и скачивания: кнопки, стики, триггеры и вибрация в базовой проверке.</p></div>
+      <div class="card spot"><b>Несколько моделей</b><p>DualSense, Edge, DualShock 4 и PS VR2 распознаются браузером.</p></div>
+      <div class="card spot"><b>Полная версия на компьютере</b><p>По USB-кабелю: калибровка, заводские данные и отчёт в PDF.</p></div>
+    </div>
+    <div class="cta" style="margin-top:16px"><a class="b p" href="../web/"><span>Открыть бесплатную проверку</span><svg class="i"><use href="#i-arrow"/></svg></a></div>
+  </section>
+
+  <section class="sec rv" id="comparar">
+    <div class="h"><span class="kick">Приложение или сайт</span><h2>Какую версию выбрать?</h2><p>Сайт бесплатный и не требует установки. Приложение — выбор для тех, кто хочет делать всё с телефона.</p></div>
+    <div class="card tablewrap"><table>
+      <thead><tr><th>Функция</th><th class="me">Приложение Android</th><th>Сайт на компьютере</th><th>Сайт на телефоне</th></tr></thead>
+      <tbody>
+        <tr><td>Полный режим по USB-кабелю</td><td class="me y">Да</td><td class="y">Да</td><td class="n">Нет</td></tr>
+        <tr><td>Кнопки, стики и триггеры</td><td class="me y">Да</td><td class="y">Да</td><td class="y">Да</td></tr>
+        <tr><td>Дрифт и круговое отклонение</td><td class="me y">Да</td><td class="y">Да</td><td class="y">Да</td></tr>
+        <tr><td>Калибровка стиков</td><td class="me">Да, кроме Edge и Xbox</td><td class="y">Да, по USB</td><td class="n">Нет</td></tr>
+        <tr><td>Тачпад и гироскоп</td><td class="me y">Да</td><td class="y">Да, по USB</td><td class="n">Нет</td></tr>
+        <tr><td>Подсветка, адаптивные триггеры и отдельные моторы</td><td class="me y">Да</td><td class="y">Да, по USB</td><td class="n">Нет</td></tr>
+        <tr><td>Динамик, гарнитура и микрофон</td><td class="me y">Да</td><td class="y">Да, по USB</td><td class="n">Нет</td></tr>
+        <tr><td>История проверок</td><td class="me y">Да</td><td class="n">Нет</td><td class="n">Нет</td></tr>
+        <tr><td>Поддерживаемые геймпады</td><td class="me">DualSense, Edge, DualShock 4, PS VR2 и Xbox</td><td>DualSense, Edge, DualShock 4 и PS VR2</td><td>Те же, в базовой проверке</td></tr>
+        <tr><td>Цена</td><td class="me">2 дня бесплатно, затем 24,80 R$ в год</td><td class="y">Бесплатно</td><td class="y">Бесплатно</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="sec rv" id="recursos">
+    <div class="h"><span class="kick">Возможности приложения</span><h2>Всё, что можно проверить</h2></div>
+    <div class="bento">
+      <article class="card spot"><div class="ico"><svg class="i"><use href="#i-pad"/></svg></div><h3>Проверка в реальном времени</h3><p>Рисунок вашего геймпада, где кнопки, крестовина и триггеры подсвечиваются с реальной силой нажатия.</p></article>
+      <article class="card spot"><div class="ico"><svg class="i"><use href="#i-target"/></svg></div><h3>Стики и дрифт</h3><p>Положение в реальном времени, 10-кратное увеличение и график круговости со средней ошибкой в %.</p></article>
+      <article class="card spot"><div class="ico"><svg class="i"><use href="#i-sliders"/></svg></div><h3>Калибровка</h3><p>Центр и диапазон записываются в геймпад только после вашего подтверждения.</p></article>
+      <article class="card spot"><div class="ico"><svg class="i"><use href="#i-move"/></svg></div><h3>Тачпад и движение</h3><p>След пальцев и графики гироскопа и акселерометра.</p></article>
+      <article class="card spot"><div class="ico"><svg class="i"><use href="#i-zap"/></svg></div><h3>Вибрация и подсветка</h3><p>Перебор моторов, световая панель, светодиоды игрока и светодиод Mute.</p></article>
+      <article class="card spot"><div class="ico"><svg class="i"><use href="#i-check"/></svg></div><h3>Полная проверка</h3><p>Разъём USB, адаптивные триггеры, динамик, гарнитура, микрофон и многое другое.</p></article>
+    </div>
+    <div class="card tablewrap" style="margin-top:14px"><table>
+      <thead><tr><th>Почему в приложении нужен кабель?</th><th class="me">USB-кабель</th><th>Bluetooth</th></tr></thead>
+      <tbody>
+        <tr><td>Кнопки, крестовина, триггеры, стики и тачпад</td><td class="me y">Да</td><td class="y">Да</td></tr>
+        <tr><td>Кнопка Mute</td><td class="me y">Да</td><td class="l">Ограниченно</td></tr>
+        <tr><td>Гироскоп, подсветка, адаптивные триггеры, вибрация двумя моторами</td><td class="me y">Да</td><td class="n">Нет</td></tr>
+        <tr><td>Динамик, гарнитура и калибровка</td><td class="me y">Да</td><td class="n">Нет</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="sec rv" id="instalar">
+    <div class="h"><span class="kick">С чего начать</span><h2>Установка за несколько минут</h2><p>Приложение распространяется через этот сайт, а не через Google Play.</p></div>
+    <ol class="steps">
+      <li class="card"><h3>Скачайте APK</h3><p>Нажмите «Скачать для Android» прямо на телефоне.</p></li>
+      <li class="card"><h3>Разрешите</h3><p>При открытии файла разрешите установку приложений из этого источника.</p></li>
+      <li class="card"><h3>Подтвердите</h3><p>Если Play Protect предупредит, нажмите «Всё равно установить».</p></li>
+      <li class="card"><h3>Подключите</h3><p>Подключите геймпад USB-кабелем и откройте приложение.</p></li>
+    </ol>
+  </section>
+
+  <section class="sec rv" id="preco">
+    <div class="h"><span class="kick">Цена</span><h2>Начните, ничего не платя</h2></div>
+    <div class="prices">
+      <article class="card price best spot"><span class="tag">Приложение Android</span><div class="val">24,80 R$ <small>в год</small></div><p>Меньше 2,10 R$ в месяц, оплата через PIX (бразильская система мгновенных платежей).</p>
+        <ul><li><svg class="i"><use href="#i-check"/></svg>2 дня бесплатно со всеми функциями</li><li><svg class="i"><use href="#i-check"/></svg>Проверка, оценка и калибровка с телефона</li><li><svg class="i"><use href="#i-check"/></svg>История и результат, которым можно поделиться</li><li><svg class="i"><use href="#i-check"/></svg>Доступ на 1 год после подтверждения оплаты</li></ul>
+        <a class="b p" href="https://github.com/MeoWDev-MOD/ps5-controle-test/releases/latest/download/PS5-Controle-Test.apk"><svg class="i"><use href="#i-down"/></svg>Скачать и попробовать бесплатно</a></article>
+      <article class="card price spot"><span class="tag alt">Сайт</span><div class="val">Бесплатно</div><p>Ничего устанавливать не нужно.</p>
+        <ul><li><svg class="i"><use href="#i-check"/></svg>DualSense, Edge, DualShock 4 и PS VR2</li><li><svg class="i"><use href="#i-check"/></svg>Кнопки, стики, триггеры и вибрация</li><li><svg class="i"><use href="#i-check"/></svg>На компьютере: калибровка, заводские данные и отчёт в PDF</li></ul>
+        <a class="b arrow" href="../web/"><span>Открыть проверку</span><span class="ar"><svg class="i"><use href="#i-arrow"/></svg></span></a></article>
+    </div>
+  </section>
+
+  <section class="sec rv" id="faq">
+    <div class="h"><span class="kick">Вопросы</span><h2>Частые вопросы</h2></div>
+    <div class="faq">
+      <details><summary>Какой кабель нужен?</summary><p>Кабель, соединяющий геймпад с телефоном: USB-C с обеих сторон или кабель геймпада с OTG-переходником. Телефон должен поддерживать USB-аксессуары.</p></details>
+      <details><summary>Почему появляется предупреждение о неизвестном приложении?</summary><p>Потому что приложение скачивается с этого сайта, а не из Google Play. Android предупреждает о любом APK, установленном не из магазина. Наше подписано собственным сертификатом MeoWDeV MOD.</p></details>
+      <details><summary>Работает ли с DualShock 4, PS VR2 или геймпадом Xbox?</summary><p>Да: приложение распознаёт каждую модель и показывает её рисунок. Калибровка DualShock 4 и PS VR2 — экспериментальная. У Xbox нет открытой команды калибровки, а DualSense Edge калибруется через сайт на компьютере.</p></details>
+      <details><summary>Нужен ли интернет?</summary><p>Только для проверки лицензии и обновлений. Проверки геймпада работают без интернета.</p></details>
+      <details><summary>Исправляет ли калибровка дрифт?</summary><p>Нет. Дрифт возникает из-за износа деталей стика. Калибровка нужна в основном после их замены, а без необходимости может сделать хуже.</p></details>
+      <details><summary>Может ли калибровка испортить геймпад?</summary><p>Она становится постоянной только после нажатия «Сохранить в геймпад». И всё же используйте её, только если со стиками есть проблемы.</p></details>
+      <details><summary>Как оплатить?</summary><p>Через PIX (бразильская система мгновенных платежей). Реквизиты показаны внутри приложения. Вы отправляете подтверждение с кодом устройства, и доступ открывается на 1 год.</p></details>
+    </div>
+  </section>
+
+  <section class="sec rv"><div class="card final spot">
+    <h2>Проверьте геймпад прямо сейчас</h2>
+    <p style="margin-bottom:18px">Два дня бесплатно, без карты: оплата только через PIX, если решите продолжить.</p>
+    <div class="cta"><a class="b p magnetic" href="https://github.com/MeoWDev-MOD/ps5-controle-test/releases/latest/download/PS5-Controle-Test.apk"><svg class="i"><use href="#i-down"/></svg>Скачать для Android</a><a class="b wa" href="https://wa.me/5521966547296?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5!%20%D0%AF%20%D0%BF%D1%80%D0%B8%D1%88%D1%91%D0%BB%20%D1%81%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0%20PS-5%20Controle%20Test%20%D0%B8%20%D1%85%D0%BE%D1%87%D1%83%20%D0%BE%D0%B1%D1%81%D1%83%D0%B4%D0%B8%D1%82%D1%8C%20%D0%BF%D0%B0%D1%80%D1%82%D0%BD%D1%91%D1%80%D1%81%D1%82%D0%B2%D0%BE." target="_blank" rel="noopener">WhatsApp · партнёрство</a></div>
+  </div></section>
+
+  <section class="sec rv" id="outros-projetos" aria-label="Другие проекты"><div class="projeto">
+    <div class="selo" aria-hidden="true"><img src="../assets/logo-control-ps5.webp" width="200" height="200" loading="lazy" alt=""></div>
+    <div><span class="kick">Ещё один наш проект</span><h2>Геймпад PS5 на Nintendo Switch</h2><p>Control PS-5 — бесплатное приложение для прошитой Nintendo Switch: подключает DualSense по Bluetooth, без адаптера, с адаптивными триггерами, световой панелью и профилем для каждой игры.</p></div>
+    <a class="b p magnetic" style="min-height:56px;font-size:17px;padding-inline:26px" href="https://techmeow.app/Control-PS-5/ru/" target="_blank" rel="noopener" aria-label="Посмотреть, как подключить геймпад PS5 к Nintendo Switch"><span>Как подключить</span><svg class="i"><use href="#i-arrow"/></svg></a>
+  </div></section>
+</main>
+
+<footer><div class="wrap fgrid">
+  <div><b style="color:var(--text)">Developed by MeoWDeV MOD</b><br>PS5 и DualSense — товарные знаки Sony Interactive Entertainment. Этот проект не связан с Sony.</div>
+  <div class="flinks">
+    <a href="../web/">Проверка в браузере</a><a href="https://techmeow.app/Control-PS-5/ru/">Control PS-5</a><a href="https://www.instagram.com/tech_meow.oficial" target="_blank" rel="noopener">Instagram</a><a href="https://www.youtube.com/@techmeow" target="_blank" rel="noopener">YouTube</a><a href="https://github.com/MeoWDev-MOD/ps5-controle-test/releases">Версии</a><a href="https://techmeow.app/ps5-hdmi-tool/ru/">PS5 HDMI Tool</a><a href="../termos/">Условия использования</a><a href="../privacidade/">Конфиденциальность и cookie</a><a href="#" data-ck-manage>Настроить cookie</a>
+  </div>
+</div></footer>
+
+<dialog class="mdlg" id="mDlg" aria-labelledby="mDlgT">
+  <h2 id="mDlgT">На этом устройстве скачайте приложение</h2>
+  <p>В браузере телефона или планшета доступна только базовая проверка по Bluetooth. Без приложения нельзя:</p>
+  <ul><li class="no">Подключиться в полном режиме по USB-кабелю</li><li class="no">Откалибровать стики</li><li class="no">Проверить тачпад, гироскоп, подсветку, адаптивные триггеры и звук</li></ul>
+  <a class="b p" href="https://github.com/MeoWDev-MOD/ps5-controle-test/releases/latest/download/PS5-Controle-Test.apk"><svg class="i"><use href="#i-down"/></svg>Скачать для Android · 2 дня бесплатно</a>
+  <a class="b" href="../web/" data-ok>Продолжить в браузере</a>
+</dialog>
+<div class="mdl only-m not-ios" id="mDl"><a class="b p" href="https://github.com/MeoWDev-MOD/ps5-controle-test/releases/latest/download/PS5-Controle-Test.apk"><svg class="i"><use href="#i-down"/></svg>Скачать для Android · 2 дня бесплатно</a></div>
+<script defer src="../web/vendor/gsap.min.js"></script>
+<script defer src="../web/vendor/ScrollTrigger.min.js"></script>
+<script defer src="../web/vendor/lenis.min.js"></script>
+<script type="module" src="../assets/land.js"></script>
+</body>
+</html>

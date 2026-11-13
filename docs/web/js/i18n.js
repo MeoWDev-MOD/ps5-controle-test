@@ -682,6 +682,11 @@ function pick() {
   let fromUrl = null;
   try { fromUrl = langFromPath(location.pathname); } catch { /* fora do navegador */ }
   if (fromUrl) return fromUrl;
+  // Página inicial (fora de /web/): o idioma é o da página gerada por site-src/i18n (ru usa inglês).
+  if (!/\/web(\/|$)/.test(location.pathname)) {
+    const pg = (document.documentElement.lang || "pt").slice(0, 2);
+    return pg === "en" || pg === "es" ? pg : pg === "ru" ? "en" : "pt-BR";
+  }
   let saved = null;
   try { saved = localStorage.getItem("ps5web.lang"); } catch { /* modo privado */ }
   return saved && saved in COL ? saved : "pt-BR";
@@ -707,7 +712,7 @@ export const incompleteKeys = () => Object.entries(T).filter(([, r]) => r.length
 
 // Aplica as traduções nos elementos marcados no HTML
 export function applyI18n(root = document) {
-  document.documentElement.lang = lang;
+  if (/\/web(\/|$)/.test(location.pathname)) document.documentElement.lang = lang;
   root.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
   root.querySelectorAll("[data-i18n-html]").forEach((el) => { el.innerHTML = t(el.dataset.i18nHtml); });
   root.querySelectorAll("[data-i18n-aria]").forEach((el) => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });

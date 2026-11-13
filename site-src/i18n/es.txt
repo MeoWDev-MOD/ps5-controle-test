@@ -1,0 +1,355 @@
+# Traduções do PS-5 Controle Test (es). Cada "@@ chave" vem de textos-pt.json (rode traduzir.py extrair).
+@@ d7c842bf54
+PS-5 Controle Test: prueba y calibra el control de PS5 en el navegador o en Android
+@@ 265f9dc5ba
+Prueba y calibra el control DualSense de PS5: gratis en el navegador de la computadora o con la app Android, sin computadora. Analógicos y drift, gatillos, touchpad, giroscopio, vibración, luces y sonido.
+@@ df58762a07
+PS-5 Controle Test, probar control PS5, probar DualSense, calibrar analógico PS5, drift DualSense, prueba de control PS5 en el celular, app para probar control PS5 Android, validar DualSense, prueba de gatillo adaptativo, prueba touchpad DualSense
+@@ ee21462b43
+PS-5 Controle Test: tu celular se convierte en un banco de pruebas de controles
+@@ 7b3ef4aed3
+Prueba, valida y calibra el DualSense desde el celular Android, sin computadora. 2 días gratis.
+@@ 92617b388f
+PS-5 Controle Test: prueba y calibra tu DualSense desde el celular
+@@ 98e4ab44f2
+App Android para probar, validar y calibrar el DualSense por cable USB, sin computadora.
+@@ f17eaefe1c
+App Android que prueba, valida y calibra el control DualSense de PS5 por cable USB: botones, analógicos, gatillos, touchpad, giroscopio, vibración, luces, altavoz y micrófono.
+@@ 33b511d9a8
+Plan anual, con 2 días de prueba gratis
+@@ cec5a35096
+Secciones
+@@ 38040c351d
+Web gratis
+@@ a8c61d490b
+Ventajas
+@@ 0c18a909b9
+App o web
+@@ fb7f240fb3
+Funciones
+@@ 2f11b88a8d
+Precio
+@@ f4c0260715
+Preguntas
+@@ 750c79e9b6
+Cambiar entre claro y oscuro
+@@ 3fdd3713c8
+Probador web
+@@ 1ff9b6fcd3
+Descargar la app
+@@ 0f79551567
+<b>¿Estás en el celular o la tablet?</b> Por el navegador, este dispositivo no hace la conexión completa con el control. Para <strong>sincronizar, calibrar y hacer todas las pruebas</strong>, descarga la app. Sin ella, eso solo funciona en la computadora.
+@@ 06ebdbb983
+<b>La app es solo para Android.</b> En iPhone y iPad, el navegador hace solo la prueba básica por Bluetooth. Para <strong>sincronizar por cable, calibrar y hacer todas las pruebas</strong>, usa una computadora.
+@@ fc9b1aa6a2
+Entrar por el navegador de todos modos →
+@@ 2ec2d707e5
+Probador web gratis
+@@ e802994bab
+Gratis, sin instalar nada
+@@ f996e09632
+Prueba tu control ahora en el navegador
+@@ aaa00054ed
+Ábrelo, conecta el control y mira al instante si todo está bien.
+@@ 1f001afc01
+Abrir el probador gratis
+@@ fed449e8fb
+Tu celular se convierte en un <span class="grad">banco de pruebas</span> de controles.
+@@ a93bf34eb5
+Conecta el control al celular con el cable USB y descubre al instante si está bien: botones, analógicos, drift, gatillos, vibración, sonido y más. Sin computadora, en cualquier lugar.
+@@ 5874cfdff1
+<svg class="i"><use href="#i-down"/></svg>Descargar para Android
+@@ 97e4252af3
+<svg class="i"><use href="#i-check"/></svg>Android 8.0 o superior
+@@ 344734276b
+<svg class="i"><use href="#i-check"/></svg>2 días gratis
+@@ 17bd548117
+<svg class="i"><use href="#i-check"/></svg>R$ 24,80 al año, por PIX (pago instantáneo de Brasil)
+@@ 1a3a1ed6d8
+<svg class="i"><use href="#i-check"/></svg>Las pruebas funcionan sin internet
+@@ 566b9dd4b1
+Pantallas reales de la app para Android. Toca los botones, las pestañas y el dibujo del control. Demostración: no se lee ningún control y no se guarda nada.
+@@ 59b7adb81b
+Publicidad
+@@ f356c32b6c
+Por qué tener la app
+@@ 37ad29ba13
+La prueba completa cabe en tu bolsillo
+@@ 90ac4c55ae
+El navegador del celular no puede hablar directo con el control por el cable. La app sí puede, y por eso hace en el celular lo que en el sitio solo se puede hacer en la computadora.
+@@ 4c0b1874a9
+Sin depender de una computadora
+@@ 8a776c4b0e
+Prueba y calibra donde esté el control: en la tienda, en casa del cliente o al comprar uno usado.
+@@ 5f1fb43e4a
+Acceso completo por el cable
+@@ 284914f1bb
+Por USB, la app lee el giroscopio y controla las luces, el gatillo adaptativo, el altavoz, los auriculares y los dos motores de vibración.
+@@ 6b853458dc
+Historial de pruebas
+@@ 758562d29e
+Cada prueba queda guardada en el dispositivo para consultarla después.
+@@ 7bb5e04822
+Resultado para compartir
+@@ 906b78155e
+Envía el resultado por WhatsApp u otra app, directo desde el celular.
+@@ 8537fb5511
+Pruebas sin internet
+@@ 40eeecd6e7
+Internet solo para validar la licencia y buscar actualizaciones.
+@@ 3727520db8
+Siempre actualizada
+@@ d5f9c37230
+La app avisa cuando hay una versión nueva y se actualiza con un toque.
+@@ 9f8852f250
+Lista de validación
+@@ dc9fd77440
+Aprobado, Falla u Omitir en cada punto, para no olvidar nada en la prueba.
+@@ cb09abd442
+Para quién es
+@@ 3487760701
+Hecha para quien necesita una respuesta rápida
+@@ e5680e1110
+Vas a comprar un control usado
+@@ 0bf77462f8
+Revisa botones, analógicos y vibración antes de pagar, con el cable y el celular en la mano.
+@@ 720ee03207
+Reparas controles
+@@ 1686271c4e
+Prueba antes y después de cambiar piezas, calibra los analógicos y muestra el resultado al cliente.
+@@ 34162cca63
+Sospechas de drift
+@@ 7a6f687955
+Con el zoom 10x ves si el analógico se sale del centro solo.
+@@ be5a7d9496
+Versión web
+@@ 2b687b6b54
+Sin instalar, gratis, en cualquier navegador
+@@ a9536a4ca1
+Para una prueba rápida, el sitio alcanza. Y en la computadora, con el cable USB, llega aún más lejos.
+@@ 893274ddf0
+Abre en segundos
+@@ d3e7596731
+Sin registro y sin descarga: botones, analógicos, gatillos y vibración en la prueba básica.
+@@ ab5da6fc9f
+Varios modelos
+@@ 3c2cee0459
+DualSense, Edge, DualShock 4 y PS VR2 reconocidos por el navegador.
+@@ d48ab749f8
+Completo en la computadora
+@@ 8221d97bb1
+Por cable USB: calibración, datos de fábrica e informe en PDF.
+@@ 309a7275af
+¿Qué versión usar?
+@@ f1c557a55e
+El sitio es gratis y no necesita instalar nada. La app es la opción para hacerlo todo desde el celular.
+@@ 701babe8bc
+Función
+@@ 622775d507
+App Android
+@@ b4a0098fde
+Sitio en la computadora
+@@ 1d3e0bff70
+Sitio en el celular
+@@ da7f9b338c
+Modo completo por cable USB
+@@ 84fb9bfc81
+Sí
+@@ 72534bbb0c
+No
+@@ cd940238ea
+Botones, analógicos y gatillos
+@@ 863e369241
+Drift y circularidad
+@@ 2715a75bde
+Calibración de los analógicos
+@@ fca64f66be
+Sí, menos Edge y Xbox
+@@ af8a8cb36c
+Sí, por USB
+@@ bc1aea4684
+Touchpad y giroscopio
+@@ 71c02a289b
+Luces, gatillo adaptativo y motores por separado
+@@ b3f0f38572
+Altavoz, auriculares y micrófono
+@@ 7bba3f57fb
+Controles compatibles
+@@ 1076c3aac9
+DualSense, Edge, DualShock 4, PS VR2 y Xbox
+@@ 15e7ea3cd4
+DualSense, Edge, DualShock 4 y PS VR2
+@@ 0ff0bb97b1
+Los mismos, en la prueba básica
+@@ cdda75d4f1
+2 días gratis, luego R$ 24,80 al año
+@@ 26f630caad
+Gratis
+@@ 94527d7ccb
+Funciones de la app
+@@ 9c8e2a55ca
+Todo lo que puedes probar
+@@ d0e6628ed1
+Prueba en vivo
+@@ 33a82252f2
+Dibujo de tu control encendiendo botones, D-pad y gatillos con la intensidad real.
+@@ cc20e9cdfe
+Analógicos y drift
+@@ a0f4961264
+Posición en vivo, zoom 10x y gráfico de circularidad con error medio en %.
+@@ bddc645aec
+Calibración
+@@ 4097eff1d9
+Centro y alcance, grabados en el control solo cuando confirmes.
+@@ e43bf89fa0
+Touchpad y movimiento
+@@ 8d0b125984
+Rastro de los dedos y gráficos del giroscopio y del acelerómetro.
+@@ 6c94c6d52c
+Vibración y luces
+@@ e242d57b5b
+Barrido entre los motores, barra de luz, LEDs de jugador y LED de Mute.
+@@ 3c37466056
+Validación completa
+@@ 2e96e06607
+Conector USB, gatillo adaptativo, altavoz, auriculares, micrófono y más.
+@@ 1fdce66f77
+En la app, ¿por qué el cable?
+@@ b2e857a3b3
+Cable USB
+@@ c3b414887e
+Bluetooth
+@@ e8739c6246
+Botones, D-pad, gatillos, analógicos y touchpad
+@@ 4fd6342051
+Botón Mute
+@@ 8e2b676f21
+Limitado
+@@ 1f562d3210
+Giroscopio, luces, gatillo adaptativo, vibración en dos motores
+@@ a3eda32af2
+Altavoz, auriculares y calibración
+@@ fbfb4ea832
+Cómo empezar
+@@ 3ed13b62d3
+Instala en pocos minutos
+@@ ef9a9d1264
+La app se distribuye por este sitio, no por Google Play.
+@@ 2ab2691af2
+Descarga el APK
+@@ 0a63fbf01b
+Toca Descargar para Android directo en el celular.
+@@ 1c212d5d1e
+Autoriza
+@@ 6eb5856a17
+Al abrir el archivo, permite instalar apps de esta fuente.
+@@ 52897ac0e1
+Confirma
+@@ f5cda0a420
+Si Play Protect avisa, toca Instalar de todos modos.
+@@ 913ef88c54
+Conecta
+@@ ce55a91aea
+Conecta el control por el cable USB y abre la app.
+@@ 5f9e5f238c
+Empieza sin pagar nada
+@@ cb1c1c5cae
+R$ 24,80 <small>al año</small>
+@@ 5048c1f115
+Menos de R$ 2,10 al mes, pagado por PIX (pago instantáneo de Brasil).
+@@ 78d4a6860e
+<svg class="i"><use href="#i-check"/></svg>2 días gratis con todas las funciones
+@@ ff0aa788aa
+<svg class="i"><use href="#i-check"/></svg>Prueba, validación y calibración desde el celular
+@@ cc33f20835
+<svg class="i"><use href="#i-check"/></svg>Historial y resultado para compartir
+@@ 1382c4f7bd
+<svg class="i"><use href="#i-check"/></svg>Liberado por 1 año después del comprobante
+@@ 539c7378ef
+<svg class="i"><use href="#i-down"/></svg>Descargar y probar gratis
+@@ 5b6825d3c6
+Sitio
+@@ 5b9a855d28
+Sin instalar nada.
+@@ 0a18c563b1
+<svg class="i"><use href="#i-check"/></svg>DualSense, Edge, DualShock 4 y PS VR2
+@@ ab8121c3c7
+<svg class="i"><use href="#i-check"/></svg>Botones, analógicos, gatillos y vibración
+@@ 8680a57a70
+<svg class="i"><use href="#i-check"/></svg>En la computadora: calibración, datos de fábrica e informe en PDF
+@@ d343ee0340
+Abrir el probador
+@@ 7231a3bb43
+Preguntas frecuentes
+@@ f0fc03f8dc
+¿Qué cable necesito?
+@@ 648238d565
+Un cable que conecte el control al celular: USB-C en los dos extremos, o el cable del control con un adaptador OTG. El celular tiene que aceptar accesorios USB.
+@@ 660db5ba1d
+¿Por qué aparece el aviso de app desconocida?
+@@ 49119c14d6
+Porque la app viene de este sitio y no de Google Play. Android avisa sobre cualquier APK instalado por fuera. La nuestra está firmada con un certificado propio de MeoWDeV MOD.
+@@ 5f400f1755
+¿Funciona con DualShock 4, PS VR2 o un control de Xbox?
+@@ 3e99cf16b9
+Sí: la app reconoce cada modelo y muestra su dibujo. La calibración en el DualShock 4 y el PS VR2 es experimental. Xbox no tiene comando público de calibración, y el DualSense Edge se calibra por el sitio en la computadora.
+@@ b580980b50
+¿Necesito internet?
+@@ 24a9e990ee
+Solo para validar la licencia y revisar actualizaciones. Las pruebas del control funcionan sin internet.
+@@ 29e2d84015
+¿La calibración arregla el drift?
+@@ 185593f2f1
+No. El drift viene del desgaste de las piezas del analógico. La calibración sirve sobre todo después de cambiarlas, y puede empeorar si se hace sin necesidad.
+@@ e9134144c7
+¿La calibración puede dañar mi control?
+@@ b8e53b9086
+Solo queda permanente después de tocar Guardar en el control. Aun así, úsala solo si los analógicos tienen problemas.
+@@ 8cb7937389
+¿Cómo pago?
+@@ 5bb01df788
+Por PIX (pago instantáneo de Brasil). Los datos aparecen dentro de la app. Envías el comprobante con el código del dispositivo y el acceso se libera por 1 año.
+@@ 777cc06437
+Prueba tu control ahora
+@@ bf5669ed16
+Dos días gratis, sin tarjeta: el pago es solo por PIX, si decides continuar.
+@@ 2f1ff30d73
+WhatsApp · colaboraciones
+@@ a21abebb0e
+Otros proyectos
+@@ b633e4cdf0
+Otro proyecto nuestro
+@@ 1d795d9352
+Control de PS5 en la Nintendo Switch
+@@ 3a15332d02
+Control PS-5 es una app gratis para Nintendo Switch desbloqueada: conecta el DualSense por Bluetooth, sin adaptador, con gatillos adaptativos, barra de luz y perfil por juego.
+@@ be8b4751e3
+Ver cómo conectar el control de PS5 a la Nintendo Switch
+@@ 28cfb6dfbd
+Ver cómo conectar
+@@ 9e377697ad
+<b style="color:var(--text)">Developed by MeoWDeV MOD</b><br>PS5 y DualSense son marcas de Sony Interactive Entertainment. Este proyecto no está afiliado a Sony.
+@@ 0529ad3057
+Versiones
+@@ 42237dd3e6
+Términos de uso
+@@ 00998dcd68
+Privacidad y cookies
+@@ 68bf44c0db
+Gestionar cookies
+@@ 86a9bec602
+En este dispositivo, descarga la app
+@@ fe7691a7cf
+Por el navegador del celular o la tablet te quedas solo con la prueba básica por Bluetooth. Sin la app, no puedes:
+@@ 2e5541db13
+Conectar en modo completo por cable USB
+@@ 4da10bde11
+Calibrar los analógicos
+@@ 92e0fff89a
+Probar touchpad, giroscopio, luces, gatillo adaptativo y sonido
+@@ 544a43ad09
+<svg class="i"><use href="#i-down"/></svg>Descargar para Android · 2 días gratis
+@@ c8fc8598eb
+Seguir en el navegador
+@@ 4f869a8464
+¡Hola! Vengo de PS-5 Controle Test y quiero hablar de una colaboración.

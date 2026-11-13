@@ -1,0 +1,32 @@
+{
+  "base": "https://techmeow.app/ps5-controle-test/",
+  "docs": "docs",
+  "raiz": "/ps5-controle-test/",
+  "paginas": [
+    "index.html"
+  ],
+  "idiomas": [
+    "en",
+    "es",
+    "ru"
+  ],
+  "origem": "pt-BR",
+  "chave_idioma": "techmeow.lang",
+  "outros_traduzidos": [
+    "/ps5-hdmi-tool/",
+    "/Control-PS-5/"
+  ],
+  "paginas_exatas": [
+    "/",
+    "/projetos/",
+    "/app/",
+    "/app/acesso/",
+    "/privacidade/",
+    "/JNX/"
+  ],
+  "sitemap": [
+    "index.html"
+  ],
+  "sitemap_arquivo": "sitemap-idiomas.xml",
+  "imagens": {}
+}

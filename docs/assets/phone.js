@@ -27,7 +27,9 @@ const ACTIONS = {
 const TOTAL = 21; // 17 botões + touchpad + Mute + 2 analógicos, como no app
 
 // ---- regras (sem tela, para poder testar)
-export const imgSrc = (key) => `assets/app/${key}.jpg`;
+// Endereços a partir deste arquivo, não da página: as páginas en/, es/ e ru/ ficam numa pasta abaixo.
+export const imgSrc = (key) => new URL(`app/${key}.jpg`, import.meta.url).href;
+const dsSrc = (n) => new URL(`../web/ds/${n}.png`, import.meta.url).href;
 export const valScreen = (open) => (open < 0 ? "vx" : "v" + open);
 export const calScreen = (st, mode) => (st ? "k" + st : mode ? "kz" + mode : "k0");
 export const nextOpen = (res) => res.findIndex((r) => !r);
@@ -63,7 +65,7 @@ export function initDemo(root) {
     const { spots: s, h } = DATA.screens[key];
     let o = "";
     if (st.tab === 0) {
-      o += `<div class="ads" style="${pct(s.ds, h)}">${DATA.sprites.map((p) => `<button class="spr${st.tested.has(p.n) ? " done" : ""}" data-s="${p.n}" aria-label="${p.a}" style="left:${p.x}%;top:${p.y}%;width:${p.w}%;height:${p.h}%"><img src="web/ds/${p.n}.png" alt=""></button>`).join("")}</div>`;
+      o += `<div class="ads" style="${pct(s.ds, h)}">${DATA.sprites.map((p) => `<button class="spr${st.tested.has(p.n) ? " done" : ""}" data-s="${p.n}" aria-label="${p.a}" style="left:${p.x}%;top:${p.y}%;width:${p.w}%;height:${p.h}%"><img src="${dsSrc(p.n)}" alt=""></button>`).join("")}</div>`;
       o += `<i class="abar" id="aBar" style="${pct(s.bar, h)}"><b style="transform:scaleX(${testedCount(st.tested) / TOTAL})"></b></i>`;
       o += hot(s.vib, h, "vib", "Vibrar") + hot(s.drift, h, "drift", "Testar drift") + hot(s.save, h, "save", "Salvar teste") + hot(s.hist, h, "hist", "Histórico") + hot(s.reset, h, "reset", "Zerar testes");
       MODES.forEach((m, i) => { o += hot(s["mode" + i], h, "mode" + i, m); });
