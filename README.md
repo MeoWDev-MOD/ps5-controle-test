@@ -1,5 +1,7 @@
 # PS-5 Controle Test
 
+🌐 **[Read in English](README.en.md)**
+
 Ferramenta grátis para **testar e calibrar controles de PS5 e PS4** no navegador (DualSense, DualSense Edge, DualShock 4 e PS VR2 Sense), e app Android para testar e calibrar pelo celular.
 
 **Testar e calibrar no navegador:** https://techmeow.app/ps5-controle-test/web/ · [English](https://techmeow.app/ps5-controle-test/web/en/) · [Español](https://techmeow.app/ps5-controle-test/web/es/)
